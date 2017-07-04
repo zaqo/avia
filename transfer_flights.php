@@ -121,7 +121,7 @@ include ("header.php");
 					if ($dir!=8)
 					{
 					
-						$transfer_mysql='INSERT INTO flights
+						$transfer_mysql='REPLACE INTO flights
 								(id_NAV,date,flight,direction,linked_to,isHelicopter,plane_num,plane_type,
 								plane_mow,airport,passengers_adults,passengers_kids,customer_id,bill_to_id,owner) 
 								VALUES
@@ -153,6 +153,17 @@ include ("header.php");
 							$rownew[0]=iconv('windows-1251','utf-8',$rownew[0]);
 				
 							//Prepare and execute MySQL INSERT 
+							
+							// 1. Clean old
+							$clean_mysql='DELETE FROM service_reg 
+									WHERE
+									flight="'.$row[0].'"';
+								
+								$answsqlnext=mysqli_query($db_server,$clean_mysql);
+								
+								if(!$answsqlnext) die("DELETE in service_reg TABLE failed: ".mysqli_error($db_server));
+							
+							// 2. INSERT new
 							$transfer_mysql='INSERT INTO service_reg
 									(flight,service,quantity) 
 									VALUES
