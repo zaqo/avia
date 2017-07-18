@@ -1,0 +1,19 @@
+Доступ к API Yandex Direct
+
+https://oauth.yandex.ru/client/f5820498b51c435ba0c682f2310cb168
+
+NCGlive
+
+http://www.magnetosoft.ru/
+
+Интеграция корпоративного портала с информационными источниками яндекса
+Права:
+
+Использование API Яндекс.Директа
+
+ID: f5820498b51c435ba0c682f2310cb168
+Пароль: cea4b9e1bd764d068b9347824b0ddef5
+Callback URL: https://oauth.yandex.ru/verification_code
+
+Мастер-токен:
+EQNxPFdYZJyE3e1Toi

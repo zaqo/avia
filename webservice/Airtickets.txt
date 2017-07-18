@@ -1,0 +1,12 @@
+Airtickets API
+
+<agencyCode>pulkovoairport</agencyCode>
+<salesPoint>pulkovoairport</salesPoint>
+<agentCode>pulkovoairport</agentCode>
+<agentPassword>KG=bR5C8zrW2!</agentPassword>
+
+Link to wsdl: 
+https://devlt.berlogic.de/Partner/Avia/v3?wsdl 
+
+Link for Requests:
+https://devlt.berlogic.de/Partner/Avia/v3 

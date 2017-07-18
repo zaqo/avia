@@ -148,7 +148,7 @@ include ("header.php");
 							// 1. Clean old
 							$clean_mysql='DELETE FROM service_reg 
 									WHERE
-									flight="'.$row[0].'" AND service="'.$rownew[0].'"';
+									flight="'.$row[0].'"';
 								
 								$answsqlnext=mysqli_query($db_server,$clean_mysql);
 								
@@ -173,6 +173,7 @@ include ("header.php");
 			//echo "$count_recs records inserted".PHP_EOL;
 		}
 		$content.= '</table>';
+		$content.='<footer><a href="export_to_sap.php" > <img src="/avia/src/sap_small.png" alt="Export orders" title="Go" width="64" height="64"></a></footer>';
 	Show_page($content);
 	sqlsrv_close($conn);
 	?>

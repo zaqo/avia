@@ -1,0 +1,96 @@
+WSDL:
+http://SRVR-186.local.newpulkovo.ru:8002/sap/bc/srt/wsdl/flv_10002A111AD1/bndg_url/sap/bc/srt/rfc/sap/zsd_order_avi_crud/001/zsd_order_avi_crud/zsd_order_avi_crud?sap-client=001
+
+Входные параметры:
+SERVICEMODE //режим работы (SO_C создание, SO_D удаление)
+ID_SALESCONTRACT // ссылка на SD-контракт, только для создания
+ID_SALESORDER //номер сбытового заказа, нужен только для удаления заказа
+BILLDATE  // дата фактурирования, только для создания
+ID_PLANEOWNER  // владелец воздушного судна
+SALES_ITEMS_IN // массив:
+Номер позиции	Номер ОЗМ SAP	Кол-во	Ссылка на AODB	Дата из AODB	Ссылка на AODB	Аэропорт прибытия/отправления
+000001 Российский, 000002 Зарубежный
+ITM_NUMBER	MATERIAL	TARGET_QTY	PURCH_NO_S	PO_DAT_S	PO_METH_S	SALES_DIST
+10	900000041	700	1260824	2017-06-30	AODB	000002
+20	900000040	70	1260824	2017-06-30	AODB	000002
+30	900000043	70	1260824	2017-06-30	AODB	000002
+40	900000044	116	1260824	2017-06-30	AODB	000002
+50	900000045	8	1260824	2017-06-30	AODB	000002
+
+Мэппинг ОЗМ:
+MATERIAL	Ресурс из NAV
+900000041	A0300036
+900000040	A0100225
+900000043	A0100200
+900000044	A0100186
+900000045	A0100194
+
+Выходные параметры: RETURN2
+
+Массив, который создаёт заказ к договору:
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:soap:functions:mc-style">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <urn:ZsdOrderAviCrud>
+         <!--Optional:-->
+         <Billdate>2017-06-30</Billdate>
+         <!--Optional:-->
+         <IdPlaneowner>0015000010</IdPlaneowner>
+         <!--Optional:-->
+         <IdSalescontract>0040000022</IdSalescontract>
+         <!--Optional:-->
+         <IdSalesorder></IdSalesorder>
+         <SalesItemsIn>
+            <!--Zero or more repetitions:-->
+                                 <item>
+               <ItmNumber>000010</ItmNumber>
+               <Material>000000000900000041</Material>
+               <TargetQty>700</TargetQty>
+               <PurchNoS>1260824</PurchNoS>
+               <PoDatS>2017-07-01</PoDatS>
+               <PoMethS>AODB</PoMethS>
+               <SalesDist>000002</SalesDist>
+            </item>
+            <item>
+               <ItmNumber>000020</ItmNumber>
+               <Material>000000000900000040</Material>
+               <TargetQty>70</TargetQty>
+               <PurchNoS>1260824</PurchNoS>
+               <PoDatS>2017-07-01</PoDatS>
+               <PoMethS>AODB</PoMethS>
+               <SalesDist>000002</SalesDist>
+            </item>
+            <item>
+               <ItmNumber>000030</ItmNumber>
+               <Material>000000000900000043</Material>
+               <TargetQty>70</TargetQty>
+               <PurchNoS>1260824</PurchNoS>
+               <PoDatS>2017-07-01</PoDatS>
+               <PoMethS>AODB</PoMethS>
+               <SalesDist>000002</SalesDist>
+            </item>
+            <item>
+               <ItmNumber>000040</ItmNumber>
+               <Material>000000000900000044</Material>
+               <TargetQty>116</TargetQty>
+               <PurchNoS>1260824</PurchNoS>
+               <PoDatS>2017-07-01</PoDatS>
+               <PoMethS>AODB</PoMethS>
+               <SalesDist>000002</SalesDist>
+            </item>
+                <item>
+               <ItmNumber>000050</ItmNumber>
+               <Material>000000000900000045</Material>
+               <TargetQty>8</TargetQty>
+               <PurchNoS>1260824</PurchNoS>
+               <PoDatS>2017-07-01</PoDatS>
+               <PoMethS>AODB</PoMethS>
+               <SalesDist>000002</SalesDist>
+            </item>        
+         </SalesItemsIn>
+         <Servicemode>SO_C</Servicemode>
+      </urn:ZsdOrderAviCrud>
+   </soapenv:Body>
+</soapenv:Envelope>
+
+Артём

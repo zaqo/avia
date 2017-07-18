@@ -15,6 +15,7 @@
 			<script src="./js/jquery.min.js"></script>
 <?php
 	include 'functions.php';
+	
 	if (isset($user))
 	{
 		unset($user);
@@ -38,7 +39,7 @@
 			echo "<div class='dropdown'>
 				<button onclick='myFunction()' class='dropbtn'>Меню</button>
 				<div id=\"myDropdown\" class=\"dropdown-content\">
-				<a href=\"..\">Выбор чего то</a>
+				<a href=\"export_daily.php\">Экспорт рейсов в SAP ERP</a>
 				<a href=\"logout.php\">Выйти из системы</a>
 				</div>
 			</div>
