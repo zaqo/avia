@@ -1,11 +1,15 @@
-﻿<?php require_once 'login_avia.php';
+﻿<?php 
+require_once 'login_avia.php';
 set_time_limit(0);
 include ("header.php"); 
 	
-		
-		$datetime = new DateTime();
-		$datetime->modify( '-3 days' );
-		$datestr = $datetime->format('d-m-Y');
+		$day   = $_POST['day'];
+		$month = $_POST['month'];
+		$year  = $_POST['year'];
+				
+		$date_=mktime(0,0,0,$month,$day,$year);
+	
+		$datestr = date("d/m/Y", $date_);
 		$content='';
 		
 		$conn = sqlsrv_connect( $serverName, $connectionInfo);
@@ -14,14 +18,13 @@ include ("header.php");
 					die(print_r(sqlsrv_errors(),true));
 					}
 		
-		$tsql = "select [Income], CONVERT(time,[Time]),[Outcome No_],[Owner Name] from $tableRoute WHERE  CONVERT (date, [Date Fact])= CONVERT (date, $datestr) ORDER BY [Time]; "; //Request to MS SQL
-		
-		
-		$tsql_route='SELECT ID,No_,[Income No_],[Date Fact],[Bort No_],[Airport No_],[Flying Type],[Max Weight],
+		$tsql_route='SELECT ID,Income,[Income No_],[Date Fact],[Bort No_],[Airport No_],[Flying Type],[Max Weight],
 							[Passengers Income Grown-Up],[Passengers Income Children],
 							[Passengers Outcome Grown-Up],[Passengers Outcome Children],
-							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Name],Helicopter
-						FROM dbo.[NCG$Route] WHERE  CONVERT (date, [Date])= CONVERT (date, (GETDATE()-3)) AND Correction=1 ';//Correction = 1 - records blocked for changes
+							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Name],Helicopter,No_
+						FROM dbo.[NCG$Route] 
+						WHERE MONTH([Date])='.$month.' AND DAY([Date])='.$day.' AND YEAR([Date])='.$year.' AND  Correction=1 ';//Correction = 1 - records blocked for changes
+		
 		$stmt = sqlsrv_query( $conn, $tsql_route);
 		
 		if ( $stmt === false ) {
@@ -40,14 +43,15 @@ include ("header.php");
 		
 		// Top of the table
 		$content.= "<b>  Данные за:</b> $datestr <hr><table><caption><b>Суточный график </b></caption><br>";
-		$content.= '<tr><th>№ </th><th>ID</th><th>No_</th><th>Рейс</th><th>Дата</th>
+		$content.= '<tr><th>№ </th><th>ID</th><th>Напр.</th><th>Рейс</th><th>Дата</th>
 						<th>Бортовой номер</th><th>Аэропорт</th><th>Тип судна</th><th>Макс.масса</th>
 						<th>->Пасс.Взр</th><th>->Пасс.Дети</th>
 						<th><-Пасс.Взр</th><th><-Пасс.Дети</th>
-						<th>Связка</th><th>№ Клиента</th><th>Плательщик</th><th>Владелец</th><th>Вертолет</th></tr>';
+						<th>Связка</th><th>Клиент</th><th>Плательщик</th><th>Владелец</th><th>Вертолет</th></tr>';
 		// Iterating through the array
+		
 		$counter=1;
-		$count_recs=0;
+		
 		while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_NUMERIC) )  
 		{ 
 			
@@ -58,59 +62,38 @@ include ("header.php");
 				$row[14]=iconv('windows-1251','utf-8',$row[14]);
 				$row[15]=iconv('windows-1251','utf-8',$row[15]);
 				$owner=sanitizestring($row[15]);
-				// Page preparation
+				$flightid=$row[17];
+				if((int)$flightid<100000000)  //cut padding Rossija flights
+				{
+					unset($row[17]); //it will not show up on the web page
+				// 1. Page preparation
 				
-				$content.= "<tr><td><a href=\"check_services_mysql.php?id=$row[0]\" > $counter</a></td>";
+					$content.= "<tr><td><a href=\"check_services_mysql.php?id=$row[0]\" > $counter</a></td>";
 				
-				foreach ($row as $key=>$value)
-					$content.= "<td>$value</td>";
+					foreach ($row as $key=>$value)
+						$content.= "<td>$value</td>";
 				
-				$content.= '</tr>';
+					$content.= '</tr>';
 				
 				
 					//Transfer to MySQL section
 				
-					// 1. analyse direction, in the first position Navision keeps 8,9 or 10 
-					$head=(int)substr($row[1],0,1);
-				
-					$dir=9; //by default
-					switch ($head)
-					{
-						case 1:
-							$dir=8;
-							break;
-						case 8:
-							$dir=0;
-							break;
-						case 9:
-							$dir=1;
-							break;
-						default:
-							$dir=9;
-						break;
-					}
 				// 2. Fill in passengers
 					$pass_in=0;
 					$pass_out=0;
 				
-					switch ($dir)
+					if ($row[1])
 					{
-						case 0:
+							$dir=0;         //here direction is the opposite to NAV
 							$pass_a=$row[8];
 							$pass_k=$row[9];
-						break;
-						case 1:
+					}
+					else
+					{
+							$dir=1; 
 							$pass_a=$row[10];
 							$pass_k=$row[11];
-						break;
-						case 8:
-						break;
-						default:
-							echo "WARNING: Irregular Flight ID encountered".PHP_EOL;
-						break;
 					}
-					if ($dir!=8)
-					{
 					
 						$transfer_mysql='REPLACE INTO flights
 								(id_NAV,date,flight,direction,linked_to,isHelicopter,plane_num,plane_type,
@@ -125,7 +108,7 @@ include ("header.php");
 						if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));
 					
 						// Services registry update
-						$flightid=$row[1];
+						
 						$tsql_route_detail="SELECT [Resource No_],[Quantity (Fact)] FROM dbo.[NCG\$AODB Route Detail] WHERE [Resource No_] <> '' AND [Route No_]=$flightid";
 						$stmtnext = sqlsrv_query( $conn, $tsql_route_detail);
 		
@@ -165,15 +148,12 @@ include ("header.php");
 								if(!$answsqlnext) die("INSERT into TABLE failed: ".mysqli_error($db_server));
 			
 						}
-					}
-					$count_recs+=1;
 					
-				//}
 			$counter+=1;
-			//echo "$count_recs records inserted".PHP_EOL;
+				}
 		}
 		$content.= '</table>';
-		$content.='<footer><a href="export_to_sap.php" > <img src="/avia/src/sap_small.png" alt="Export orders" title="Go" width="64" height="64"></a></footer>';
+		$content.='<footer><a href="" > <img src="/avia/src/sap_small.png" alt="Export orders" title="Go" width="64" height="64"></a></footer>';
 	Show_page($content);
 	sqlsrv_close($conn);
 	?>

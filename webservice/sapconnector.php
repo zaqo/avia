@@ -213,6 +213,7 @@ function SAP_export_flight($flightid)
 	// General request section
 			$req->Servicemode = 'SO_C'; 		// CREATE
 			$req->IdSalesorder = '';
+			$req->Id_aircraft = $flight->plane_id;
 			$req->Billdate = $billdate; 		// it is set earlier
 			$req->IdPlaneowner = '15000010'; 	// To be completed !!!
 			$req->Return2 = '';

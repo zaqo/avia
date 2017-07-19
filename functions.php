@@ -32,17 +32,13 @@ function Show_page($contents)
 		?>
 		<!DOCTYPE HTML>
 			<html>
-				<head>
-					<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-					<link rel="stylesheet" type="text/css" href="/Agents/css/style.css" />
-					<title>Real Estate</title>
-				</head>
+				
 				<body>
 					<?php
 							echo $contents;
 					?>
 				</body>
-				<footer>All rights reserved by NCG (c) 2017 </footer>
+				<footer><hr>All rights reserved by NCG &#169 2017 </footer>
 			</html>
 <?php
 	}

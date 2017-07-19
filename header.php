@@ -39,7 +39,9 @@
 			echo "<div class='dropdown'>
 				<button onclick='myFunction()' class='dropbtn'>Меню</button>
 				<div id=\"myDropdown\" class=\"dropdown-content\">
-				<a href=\"export_daily.php\">Экспорт рейсов в SAP ERP</a>
+				<a href=\"import_daily.php\">Импорт <-| NAV</a>
+				<a href=\"export_daily.php\">Экспорт |-> SAP ERP</a>
+				<a href=\"sent_daily.php\">Отправлено</a>
 				<a href=\"logout.php\">Выйти из системы</a>
 				</div>
 			</div>

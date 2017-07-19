@@ -2,6 +2,7 @@
 // This is a script to update agent's personal data from the form
 include ("login_avia.php"); 
 include("/webservice/sapconnector.php");
+set_time_limit(0);
 //include ("header.php"); 
 //if(!$loggedin) echo "<script>window.location.replace('/Agents/login.php');</script>";
  
@@ -45,6 +46,7 @@ include("/webservice/sapconnector.php");
 			public $Servicemode;
 			public $IdSalescontract;
 			public $IdSalesorder;
+			public $Id_aircraft;
 			public $Billdate;
 			public $IdPlaneowner;
 			public $SalesItemsIn;

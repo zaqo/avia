@@ -39,7 +39,7 @@ include ("header.php");
 		
 		
 		// Top of the table
-		$content.= "<b>  Данные за:</b> $datestr <hr><table><caption><b>Суточный график </b></caption><br>";
+		$content.= "<b>  Данные за:</b> $datestr <hr><table><caption><b>Перенесена информация о рейсах</b></caption><br>";
 		$content.= '<tr><th>№ </th><th>ID</th><th>No_</th><th>Рейс</th><th>Дата</th>
 						<th>Бортовой номер</th><th>Аэропорт</th><th>Тип судна</th><th>Макс.масса</th>
 						<th>->Пасс.Взр</th><th>->Пасс.Дети</th>
