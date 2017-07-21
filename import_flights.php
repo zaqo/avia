@@ -120,7 +120,15 @@ include ("header.php");
 						sqlsrv_fetch( $stmtnext );
 				
 						//Set up mySQL connection
-		
+						// 1. Clean old
+						$clean_mysql='DELETE FROM service_reg 
+									WHERE
+									flight="'.$row[0].'"';
+								
+						$answsqlnext=mysqli_query($db_server,$clean_mysql);
+								
+						if(!$answsqlnext) die("DELETE in service_reg TABLE failed: ".mysqli_error($db_server));
+						
 						while( $rownew = sqlsrv_fetch_array( $stmtnext, SQLSRV_FETCH_NUMERIC) )  
 						{ 
 
@@ -128,14 +136,7 @@ include ("header.php");
 				
 							//Prepare and execute MySQL INSERT 
 							
-							// 1. Clean old
-							$clean_mysql='DELETE FROM service_reg 
-									WHERE
-									flight="'.$row[0].'"';
-								
-								$answsqlnext=mysqli_query($db_server,$clean_mysql);
-								
-								if(!$answsqlnext) die("DELETE in service_reg TABLE failed: ".mysqli_error($db_server));
+							
 							
 							// 2. INSERT new
 							$transfer_mysql='INSERT INTO service_reg

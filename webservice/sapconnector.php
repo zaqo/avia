@@ -209,13 +209,13 @@ function SAP_export_flight($flightid)
 				return 0;
 			}
 		
-		
 	// General request section
 			$req->Servicemode = 'SO_C'; 		// CREATE
 			$req->IdSalesorder = '';
-			$req->Id_aircraft = $flight->plane_id;
+			$req->IdFlight=$flight->flight_num;
+			$req->IdAircraft = $flight->plane_id;
 			$req->Billdate = $billdate; 		// it is set earlier
-			$req->IdPlaneowner = '15000010'; 	// To be completed !!!
+			$req->IdPlaneowner = '10000060'; 	// To be completed !!!
 			$req->Return2 = '';
 			
 			//var_dump($req);
@@ -224,7 +224,130 @@ function SAP_export_flight($flightid)
 			
 			if($sdorder_num)
 			echo "SUCCESS: order # $sdorder_num created! <br/>";
+		
+	mysqli_close($db_server);
+	return $sdorder_num;
+}
+function ApplyPackage($flightid)
+{
+
+	include("login_avia.php");
+	
+	
+		//Setting up the object
+		$flight= new Flight();
+		$flight->id=$flightid;
+		
+		//Set up mySQL connection
+			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
+			$db_server->set_charset("utf8");
+			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
+			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
+		
+		//  LOCATE flight data
+			$textsql='SELECT * FROM  flights WHERE id="'.$flightid.'"';
+				
+			$answsql=mysqli_query($db_server,$textsql);
+				
+			if(!$answsql) die("Database SELECT TO flights table failed: ".mysqli_error($db_server));	
 			
-			return $sdorder_num;
+				$flight_data= mysqli_fetch_row($answsql);
+				//SET UP Flight's Object
+				$flight->id_NAV=$flight_data[1];
+				$flight->flight_date=$flight_data[2];
+				$flight->flight_num=$flight_data[3];
+				$flight->direction=$flight_data[4];
+				$flight->plane_id=$flight_data[7];
+				$flight->plane_type=$flight_data[8];
+				$flight->plane_mow=$flight_data[9];
+				$flight->airport=$flight_data[10];
+				$flight->passengers_adults=$flight_data[11];
+				$flight->passengers_kids=$flight_data[12];
+				$flight->customer=$flight_data[13];
+				$flight->bill_to=$flight_data[14];
+				$flight->plane_owner=$flight_data[15];
+			
+		
+		//  1. LOCATE all packages relevant to the flight
+			$textsql='SELECT id FROM packages WHERE client_id="'.$flight->customer.'" AND isValid=1';
+			echo $textsql;	
+			$answsql=mysqli_query($db_server,$textsql);
+				
+			if(!$answsql) die("Database SELECT in packages table failed: ".mysqli_error($db_server));	
+			while($package= mysqli_fetch_row($answsql))
+			{	
+		//	2. Process individual Package
+				
+				$sqlservices='SELECT id,service_id,scope FROM package_content 
+								WHERE package_id="'.$package[0].'" AND isValid=1';
+				echo $sqlservices;
+				$answsql1=mysqli_query($db_server,$sqlservices);
+				while($cond= mysqli_fetch_row($answsql1))
+				{
+					// Get the quantity
+					$service_nav=$cond[1];
+					$sqlgetservice='SELECT id_mu,isforKids FROM services 
+								WHERE id_NAV="'.$service_nav.'"';
+					echo $sqlgetservice;
+					$servicesql=mysqli_query($db_server,$sqlgetservice);
+					if(!$servicesql) die(" SERVICE $service_nav could not be located in the services table: ".mysqli_error($db_server));			
+					
+					$mes_unit=mysqli_fetch_row($servicesql);
+					var_dump($mes_unit); 
+					$quantity=0;
+					switch($mes_unit[0])
+					{
+						case 1:
+							$quantity=1;
+							break;
+						case 2:
+							if($mes_unit[1]) $quantity=$flight->passengers_kids;
+							else $quantity=$flight->passengers_adults;
+							break;
+						case 3:
+							$quantity=$flight->plane_mow;
+							break;
+						default:
+							echo "WARNING: Measurement unit for a service: $service_nav  is not defined! <br/>";
+							$quantity=0;
+					}
+					if(!$servicesql) die("Database SERVICE $service_nav could not be located: ".mysqli_error($db_server));			
+					
+					if ($cond[2]===0) //applicable to all flights
+					{
+						$transfer_mysql='INSERT INTO service_reg 
+								(flight,service,quantity) 
+								VALUES
+								("'.$flight->flight_num.'","'.$service_nav.'","'.$quantity.'")';
+						echo "<br/> ALL FLIGHTS ".$transfer_mysql."<br/>";
+						//$answsql=mysqli_query($db_server,$transfer_mysql);
+						//if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));
+					}	
+					else              // apply to certain flights, depends on the airport
+					{
+						 $pack_pos=$cond[0];
+						 
+						 $sqlairports='SELECT cond FROM package_conditions 
+								WHERE airport_id="'.$flight->airport.'" 
+								AND package_position_id = "'.$pack_pos.'"
+								AND isValid=1';
+						$answairport=mysqli_query($db_server,$sqlairports);
+						if(!$answairport) die("SELECT into package conditions TABLE failed: ".mysqli_error($db_server));
+						$res_cond=mysqli_fetch_row($answairport);
+						if($res_cond[0])
+						{
+							$transfer_mysql='INSERT INTO service_reg 
+								(flight,service,quantity) 
+								VALUES
+								("'.$flight->flight_num.'","'.$service_nav.'","'.$quantity.'")';
+							echo "<br/>SPECIAL AIRPORTS FLIGHTS ".$transfer_mysql."<br/>";
+							//$answsql=mysqli_query($db_server,$transfer_mysql);
+							//if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));
+						}
+					}
+				}
+			}
+	mysqli_close($db_server);			
+	return 1;
 }
 ?>

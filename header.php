@@ -42,9 +42,12 @@
 				<a href=\"import_daily.php\">Импорт <-| NAV</a>
 				<a href=\"export_daily.php\">Экспорт |-> SAP ERP</a>
 				<a href=\"sent_daily.php\">Отправлено</a>
+				<a href=\"check_packages.php\">Пакеты услуг</a>
+				<a href=\"show_services.php\">Услуги</a>
 				<a href=\"logout.php\">Выйти из системы</a>
 				</div>
 			</div>
+			<hr>
 			";//<div class=\"userid\">Вы вошли в систему как: $userstr</div>
 		}
 		/*
