@@ -19,7 +19,30 @@ include ("header.php");
 		// Top of the table
 		$content.= "<table><caption><b>Коды услуг</b></caption><br>";
 		$content.= '<tr><th>№ </th><th>Код NAV</th><th>Код SAP</th><th>Ед.изм</th>
-					<th>Детский</th><th>Действует</th><th>Дата</th></tr>';
+					<th>Для детей</th><th>Действует</th></tr>';
+		
+		// Prepare Mes Units 
+		$check_mu='SELECT id,description_rus FROM units WHERE 1';
+					
+					$answsql_mu=mysqli_query($db_server,$check_mu);
+					if(!$answsql_mu) die("SELECT into units TABLE failed: ".mysqli_error($db_server));
+		// Prepare Mes Units 
+		$check_in_mysql='SELECT id,description_rus FROM units WHERE 1';
+					
+					$answsql_mu=mysqli_query($db_server,$check_in_mysql);
+					if(!$answsql_mu) die("SELECT into units TABLE failed: ".mysqli_error($db_server));
+		
+		
+		$mu=Array ("-");
+		while($row_d = mysqli_fetch_row( $answsql_mu ))
+		{
+			$key=$row_d[0];
+			$value=$row_d[1];
+			$mu[$key]=$value;
+		}
+			
+		
+		
 		// Iterating through the array
 		$counter=1;
 		
@@ -31,39 +54,24 @@ include ("header.php");
 				$iskids=$row[3];
 				$isvalid=$row[4];
 				$date=$row[5];
-				$mu='';
+				$mu_key=$row[6];
 				
-				switch($row[6])
-				{
-					case 0:
-						$mu='-';
-						break;
-					case 1:
-						$mu='Рейс';
-						break;
-					case 2:
-						$mu='Пасс.';
-						break;
-					case 3:
-						$mu='Тонна';
-						break;
-					default:
-						$mu='Неизв.';
-				}
 				$content.= "<tr><td>$counter</td>";
 				$content.= "<td><a href=\"edit_service.php?id=$rec_id\">$nav_id</a></td>";
 				$content.= "<td>$sap_id</td>";
-				$content.= "<td>$mu</td>";
+				$content.= "<td>".$mu[$mu_key]."</td>";
 				
 				if ($row[3])
 					$content.= "<td>Да</td>";
 				else
-					$content.= "<td>Нет</td>";
+					$content.= "<td>-</td>";
+				
 				if ($row[4])
 					$content.= "<td>Да</td>";
 				else
-					$content.= "<td>Нет</td>";
-		$content.= "<td>$date</td>";
+					$content.= "<td>-</td>";
+				
+		//$content.= "<td>$date</td>";
 				$content.= '</tr>';
 				
 			$counter+=1;

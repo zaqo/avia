@@ -8,6 +8,8 @@ set_time_limit(0);
  
 	
 	$flights= $_REQUEST['to_export'];
+
+	//var_dump($flights);
 	class Flight
 	{
 			public $id;						
@@ -47,6 +49,8 @@ set_time_limit(0);
 			public $IdSalescontract;
 			public $IdSalesorder;
 			public $IdAircraft;
+			public $IdAirport;
+			public $IdDirection;
 			public $IdFlight;
 			public $Billdate;
 			public $IdPlaneowner;
@@ -54,8 +58,6 @@ set_time_limit(0);
 			public $Return2;
 			
 	}
-	//var_dump($flights);
-	
 		$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
 		$db_server->set_charset("utf8");
 		If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));

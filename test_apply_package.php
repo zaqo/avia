@@ -1,13 +1,12 @@
 ﻿<?php 
 
 	include ("header.php"); 
+	include_once("login_avia.php");
 	include_once ("functions.php"); 
-	require_once 'login_avia.php';
+	//require_once 'login_avia.php';
 
 	include("/webservice/sapconnector.php");
-	//include_once("login_avia.php");
-	//ini_set("soap.wsdl_cache_enabled", "0");	
-	class Flight
+		class Flight
 	{
 			public $id;						
 			public $id_NAV;
@@ -25,6 +24,38 @@
 			public $plane_owner;
 			public $services;
 	}
+	class Item
+	{
+			public $ItmNumber;						
+			public $Material;
+			public $TargetQty;
+			public $PurchNoS;
+			public $PoDatS;
+			public $PoMethS;
+			public $SalesDist;
+	}
+
+	class ItemList
+	{
+			public $item;
+	}
+	class Request
+	{
+			public $Servicemode;
+			public $IdSalescontract;
+			public $IdSalesorder;
+			public $IdAircraft;
+			public $IdAirport;
+			public $IdDirection;
+			public $IdFlight;
+			public $Billdate;
+			public $IdPlaneowner;
+			public $SalesItemsIn;
+			public $Return2;
+			
+	}
+	//ini_set("soap.wsdl_cache_enabled", "0");	
+	
 	$content='';
 	
 	echo '<hr><br>';

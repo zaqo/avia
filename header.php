@@ -14,7 +14,7 @@
 			<!--<script type="text/javascript" src="./js/jquery.js"></script>-->
 			<script src="./js/jquery.min.js"></script>
 <?php
-	include 'functions.php';
+	include_once 'functions.php';
 	
 	if (isset($user))
 	{
@@ -43,7 +43,15 @@
 				<a href=\"export_daily.php\">Экспорт |-> SAP ERP</a>
 				<a href=\"sent_daily.php\">Отправлено</a>
 				<a href=\"check_packages.php\">Пакеты услуг</a>
+				<a href=\"\">ОСНОВНЫЕ ДАННЫЕ</a>
 				<a href=\"show_services.php\">Услуги</a>
+				<a href=\"create_service.php\">Создать Услугу</a>
+				<a href=\"show_contracts.php\">Контракты</a>
+				<a href=\"create_contract.php\">Создать Контракт</a>
+				<a href=\"show_contracts.php\">Клиенты</a>
+				<a href=\"create_contract.php\">Создать Клиента</a>
+				<a href=\"show_mus.php\">Единицы измерения</a>
+				<a href=\"create_mu.php\">Добавить ед.изм.</a>
 				<a href=\"logout.php\">Выйти из системы</a>
 				</div>
 			</div>
