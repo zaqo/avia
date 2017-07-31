@@ -49,6 +49,7 @@ set_time_limit(0);
 			public $IdSalescontract;
 			public $IdSalesorder;
 			public $IdAircraft;
+			public $IdAircraftclass;
 			public $IdAirport;
 			public $IdDirection;
 			public $IdFlight;

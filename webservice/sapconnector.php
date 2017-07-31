@@ -220,7 +220,7 @@ function SAP_export_flight($flightid)
 	$req->SalesItemsIn = $items;
 	
 		// Locate Sales Contract ID
-			$client_id=$flight->customer;
+			$client_id=$flight->bill_to;  // Now the contract is selected by the payer
 			echo "CLIENT ID: $client_id <br/>  ";
 			$contractsql='SELECT id_SAP FROM contracts WHERE id_NAV="'.$client_id.'" AND isValid=1';
 				
@@ -246,6 +246,7 @@ function SAP_export_flight($flightid)
 			$req->IdSalesorder = '';
 			$req->IdFlight=$flight->flight_num;
 			$req->IdAircraft = $flight->plane_id;
+			$req->IdAircraftclass = $flight->plane_type;
 			$req->IdAirport = $flight->airport;
 			$req->IdDirection = $flight->direction;
 			$req->Billdate = $billdate; 		// it is set earlier
