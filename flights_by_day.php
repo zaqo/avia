@@ -53,7 +53,7 @@
 			$fl_id=$row[0];
 			$nav_id=$row[1];
 			$content.= "<tr>";
-			$content.= "<td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$fl_id\" /></td>";
+			$content.= "<td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$fl_id\" checked/></td>";//
 			$content.= "<td><a href=\"check_services_mysql.php?id=$nav_id\">$num</a></td>";
 				
 			foreach ($row as $value)
