@@ -22,8 +22,8 @@ include ("login_avia.php");
 		else
 			$textsql='INSERT INTO units
 						(description_rus,description_en)
-						VALUES( "'.$name_rus.'",'.$name_en.')';
-		//echo $textsql;				
+						VALUES( "'.$name_rus.'","'.$name_en.'")';
+		echo $textsql;				
 		$answsql=mysqli_query($db_server,$textsql);
 		if(!$answsql) die("Units table UPDATE failed: ".mysqli_error($db_server));
 					

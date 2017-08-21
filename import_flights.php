@@ -1,7 +1,27 @@
 ﻿<?php 
+//IMPORT FLIGHTS DATA ON A DAILY BASIS FROM NAVISION
 require_once 'login_avia.php';
 set_time_limit(0);
 include ("header.php"); 
+include("/webservice/sapconnector.php");
+class Flight
+	{
+			public $id;						
+			public $id_NAV;
+			public $flight_date;
+			public $flight_num;
+			public $direction;
+			public $plane_id;
+			public $plane_type;
+			public $plane_mow;
+			public $airport;
+			public $passengers_adults;
+			public $passengers_kids;
+			public $customer;
+			public $bill_to;
+			public $plane_owner;
+			public $services;
+	}
 	
 		$day   = $_POST['day'];
 		$month = $_POST['month'];
@@ -21,9 +41,9 @@ include ("header.php");
 		$tsql_route='SELECT ID,Income,[Income No_],[Date Fact],[Bort No_],[Airport No_],[Flying Type],[Max Weight],
 							[Passengers Income Grown-Up],[Passengers Income Children],
 							[Passengers Outcome Grown-Up],[Passengers Outcome Children],
-							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Name],Helicopter,No_
+							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Name],Helicopter,Category,No_
 						FROM dbo.[NCG$Route] 
-						WHERE MONTH([Date])='.$month.' AND DAY([Date])='.$day.' AND YEAR([Date])='.$year.' AND  Correction=1 ';//Correction = 1 - records blocked for changes
+						WHERE MONTH([Date Fact])='.$month.' AND DAY([Date Fact])='.$day.' AND YEAR([Date Fact])='.$year.' AND  Correction=1 ';//Correction = 1 - records blocked for changes
 		
 		$stmt = sqlsrv_query( $conn, $tsql_route);
 		
@@ -47,7 +67,7 @@ include ("header.php");
 						<th>Бортовой номер</th><th>Аэропорт</th><th>Тип судна</th><th>Макс.масса</th>
 						<th>->Пасс.Взр</th><th>->Пасс.Дети</th>
 						<th><-Пасс.Взр</th><th><-Пасс.Дети</th>
-						<th>Связка</th><th>Клиент</th><th>Плательщик</th><th>Владелец</th><th>Вертолет</th></tr>';
+						<th>Связка</th><th>Клиент</th><th>Плательщик</th><th>Владелец</th><th>Вертолет</th><th>Кат.</th></tr>';
 		// Iterating through the array
 		
 		$counter=1;
@@ -55,17 +75,19 @@ include ("header.php");
 		while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_NUMERIC) )  
 		{ 
 			
-			
+				$flightid_NAV=$row[0];
 				$row[2]=iconv('windows-1251','utf-8',$row[2]);
 				$row[3]=$row[3]->format('Y-m-d');
 				$row[13]=iconv('windows-1251','utf-8',$row[13]);
 				$row[14]=iconv('windows-1251','utf-8',$row[14]);
 				$row[15]=iconv('windows-1251','utf-8',$row[15]);
 				$owner=sanitizestring($row[15]);
-				$flightid=$row[17];
+				$category=$row[17];
+				$flightid=$row[18];
+				
 				if((int)$flightid<100000000)  //cut padding Rossija flights
 				{
-					unset($row[17]); //it will not show up on the web page
+					unset($row[18]); //it will not show up on the web page
 				// 1. Page preparation
 				
 					$content.= "<tr><td><a href=\"check_services_mysql.php?id=$row[0]\" > $counter</a></td>";
@@ -97,16 +119,26 @@ include ("header.php");
 					
 						$transfer_mysql='REPLACE INTO flights
 								(id_NAV,date,flight,direction,linked_to,isHelicopter,plane_num,plane_type,
-								plane_mow,airport,passengers_adults,passengers_kids,customer_id,bill_to_id,owner) 
+								plane_mow,airport,passengers_adults,passengers_kids,customer_id,bill_to_id,owner,category) 
 								VALUES
-								("'.$row[0].'","'.$row[3].'","'.$row[2].'","'.$dir.'","'.$row[12].'",
+								("'.$flightid_NAV.'","'.$row[3].'","'.$row[2].'","'.$dir.'","'.$row[12].'",
 								 "'.$row[16].'","'.$row[4].'","'.$row[6].'","'.$row[7].'",
 								 "'.$row[5].'","'.$pass_a.'","'.$pass_k.'",
-								 "'.$row[13].'","'.$row[14].'","'.$owner.'")';
+								 "'.$row[13].'","'.$row[14].'","'.$owner.'","'.$category.'")';
 						
 						$answsql=mysqli_query($db_server,$transfer_mysql);
 						if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));
 					
+					// CLIENTS FILLIN (TEMPORARY)
+					/*
+					$transfer_clients='INSERT INTO clients
+								(id_NAV,name) 
+								VALUES
+								("'.$row[13].'","'.$owner.'")';
+						
+						$answsql=mysqli_query($db_server,$transfer_clients);
+						if(!$answsql) die("REPLACE into clients TABLE failed: ".mysqli_error($db_server));
+					*/
 						// Services registry update
 						
 						$tsql_route_detail="SELECT [Resource No_],[Quantity (Fact)] FROM dbo.[NCG\$AODB Route Detail] WHERE [Resource No_] <> '' AND [Route No_]=$flightid";
@@ -123,7 +155,7 @@ include ("header.php");
 						// 1. Clean old
 						$clean_mysql='DELETE FROM service_reg 
 									WHERE
-									flight="'.$row[0].'"';
+									flight="'.$flightid_NAV.'"';
 								
 						$answsqlnext=mysqli_query($db_server,$clean_mysql);
 								
@@ -134,15 +166,12 @@ include ("header.php");
 
 							$rownew[0]=iconv('windows-1251','utf-8',$rownew[0]);
 				
-							//Prepare and execute MySQL INSERT 
-							
-							
-							
+													
 							// 2. INSERT new
 							$transfer_mysql='INSERT INTO service_reg
 									(flight,service,quantity) 
 									VALUES
-									("'.$row[0].'","'.$rownew[0].'","'.$rownew[1].'")';
+									("'.$flightid_NAV.'","'.$rownew[0].'","'.$rownew[1].'")';
 								
 								$answsqlnext=mysqli_query($db_server,$transfer_mysql);
 								
@@ -150,11 +179,13 @@ include ("header.php");
 			
 						}
 					
-			$counter+=1;
+					$pack_res=ApplyPackage($flightid_NAV);
+					//if($pack_res) echo 'PACKAGE APPLIED SUCCESSFULLY!!! <\br>';
+					$counter+=1;
 				}
 		}
 		$content.= '</table>';
-		$content.='<footer><a href="" > <img src="/avia/src/sap_small.png" alt="Export orders" title="Go" width="64" height="64"></a></footer>';
+		$content.='<footer><a href="localhost/avia/export_daily.php" > <img src="/avia/src/sap_small.png" alt="Export orders" title="Go" width="64" height="64"></a></footer>';
 	Show_page($content);
 	sqlsrv_close($conn);
 	?>

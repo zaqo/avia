@@ -27,7 +27,7 @@ function sanitizeString($var)
 
 function Show_page($contents)
 	{
-		header('Content-Type: text/html; charset=utf-8');
+		//header('Content-Type: text/html; charset=utf-8');
 		echo '<?xml version="1.0" encoding="utf-8"?>' . "\n";
 		?>
 		<!DOCTYPE HTML>

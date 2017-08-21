@@ -1,0 +1,13 @@
+Release notes 19/08/17
+
++ Clients table => Plane owner is now customer ID from SAP
+
++ Results of flights import printed on the screen
+
++ Debugged mu creation
+
++ implemented package creation form
+
++ import is now by [Date Fact] instead of [Date]
+
++ import of category Field to flight (11- regular)

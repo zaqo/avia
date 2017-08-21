@@ -28,7 +28,7 @@ include ("header.php");
 				$client=$row[2];
 				$date=$row[4];
 				$content.= "<tr><td>$counter</td>";
-				$content.= "<td><a href=\"edit_package.php?id=$rec_id\">$name</a></td>";
+				$content.= "<td><a href=\"show_package.php?id=$rec_id\">$name</a></td>";
 				$content.= "<td>$client</td>";
 				if ($row[3])
 					$content.= "<td>Да</td>";

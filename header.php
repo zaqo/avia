@@ -12,7 +12,9 @@
 			<script type="text/javascript" src="./js/html5.js"></script>
 			<![endif]-->
 			<!--<script type="text/javascript" src="./js/jquery.js"></script>-->
-			<script src="./js/jquery.min.js"></script>
+			<script src="/avia/js/jquery-3.1.1.min.js"></script>
+			<!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>-->
+			<script src="/avia/js/myFunctions.js"></script>
 <?php
 	include_once 'functions.php';
 	
@@ -100,4 +102,4 @@
 		</div>";
 // Для просмотра этой страницы нужно войти на сайт
 	} */
-?></body></html>
+?>
