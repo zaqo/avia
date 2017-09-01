@@ -9,10 +9,14 @@ class Flight
 			public $id;						
 			public $id_NAV;
 			public $flight_date;
+			public $time_fact;
 			public $flight_num;
+			public $flight_type;
+			public $flight_cat;
 			public $direction;
 			public $plane_id;
 			public $plane_type;
+			public $plane_class;
 			public $plane_mow;
 			public $airport;
 			public $passengers_adults;
@@ -41,7 +45,7 @@ class Flight
 		$tsql_route='SELECT ID,Income,[Income No_],[Date Fact],[Bort No_],[Airport No_],[Flying Type],[Max Weight],
 							[Passengers Income Grown-Up],[Passengers Income Children],
 							[Passengers Outcome Grown-Up],[Passengers Outcome Children],
-							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Name],Helicopter,Category,No_
+							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Name],Helicopter,Category,No_,[Time Fact],[Type Aircraft]
 						FROM dbo.[NCG$Route] 
 						WHERE MONTH([Date Fact])='.$month.' AND DAY([Date Fact])='.$day.' AND YEAR([Date Fact])='.$year.' AND  Correction=1 ';//Correction = 1 - records blocked for changes
 		
@@ -64,7 +68,7 @@ class Flight
 		// Top of the table
 		$content.= "<b>  Данные за:</b> $datestr <hr><table><caption><b>Суточный график </b></caption><br>";
 		$content.= '<tr><th>№ </th><th>ID</th><th>Напр.</th><th>Рейс</th><th>Дата</th>
-						<th>Бортовой номер</th><th>Аэропорт</th><th>Тип судна</th><th>Макс.масса</th>
+						<th>Бортовой номер</th><th>Аэропорт</th><th>Тип полета</th><th>Макс.масса</th>
 						<th>->Пасс.Взр</th><th>->Пасс.Дети</th>
 						<th><-Пасс.Взр</th><th><-Пасс.Дети</th>
 						<th>Связка</th><th>Клиент</th><th>Плательщик</th><th>Владелец</th><th>Вертолет</th><th>Кат.</th></tr>';
@@ -84,10 +88,14 @@ class Flight
 				$owner=sanitizestring($row[15]);
 				$category=$row[17];
 				$flightid=$row[18];
+				$time_fact=$row[19];
+				$plane_type=$row[20];
 				
 				if((int)$flightid<100000000)  //cut padding Rossija flights
 				{
 					unset($row[18]); //it will not show up on the web page
+					unset($row[19]); //it will not show up on the web page
+					unset($row[20]);
 				// 1. Page preparation
 				
 					$content.= "<tr><td><a href=\"check_services_mysql.php?id=$row[0]\" > $counter</a></td>";
@@ -118,13 +126,14 @@ class Flight
 					}
 					
 						$transfer_mysql='REPLACE INTO flights
-								(id_NAV,date,flight,direction,linked_to,isHelicopter,plane_num,plane_type,
-								plane_mow,airport,passengers_adults,passengers_kids,customer_id,bill_to_id,owner,category) 
+								(id_NAV,date,flight,direction,linked_to,isHelicopter,plane_num,flight_type,
+								plane_mow,airport,passengers_adults,passengers_kids,customer_id,bill_to_id,
+								owner,category,time_fact,plane_type) 
 								VALUES
 								("'.$flightid_NAV.'","'.$row[3].'","'.$row[2].'","'.$dir.'","'.$row[12].'",
 								 "'.$row[16].'","'.$row[4].'","'.$row[6].'","'.$row[7].'",
 								 "'.$row[5].'","'.$pass_a.'","'.$pass_k.'",
-								 "'.$row[13].'","'.$row[14].'","'.$owner.'","'.$category.'")';
+								 "'.$row[13].'","'.$row[14].'","'.$owner.'","'.$category.'","'.$time_fact->format('H:i:s').'","'.$plane_type.'")';
 						
 						$answsql=mysqli_query($db_server,$transfer_mysql);
 						if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));
@@ -179,7 +188,7 @@ class Flight
 			
 						}
 					
-					$pack_res=ApplyPackage($flightid_NAV);
+					//$pack_res=ApplyPackage($flightid_NAV);
 					//if($pack_res) echo 'PACKAGE APPLIED SUCCESSFULLY!!! <\br>';
 					$counter+=1;
 				}

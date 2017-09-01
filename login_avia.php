@@ -21,8 +21,8 @@
 	$SAP_username= 'PHP_SALES';
 	$SAP_password= 'Service5#';
 	//DO NOT FORGET TO CHANGE SAP's URL - must be A101!!!
-	$wsdlurl = "http://SRVR-186.local.newpulkovo.ru:8002/sap/bc/srt/wsdl/flv_10002A101AD1/bndg_url/sap/bc/srt/rfc/sap/zsd_order_avi_crud/001/zsd_order_avi_crud/zsd_order_avi_crud?sap-client=001";
-
+	//$wsdlurl = "http://SRVR-186.local.newpulkovo.ru:8002/sap/bc/srt/wsdl/flv_10002A101AD1/bndg_url/sap/bc/srt/rfc/sap/zsd_order_avi_crud/001/zsd_order_avi_crud/zsd_order_avi_crud?sap-client=001";
+    $wsdlurl='http://srvr-186.local.newpulkovo.ru:8002/sap/bc/srt/wsdl/flv_10002A101AD1/bndg_url/sap/bc/srt/rfc/sap/zsd_order_avi_crud2/001/zsd_order_avi_crud2/zsd_order_avi_crud2?sap-client=001';
 	
 	
 		//Services Navision to SAP mapping section

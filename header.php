@@ -42,7 +42,7 @@
 				<button onclick='myFunction()' class='dropbtn'>Меню</button>
 				<div id=\"myDropdown\" class=\"dropdown-content\">
 				<a href=\"import_daily.php\">Импорт <-| NAV</a>
-				<a href=\"export_daily.php\">Экспорт |-> SAP ERP</a>
+				<a href=\"pairs_daily.php\">Экспорт |-> SAP ERP</a>
 				<a href=\"sent_daily.php\">Отправлено</a>
 				<a href=\"check_packages.php\">Пакеты услуг</a>
 				<a href=\"\">ОСНОВНЫЕ ДАННЫЕ</a>
