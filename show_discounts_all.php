@@ -1,0 +1,49 @@
+﻿<?php require_once 'login_avia.php';
+//LISTING ALL DISCOUNTS IN THE SYSTEM (GROUP AND INDIVIDUAL)
+include ("header.php"); 
+	
+		
+		$content="";
+		//Set up mySQL connection
+			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
+			$db_server->set_charset("utf8");
+			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
+			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
+		
+			$check_individual='SELECT discounts_individual.id,discounts_individual.name,discount_val,valid_from,valid_to,priority,clients.name 
+								FROM discounts_individual 
+								LEFT JOIN clients ON client_id=clients.id WHERE discounts_individual.isValid=1';
+					
+					$answsqlcheck=mysqli_query($db_server,$check_individual);
+					if(!$answsqlcheck) die("LOOKUP into discounts_individual TABLE failed: ".mysqli_error($db_server));
+		// Top of the table
+		$content.= "<table><caption><b>Скидки для авиакомпаний</b></caption><br>";
+		$content.= '<tr><th>№ </th><th>Название</th><th>Клиент</th><th>Скидка,%</th><th>С:</th><th>ПО:</th><th>Порядок</th></tr>';
+		// Iterating through the array
+		$counter=1;
+		
+		while( $row = mysqli_fetch_row( $answsqlcheck ))  
+		{ 
+				$rec_id=$row[0];
+				$name=$row[1];
+				$disc_val=$row[2];
+				$date_fr=$row[3];
+				$date_to=$row[4];
+				$priority=$row[5];
+				
+				$client=$row[6];
+				$content.= "<tr><td>$counter</td>";
+				$content.= "<td><a href=\"show_discount.php?id=$rec_id\">$name</a></td>";
+				$content.= "<td>$client</td><td>$disc_val</td>";
+				$content.= "<td>$date_fr</td><td>$date_to</td><td>$priority</td>";
+				$content.= '</tr>';
+				
+			$counter+=1;
+			
+		}
+		$content.= '</table>';
+	Show_page($content);
+	mysqli_close($db_server);
+	
+?>
+	

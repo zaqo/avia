@@ -61,7 +61,7 @@
 			if(strlen($nav_pair_id)==7)
 			{
 			//b. Look for the pair
-				$sqlfindpair='SELECT id
+				$sqlfindpair='SELECT id,flight,owner
 							FROM  flights 
 							WHERE id_NAV="'.$nav_pair_id.'" 
 							AND sent_to_SAP IS NULL';
@@ -73,7 +73,8 @@
 					$num+=1;
 					$row_pair = mysqli_fetch_row($answsql1);
 					$pair_id=$row_pair[0];
-					
+					$flight_id=$row_pair[1];
+					$customer=$row_pair[2];
 				//c. Check if we have a record on it already	
 					$sqlfindrec="SELECT id
 								FROM  flight_pairs 
@@ -102,7 +103,7 @@
 						$content.="<tr>";
 						$content.= "<td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$position\" /></td>";//
 						$content.= "<td><a href=\"check_services_mysql.php?id=$nav_id\">$num</a></td>";
-						$content.="<td>$in_id</td><td>$nav_id</td><td>$pair_id</td><td>$nav_pair_id</td></tr>";
+						$content.="<td>$flight_id</td><td>$customer</td><td>$pair_id</td><td>$nav_pair_id</td></tr>";
 				}
 				
 			}
