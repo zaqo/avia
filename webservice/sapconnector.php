@@ -627,7 +627,7 @@ function SAP_export_pair($rec_id)
 			$req->ID_NOOFFLIGHTOUT=$flight_out->flight_num;
 			$req->ID_FLIGHTCATEGORY = $flight_out->flight_cat;
 			$req->ID_FLIGHTTYPE = $flight_out->flight_type;
-			$req->ID_AIRPORTCLASS = $SalesDist;// BUT ALTERNATIVELY IT COULD BE DONE VIA $destination_zone
+			$req->ID_AIRPORTCLASS = $destination_zone;// BUT ALTERNATIVELY IT COULD BE DONE VIA $destination_zone
 			$req->RETURN2 = '';
 			//$req->BAPIRET2 = '';
 			
@@ -712,17 +712,18 @@ function ApplyPackage($flightid)
 					while($cond= mysqli_fetch_row($answsql1))
 					{
 					// Get the quantity
-						$service_nav=$cond[1];
-						$sqlgetservice='SELECT id_mu,isforKids FROM services 
-									WHERE id_NAV="'.$service_nav.'"';
+						$service_id=$cond[1];
+						$sqlgetservice='SELECT id_mu,isforKids,id_NAV FROM services 
+									WHERE id="'.$service_id.'"';
 					//echo $sqlgetservice.'<br/>';
 						$servicesql=mysqli_query($db_server,$sqlgetservice);
-						if(!$servicesql) die(" SERVICE $service_nav could not be located in the services table: ".mysqli_error($db_server));			
+						if(!$servicesql) die(" SERVICE $service_id could not be located in the services table: ".mysqli_error($db_server));			
 					
 						$mes_unit=mysqli_fetch_row($servicesql);
 					//var_dump($mes_unit); 
 						$quantity=0;
 						$id_mu=$mes_unit[0];
+						$service_nav=$mes_unit[2];
 						switch($id_mu)
 						{
 							case 1: // applies to a flight
@@ -736,7 +737,7 @@ function ApplyPackage($flightid)
 								$quantity=$flight->plane_mow;
 							break;
 							default:
-								echo "WARNING: Measurement unit for a service: $service_nav  is not defined! <br/>";
+								echo "WARNING: Measurement unit for a service: $service_id  is not defined! <br/>";
 								$quantity=0;
 						}
 						if(!$servicesql) die("Database SERVICE $service_nav could not be located: ".mysqli_error($db_server));			
