@@ -7,7 +7,7 @@ include ("login_avia.php");
 //if(!$loggedin) echo "<script>window.location.replace('/Agents/login.php');</script>";
  $in=$_REQUEST;
  echo "<pre>";
- var_dump($in);
+// var_dump($in);
  echo "</pre>";
 	
 	if(isset($_REQUEST['pack_name'])) $name	= $_REQUEST['pack_name'];
@@ -28,7 +28,7 @@ include ("login_avia.php");
 // 1.create package		
 		$textsql='INSERT INTO packages
 						(name,client_id,isValid)
-						VALUES("'.$name.'","'.$client_id.'",1)';
+						VALUES("'.$name.'",'.$client_id.',1)';
 		//echo $textsql.'<br/>';				
 		$answsql=mysqli_query($db_server,$textsql);
 		if(!$answsql) die("Insert INTO packages table failed: ".mysqli_error($db_server));
@@ -43,18 +43,18 @@ include ("login_avia.php");
 			if($serviceid)
 			{
 				//a. get the service's NAV id
-				$findid="SELECT id_NAV FROM services WHERE id=$serviceid";
+				//$findid="SELECT id_NAV FROM services WHERE id=$serviceid";
 				//echo $findid.'<br/>';	
-				$answsql=mysqli_query($db_server,$findid);
-				if(!$answsql) die("Insert INTO packages table failed: ".mysqli_error($db_server));
-				if($row = mysqli_fetch_row( $answsql))
-				{
-					$NAV_id=$row[0];
+				//$answsql=mysqli_query($db_server,$findid);
+				//if(!$answsql) die("Insert INTO packages table failed: ".mysqli_error($db_server));
+				//if($row = mysqli_fetch_row( $answsql))
+				//{
+				//	$NAV_id=$row[0];
 					if($everybody[$i]) $scope=0;// Applies to all airports
 					else $scope=1;
-					$textsql='INSERT INTO package_content
+					$textsql="INSERT INTO package_content
 						(package_id,service_id,scope,isValid)
-						VALUES( "'.$pack_id.'","'.$NAV_id.'",'.$scope.',1)';
+						VALUES( $pack_id,$serviceid,$scope,1)";
 					//echo $textsql.'<br/>';				
 					$answsql=mysqli_query($db_server,$textsql);
 					if(!$answsql) die("Insert INTO package_content table failed: ".mysqli_error($db_server));
@@ -62,44 +62,44 @@ include ("login_avia.php");
 					{
 						//FILL IN AIRPORT CONDITIONS
 						$position=$db_server->insert_id;
-						echo "Package position id".$position.'</br>';
+						//echo "Package position id".$position.'</br>';
 						$incl_airport=$incl[$i];
 						$excl_airport=$excl[$i];
 						if($incl_airport)
 						{
-							$incl=split ('[/.,]', $incl_airport);
+							$incl_arr=split ('[/.,]', $incl_airport);
 							//$size=count($incl);
-							foreach($incl as $value)
+							foreach($incl_arr as $value)
 							{
 								$textsql='INSERT INTO package_conditions
 								(package_position_id,airport_id,cond,isValid)
-								VALUES( '.$position.',"'.$value.'",1,1)';
-								echo $textsql.'<br/>';					
+								VALUES( '.$position.','.$value.',1,1)';
+								//echo $textsql.'<br/>';					
 								$answsql=mysqli_query($db_server,$textsql);
 								if(!$answsql) die("Insert INTO package_conditions table failed: ".mysqli_error($db_server));
 							}
 						}
 						if($excl_airport)
 						{
-							$excl=split ('[/.,]', $excl_airport);
-							foreach($excl as $value)
+							$excl_arr=split ('[|/.,]', $excl_airport);
+							foreach($excl_arr as $value)
 							{
 								$textsql='INSERT INTO package_conditions
 								(package_position_id,airport_id,cond,isValid)
-								VALUES( '.$position.',"'.$value.'",0,1)';
-								echo $textsql.'<br/>';				
+								VALUES( '.$position.','.$value.',0,1)';
+								//echo $textsql.'<br/>';				
 								$answsql=mysqli_query($db_server,$textsql);
 								if(!$answsql) die("Insert INTO package_conditions table failed: ".mysqli_error($db_server));
 							}
 						}
 					}
-				}
-				else echo 'NO service found by given id! <br/>';
+				//}
+				//else echo 'NO service found by given id! <br/>';
 			}
 		}
 
 	
-	//echo '<script>history.go(-1);</script>';	
+	echo '<script>history.go(-2);</script>';	
 	
 mysqli_close($db_server);
 ?>

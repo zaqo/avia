@@ -2,7 +2,6 @@
 //LISTING ALL DISCOUNTS IN THE SYSTEM (GROUP AND INDIVIDUAL)
 include ("header.php"); 
 	
-		
 		$content="";
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
@@ -18,7 +17,7 @@ include ("header.php");
 					if(!$answsqlcheck) die("LOOKUP into discounts_individual TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
 		$content.= "<table><caption><b>Скидки для авиакомпаний</b></caption><br>";
-		$content.= '<tr><th>№ </th><th>Название</th><th>Клиент</th><th>Скидка,%</th><th>С:</th><th>ПО:</th><th>Порядок</th></tr>';
+		$content.= '<tr><th>№ </th><th>Название</th><th>Клиент</th><th>Скидка,%</th><th>С:</th><th>ПО:</th><th>Порядок</th><th></th></tr>';
 		// Iterating through the array
 		$counter=1;
 		
@@ -36,7 +35,7 @@ include ("header.php");
 				$content.= "<td><a href=\"show_discount.php?id=$rec_id\">$name</a></td>";
 				$content.= "<td>$client</td><td>$disc_val</td>";
 				$content.= "<td>$date_fr</td><td>$date_to</td><td>$priority</td>";
-				$content.= '</tr>';
+				$content.= '<td><a href="add_condition.php?id='.$rec_id.'&isGroup=0">Добавить условие</a></td></tr>';
 				
 			$counter+=1;
 			

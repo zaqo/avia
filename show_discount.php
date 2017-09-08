@@ -1,5 +1,5 @@
 ﻿<?php require_once 'login_avia.php';
-//SHOW DISCOUNT PAGE -need's to be finished
+
 include ("header.php"); 
 	
 		if(isset($_REQUEST['id']))
@@ -21,7 +21,7 @@ include ("header.php");
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into packages TABLE failed: ".mysqli_error($db_server));
-		// Top of the table
+		// Top of the conditions table
 		$content.= "<table><caption><b>Условия предоставления скидки № $id</b></caption><br>";
 		$content.= '<tr><th>№ </th><th>Название</th><th>От:</th><th>До:</th><th>Перечисление</th><th>Условие</th><th>Дата</th></tr>';
 		// Iterating through the array
@@ -80,7 +80,41 @@ include ("header.php");
 				$counter+=1;
 			
 			}
+			$content.= '</table><hr><br/>';
+			// Top of the services table
+		$content.= "<table><caption><b>Услуги на которые распространяется скидка</b></caption><br>";
+		$content.= '<tr><th>№ </th><th>Название</th><th>ID</th></tr>';
+		
+		$check_services="SELECT discounts_ind_reg.id,services.id_NAV,services.description 
+							FROM discounts_ind_reg 
+							LEFT JOIN services 
+							ON discounts_ind_reg.service_id=services.id
+							WHERE discount_id=$id";
+					
+					$answsql2=mysqli_query($db_server,$check_services);
+					if(!$answsql2) die("LOOKUP into services TABLE failed: ".mysqli_error($db_server));
+		
+		// Iterating through the array
+		$counter=1;
+		
+			while( $row_serv = mysqli_fetch_row( $answsql2 ))  
+			{ 
+				$id_NAV=$row_serv[1];
+				
+				$name_serv_rus=$row_serv[2];
+				
+					
+				$content.= "<tr><td>$counter</td>";
+				$content.= "<td>$name_serv_rus</td>";
+				$content.= "<td>$id_NAV</td>";
+				
+				$content.= '</tr>';
+				
+				$counter+=1;
+			
+			}
 			$content.= '</table>';
+			//And now SHOW
 			Show_page($content);
 		mysqli_close($db_server);
 		}

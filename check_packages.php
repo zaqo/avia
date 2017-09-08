@@ -10,14 +10,15 @@ include ("header.php");
 			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
-			$check_in_mysql="SELECT id,name,client_id,isValid,date_booked FROM packages
+			$check_in_mysql="SELECT packages.id,packages.name,clients.name,packages.isValid,packages.date_booked FROM packages
+									LEFT JOIN clients on packages.client_id=clients.id
 									WHERE 1";
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into packages TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
 		$content.= "<table><caption><b>Шаблоны услуг по рейсу</b></caption><br>";
-		$content.= '<tr><th>№ </th><th>Название</th><th>Код клиента</th><th>Действует</th><th>Дата</th></tr>';
+		$content.= '<tr><th>№ </th><th>Название</th><th>Клиент</th><th>Действует</th><th>Дата</th></tr>';
 		// Iterating through the array
 		$counter=1;
 		
