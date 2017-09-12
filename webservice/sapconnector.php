@@ -693,7 +693,15 @@ function ApplyPackage($flightid)
 			
 		
 		//  1. LOCATE all packages relevant to the flight
-			$textsql='SELECT id FROM packages WHERE client_id="'.$flight->bill_to.'" AND isValid=1';
+			$clientsql='SELECT id FROM clients WHERE id_NAV="'.$flight->bill_to.'"';
+			//echo $textsql.'<br/>';	
+			$answsql0=mysqli_query($db_server,$clientsql);
+				
+			if(!$answsql0) die("Database SELECT in clients table failed: ".mysqli_error($db_server));
+				//echo 'Package with:'.$answsql->num_rows.' rows<\br>';
+			if(!$answsql0->num_rows) return 1; // No information about client
+			$client_id=mysqli_fetch_row($answsql0);
+			$textsql='SELECT id FROM packages WHERE client_id='.$client_id[0].' AND isValid=1';
 			//echo $textsql.'<br/>';	
 			$answsql=mysqli_query($db_server,$textsql);
 				
@@ -714,7 +722,7 @@ function ApplyPackage($flightid)
 					// Get the quantity
 						$service_id=$cond[1];
 						$sqlgetservice='SELECT id_mu,isforKids,id_NAV FROM services 
-									WHERE id="'.$service_id.'"';
+									WHERE id='.$service_id;
 					//echo $sqlgetservice.'<br/>';
 						$servicesql=mysqli_query($db_server,$sqlgetservice);
 						if(!$servicesql) die(" SERVICE $service_id could not be located in the services table: ".mysqli_error($db_server));			
@@ -777,7 +785,7 @@ function ApplyPackage($flightid)
 					}
 				}
 			}
-		$finish_mysql="UPDATE  flights SET package_applied=1 WHERE id=$flightid";
+		$finish_mysql="UPDATE  flights SET package_applied=1 WHERE id_NAV=$flightid";
 		$answsql=mysqli_query($db_server,$finish_mysql);
 		if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));
 	mysqli_close($db_server);			

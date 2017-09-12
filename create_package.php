@@ -34,8 +34,8 @@ include ("header.php");
 		// Form begins
 		$content.= '<form id="form" method=post action=update_package.php >
 					<div id="add_field_area"><table id="myTab"><caption><b>Создаем пакет</b></caption>
-					<tr><td colspan="4"><b>НАЗВАНИЕ:</b><input type="text" value="" name="pack_name" placeholder="Название пакета" /></td></tr>
-					<tr><td colspan="4"><b>КЛИЕНТ:</b>'.$clients.'</td></tr>
+					<tr><td colspan="2"><b>НАЗВАНИЕ:</b></td><td colspan="2"><input type="text" value="" name="pack_name" placeholder="Название пакета" /></td></tr>
+					<tr><td colspan="2"><b>КЛИЕНТ:</b></td><td colspan="2">'.$clients.'</td></tr>
 					<tr><th>Услуга</th><th>Везде</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th></tr>
 					
 					<div id="add1" class="add">
@@ -50,9 +50,9 @@ include ("header.php");
 						</tr>
 					</div>
 					<tbody id="tbody">
-					<tr><td onclick="addsomeField();" class="addbutton" colspan="6">Add</td></tr>
+					<tr><td onclick="addsomeField();" class="addbutton" colspan="4">Add</td></tr>
 					</tbody>
-					<tr><td colspan="6"><p>
+					<tr><td colspan="4"><p>
 					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
 					</table></div></form>';
 	

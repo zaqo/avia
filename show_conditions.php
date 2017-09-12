@@ -27,11 +27,14 @@ include ("header.php");
 		
 		while( $row = mysqli_fetch_row( $answsqlcheck ))  
 		{ 
+				$val_to='';
+				$val_from='';
+				
 				$rec_id=$row[0];
 				$name=$row[1];
 				$param=$row[2];
-				$val_from=$row[3];
-				$val_to=$row[4];
+				if($row[3]) $val_from=$row[3];
+				if($row[4]) $val_to=$row[4];
 				$val_enum=$row[5];
 				$condition=$row[6];
 				

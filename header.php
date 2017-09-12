@@ -16,7 +16,8 @@
 			<!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>-->
 			
 			<script type="text/javascript" src="/avia/js/jquery.minical.plain.js"></script>
-			<script src="/avia/js/myFunctions.js"></script>
+			<script type="text/javascript"  src="/avia/js/myFunctions.js"></script>
+			<script type="text/javascript"  src="/avia/js/addfield.js"></script>
 <?php
 	include_once 'functions.php';
 	
@@ -53,8 +54,10 @@
 				<div id=\"myDropdown2\" class=\"dropdown-content\">
 				<a href=\"show_services.php\">Услуги</a>
 				<a href=\"create_service.php\">Создать Услугу</a>
-				<a href=\"check_packages.php\">Пакеты услуг</a>
-				<a href=\"create_package.php\">Создать пакет</a>
+				<a href=\"show_bundles_all.php\">Пакеты услуг</a>
+				<a href=\"create_bundle.php\">Создать пакет</a>
+				<a href=\"check_packages.php\">Шаблоны</a>
+				<a href=\"create_package.php\">Создать шаблон</a>
 				</div>
 			</div>
 			";//<div class=\"userid\">Вы вошли в систему как: $userstr</div>
@@ -63,6 +66,8 @@
 				<div id=\"myDropdown3\" class=\"dropdown-content\">
 				<a href=\"show_discounts_all.php\">Скидки</a>
 				<a href=\"create_discount_ind.php\">Создать Скидку</a>
+				<a href=\"show_conditions.php\">Условия</a>
+				<a href=\"create_condition.php\">Создать Условие</a>
 				</div>
 			</div>
 			";

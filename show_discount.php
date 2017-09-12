@@ -32,8 +32,12 @@ include ("header.php");
 				$date_set=$row[0];
 				$composition=$row[1];
 				$name_rus=$row[2];
-				$from=$row[3];
-				$to=$row[4];
+				$to='';
+				$from='';
+			
+				if($row[3]) $from=$row[3];
+				if($row[4]) $to=$row[4];
+				
 				$enum=$row[5];
 				$cond=$row[6];
 				// 

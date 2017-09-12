@@ -16,7 +16,8 @@ function ApplyDiscounts($flightid)
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
 			//  LOCATE flight data
-			$textsql="SELECT * FROM  flights WHERE id=$flightid";
+			$textsql="SELECT id,id_NAV,date,flight,direction,plane_num,plane_type,plane_mow,airport,passengers_adults,passengers_kids,
+						category,isHelicopter,time_fact FROM  flights WHERE id=$flightid";
 				
 			$answsql=mysqli_query($db_server,$textsql);
 				
@@ -32,13 +33,15 @@ function ApplyDiscounts($flightid)
 				$flight_date=$flight_data[2];
 				$flight_num=$flight_data[3];
 				$direction=$flight_data[4];
-				$plane_id=$flight_data[7];
-				$plane_type=$flight_data[8];
-				$plane_mow=$flight_data[9];
-				$airport=$flight_data[10];
-				$passengers_adults=$flight_data[11];
-				$passengers_kids=$flight_data[12];
-				$category=$flight_data[19];
+				$plane_id=$flight_data[5];
+				$plane_type=$flight_data[6];
+				$plane_mow=$flight_data[7];
+				$airport=$flight_data[8];
+				$passengers_adults=$flight_data[9];
+				$passengers_kids=$flight_data[10];
+				$category=$flight_data[11];
+				$isHelicopter=$flight_data[12];
+				$time_fact=$flight_data[13];
 				//$flight->bill_to=$flight_data[14];
 				//$flight->plane_owner=$flight_data[15];
 			
@@ -49,7 +52,7 @@ function ApplyDiscounts($flightid)
 			$answsql=mysqli_query($db_server,$textsql);
 				
 			if(!$answsql) die("Database SELECT in service_reg table failed: ".mysqli_error($db_server));
-				//echo 'Flight has got:'.$answsql->num_rows.' services<\br>';
+				echo 'Flight has got:'.$answsql->num_rows.' services<br/>';
 			if($answsql->num_rows)
 			{
 				while($service= mysqli_fetch_row($answsql))
@@ -58,6 +61,7 @@ function ApplyDiscounts($flightid)
 				
 					//a.get service id
 					$srv_nav_id=$service[0];
+					echo "SERVICE: $srv_nav_id <br/>";
 					$sqlserviceid='SELECT id 
 									FROM services 
 									WHERE id_NAV="'.$srv_nav_id.'"';
@@ -79,7 +83,7 @@ function ApplyDiscounts($flightid)
 						//var_dump($answsql2);
 						if($answsql2->num_rows)
 						{	
-			// Process individual discount from the list		
+			// Process  discount from the list		
 							while($discount= mysqli_fetch_row($answsql2))
 							{
 			// Get conditions for applicability of discount
@@ -106,7 +110,7 @@ function ApplyDiscounts($flightid)
 										{	
 											
 											$cond_data=mysqli_fetch_row($answsql4);
-											echo "5. Analyzing condition: ".$cond_data[0]."<br/>";
+											//echo "5. Analyzing condition: ".$cond_data[0]."<br/>";
 											if($cond_data)
 											{
 					// Process applicability of condition!
@@ -119,7 +123,7 @@ function ApplyDiscounts($flightid)
 													case 1: // Is the destination domestic or foreign?
 														$sqlcheckdestination="SELECT domain FROM airports 
 																WHERE id=$airport";
-													//echo '6. '.$sqlgetconditiondata.'<br/>';
+														//echo '6. '.$sqlgetconditiondata.'<br/>';
 														$answsql5=mysqli_query($db_server,$sqlcheckdestination);
 														if(!$answsql5) die("Database SELECT into airportd table failed: ".mysqli_error($db_server));
 														$zone=mysqli_fetch_row($answsql5);
@@ -139,15 +143,18 @@ function ApplyDiscounts($flightid)
 														break;
 													
 													case 3:  // based on plane type
-														if($start_val==$plane_type)
+														if((int)$start_val==(int)$plane_type)
+														{	
+															echo "FLAG IS SET! for PLANE TYPE $plane_type <br/>";
 															$flag=1;
+														}
 														break;
 												
 													case 4:  // based on plane MOW (not checking type of condition now)
 														if(($start_val<=$plane_mow)&&($end_val>=$plane_mow))
 														{	
 															$flag=1;
-															echo "Flag was set! Condition 4. <br/>";
+															echo "Flag was set! PLANE MOW = $plane_mow <br/>";
 														}
 														break;
 													
@@ -156,12 +163,12 @@ function ApplyDiscounts($flightid)
 															$flag=1;
 														break;	
 
-													case 6:  // only if above the limit
+													case 6:  // PAX only if above the limit
 														if($start_val<=$passengers_adults)
 															$flag=1;
 														break;	
 													
-													case 7:  // only if above the limit
+													case 7:  // PAX only if above the limit
 														if($start_val<=$passengers_kids)
 															$flag=1;
 														break;	
@@ -171,10 +178,15 @@ function ApplyDiscounts($flightid)
 															$flag=1;
 														break;		
 												
-													case 9:  // category is equal to
-														if($start_val==$category)
+													case 9:  // Helicopter
+														if($isHelicopter)
 															$flag=1;
 														break;	
+													
+													case 10:  // Time of arrival START_VAL, END_VAL must be time!!!
+														if(($time_fact>=$start_val)&&($time_fact<=$end_val))
+															$flag=1;
+														break;
 												
 													default:
 													echo "WARNING: Paremeter for condition for a service: $service_id  does not exist! <br/>";
@@ -191,10 +203,11 @@ function ApplyDiscounts($flightid)
 									$textsql='INSERT INTO discounts_journal
 										(flight_id,service_id,discount_id,isGroup,condition_id,value)
 										VALUES( '.$flightid.','.$sid.','.$disc_id.',1,'.$cond_id.','.$disc_val.')';
-									echo '7. (fin)'.$textsql.'<br/>';				
+									echo 'FINISH grp.'.$textsql.'<br/>';				
 									$answsql6=mysqli_query($db_server,$textsql);
 									if(!$answsql6) die("Insert INTO discounts_journal table failed: ".mysqli_error($db_server));
 								}
+								else "NO GROUP CONDITIONS DISCOVERED, SWITCHING TO INDIVIDUAL <br/>";
 							}//end of processing individual discount
 						}//end of processing group discounts
 					
@@ -214,16 +227,18 @@ function ApplyDiscounts($flightid)
 						if($answsql2->num_rows)
 						{	
 			// Process individual discount from the list		
+							
 							while($discount= mysqli_fetch_row($answsql2))
 							{
 			// Get conditions for applicability of discount
 								$disc_id=$discount[0];
 								$disc_val=$discount[1];
 								$flag=0;
-								//echo "2. Discounts are: $disc_id, $disc_val <br/>";
+								echo "ENTERED PROCESSING INDIVIDUAL DISCOUNT $disc_id , $disc_val % <br/>";
+								//echo "2 ind. Discounts are: $disc_id, $disc_val <br/>";
 								$sqlgetconditions="SELECT condition_id,composition FROM discount_ind_content 
 												WHERE discount_id=$disc_id ORDER BY sequence";
-								//echo "3. ".$sqlgetconditions.' individual<br/>';
+								//echo "3 ind. ".$sqlgetconditions.' individual<br/>';
 								$answsql3=mysqli_query($db_server,$sqlgetconditions);
 								if($answsql3->num_rows) 
 								{
@@ -234,7 +249,7 @@ function ApplyDiscounts($flightid)
 										$cond_comp=$condition[1];
 										$sqlgetconditiondata="SELECT param_id,from_val,to_val,enum_of_values,condition_id FROM discount_conditions 
 												WHERE id=$cond_id AND isValid=1";
-										//echo "3. ".$sqlgetconditiondata.'individual <br/>';
+										//echo "4 ind. LOOKING FOR CONDITIONS".$sqlgetconditiondata.'individual <br/>';
 										$answsql4=mysqli_query($db_server,$sqlgetconditiondata);
 										if($answsql4->num_rows)
 										{	
@@ -242,16 +257,19 @@ function ApplyDiscounts($flightid)
 											if($cond_data)
 											{
 					// Process applicability of condition!
+												
 												$param=$cond_data[0];
 												$start_val=$cond_data[1];
 												$end_val=$cond_data[2];
+												echo "ENTERED PROCESSING CONDITIONS: param is  $param , start from: $start_val plane: $plane_type<br/>";
+												echo "RESULT OF COMPARISON: ".strpos($start_val, $plane_type)."<br/>";
 												$flag=0;
 												switch($param)
 												{
 													case 1: // Is the destination domestic or foreign?
 														$sqlcheckdestination="SELECT domain FROM airports 
 																WHERE id=$airport";
-														//echo "3. ".$sqlcheckdestination.' individual <br/>';
+														//echo "5 ind. ".$sqlcheckdestination.' individual <br/>';
 														$answsql5=mysqli_query($db_server,$sqlcheckdestination);
 														if(!$answsql5) die("Database SELECT into airportd table failed: ".mysqli_error($db_server));
 														$zone=mysqli_fetch_row($answsql5);
@@ -271,8 +289,11 @@ function ApplyDiscounts($flightid)
 														break;
 													
 													case 3:  // based on plane type
-														if($start_val==$plane_type)
+														if((int)$start_val==(int)$plane_type)
+														{
+															echo "CATCHED PLANE TYPE COND: planetype= $plane_type <br/>";
 															$flag=1;
+														}
 														break;
 												
 													case 4:  // based on plane MOW (not checking type of condition now)
@@ -288,12 +309,12 @@ function ApplyDiscounts($flightid)
 															$flag=1;
 														break;	
 
-													case 6:  // only if above the limit
+													case 6:  // PAX only if above the limit
 														if($start_val<=$passengers_adults)
 															$flag=1;
 														break;	
 													
-													case 7:  // only if above the limit
+													case 7:  // PAX only if above the limit
 														if($start_val<=$passengers_kids)
 															$flag=1;
 														break;	
@@ -303,8 +324,13 @@ function ApplyDiscounts($flightid)
 															$flag=1;
 														break;		
 												
-													case 9:  // category is equal to
-														if($start_val==$category)
+													case 9:  // Helicopter
+														if($isHelicopter)
+															$flag=1;
+														break;	
+													
+													case 10:  // Time of arrival START_VAL, END_VAL must be time!!!
+														if(($time_fact>=$start_val)&&($time_fact<=$end_val))
 															$flag=1;
 														break;	
 												
@@ -322,10 +348,11 @@ function ApplyDiscounts($flightid)
 								 $textsql='INSERT INTO discounts_journal
 									(flight_id,service_id,discount_id,isGroup,condition_id,value)
 									VALUES( '.$flightid.','.$sid.','.$disc_id.',0,'.$cond_id.','.$disc_val.')';
-								   echo "7. ".$textsql.'  JOURNAL individual<br/>';				
+								   echo "FINISH ind. ".$textsql.'  JOURNAL individual<br/>';				
 							 	 $answsql6=mysqli_query($db_server,$textsql);
 								 if(!$answsql6) die("Insert INTO discounts_journal table failed: ".mysqli_error($db_server));
 								}
+								else "NO INDIVIDUAL DISCOUNTS APPLIED FOR SERVICE $sid: SWITCHING TO THE NEXT <br/>";
 							}//end of processing individual discount
 						}
 						//end of company discounts

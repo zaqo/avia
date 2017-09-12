@@ -19,7 +19,7 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into packages TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
-		$content.= "<table><caption><b>Содержание пакета услуг № $id</b></caption><br>";
+		$content.= "<table><caption><b>Содержание шаблона услуг № $id</b></caption><br>";
 		$content.= '<tr><th>№ </th><th>Услуга</th><th>Описание</th><th>Для всех</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th><th>Дата</th></tr>';
 		// Iterating through the array
 		$counter=1;

@@ -25,9 +25,8 @@ include ("header.php");
 					<tr><th>Поле</th><th>Значение</th></tr>
 					<tr><td>Код NAV:</td><td><input type="text" value="" name="nav" /></td></tr>
 					<tr><td>Код SAP:</td><td><input type="text" value="" name="sap" /></td></tr>
-					<tr><td>Ед.изм:</td><td>
-						'.$mu_dropdown.'
-					</td></tr></th>
+					<tr><td>Ед.изм:</td><td>'.$mu_dropdown.'</td></tr>
+					<tr><td>Описание:</td><td><textarea rows="5" cols="45" name="desc" placeholder="Описание" ></textarea></td></tr>
 					<tr><td>Детский:</td><td><input type="checkbox" name="Servicedata[]" class="name" value="kid" '.$status.'/></td></tr></th>
 					<tr><td>Действует:</td><td><input type="checkbox" name="Servicedata[]" class="name" value="valid" '.$status.'/></td></tr></th>
 					<tr><td colspan="2"><p>

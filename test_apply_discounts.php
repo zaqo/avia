@@ -61,7 +61,7 @@
 	echo '<hr><br>';
 	
 	//$result=SAP_connector($req);
-	$res=ApplyDiscounts(2);
+	$res=ApplyDiscounts(496);
 	if ($res) echo "Discounts applied successfully! <br/>";
 	else echo "ERROR: discount application aborted! <br/>";
 	//Show_page($content);

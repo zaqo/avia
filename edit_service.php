@@ -10,7 +10,7 @@ include ("header.php");
 			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
-			$check_in_mysql="SELECT id,id_NAV,id_SAP,isforKids,isValid,date_booked,id_mu
+			$check_in_mysql="SELECT id,id_NAV,id_SAP,isforKids,isValid,date_booked,id_mu,description
 								FROM services
 								WHERE id=$id";
 					
@@ -25,6 +25,7 @@ include ("header.php");
 				$isvalid=$row[4];
 				$date=$row[5];
 				$mu=$row[6];
+				$desc=$row[7];
 				$status_kid= '';
 				$status_valid= '';
 				
@@ -59,9 +60,8 @@ include ("header.php");
 					<tr><th>Поле</th><th>Значение</th></tr>
 					<tr><td>Код NAV:</td><td><input type="text" value="'.$nav_id.'" name="nav" /></td></tr>
 					<tr><td>Код SAP:</td><td><input type="text" value="'.$sap_id.'" name="sap" /></td></tr>
-					<tr><td>Ед.изм:</td><td>
-						'.$mu_dropdown.'
-					</td></tr></th>
+					<tr><td>Ед.изм:</td><td>'.$mu_dropdown.'</td></tr>
+					<tr><td>Описание:</td><td><textarea rows="5" cols="45" name="desc" >'.$desc.'</textarea></td></tr>
 					<tr><td>Для детей:</td><td><input type="checkbox" name="Servicedata[]" class="name" value="kid" '.$status_kid.'/></td></tr>
 					<tr><td>Действует:</td><td><input type="checkbox" name="Servicedata[]" class="name" value="valid" '.$status_valid.'/></td></tr>
 					<tr><td colspan="2"><p><input type="hidden" value="'.$id.'" name="id">
