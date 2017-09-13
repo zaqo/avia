@@ -23,7 +23,7 @@ include ("header.php");
 			if(!$answsqlcheck) die("LOOKUP into services TABLE failed: ".mysqli_error($db_server));
 		
 		// Top of the table
-		$content.= '<table><caption><b>Перечень услуг</b></caption><br>';
+		$content.= '<table class="fullTab"><caption><b>Перечень услуг</b></caption><br>';
 		$content.='<form id="form" method=post action=link_service.php >';
 		$content.= '<tr><th>&</th><th>№</th><th>Код</th><th>Название</th><th>Ед.изм.</th></tr>';
 		// Iterating through the array

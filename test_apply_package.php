@@ -6,7 +6,7 @@
 	//require_once 'login_avia.php';
 
 	include("/webservice/sapconnector.php");
-		class Flight
+	class Flight
 	{
 			public $id;						
 			public $id_NAV;

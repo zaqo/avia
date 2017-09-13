@@ -14,7 +14,7 @@ include ("header.php");
 			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
-			$check_in_mysql="SELECT * FROM service_reg
+			$check_in_mysql="SELECT flight,service,quantity,date_booked FROM service_reg
 									WHERE flight=$flight_id";
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);

@@ -45,7 +45,7 @@ class Flight
 		$tsql_route='SELECT ID,Income,[Income No_],[Date Fact],[Bort No_],[Airport No_],[Flying Type],[Max Weight],
 							[Passengers Income Grown-Up],[Passengers Income Children],
 							[Passengers Outcome Grown-Up],[Passengers Outcome Children],
-							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Name],Helicopter,Category,No_,[Time Fact],[Type Aircraft]
+							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Name],Helicopter,Category,No_,[Time Fact],[Type Aircraft],[Outcome No_]
 						FROM dbo.[NCG$Route] 
 						WHERE MONTH([Date Fact])='.$month.' AND DAY([Date Fact])='.$day.' AND YEAR([Date Fact])='.$year.' AND  Correction=1 ';//Correction = 1 - records blocked for changes
 		
@@ -80,7 +80,7 @@ class Flight
 		{ 
 			
 				$flightid_NAV=$row[0];
-				$row[2]=iconv('windows-1251','utf-8',$row[2]);
+				
 				$row[3]=$row[3]->format('Y-m-d');
 				$row[13]=iconv('windows-1251','utf-8',$row[13]);
 				$row[14]=iconv('windows-1251','utf-8',$row[14]);
@@ -90,6 +90,8 @@ class Flight
 				$flightid=$row[18];
 				$time_fact=$row[19];
 				$plane_type=$row[20];
+				$flight_num_in=iconv('windows-1251','utf-8',$row[2]);
+				$flight_num_out=iconv('windows-1251','utf-8',$row[21]);
 				
 				if((int)$flightid<100000000)  //cut padding Rossija flights
 				{
@@ -117,12 +119,14 @@ class Flight
 							$dir=0;         //here direction is the opposite to NAV
 							$pass_a=$row[8];
 							$pass_k=$row[9];
+							$flight_number=$flight_num_in;
 					}
 					else
 					{
 							$dir=1; 
 							$pass_a=$row[10];
 							$pass_k=$row[11];
+							$flight_number=$flight_num_out;
 					}
 					
 						$transfer_mysql='REPLACE INTO flights
@@ -130,7 +134,7 @@ class Flight
 								plane_mow,airport,passengers_adults,passengers_kids,customer_id,bill_to_id,
 								owner,category,time_fact,plane_type) 
 								VALUES
-								("'.$flightid_NAV.'","'.$row[3].'","'.$row[2].'","'.$dir.'","'.$row[12].'",
+								("'.$flightid_NAV.'","'.$row[3].'","'.$flight_number.'","'.$dir.'","'.$row[12].'",
 								 "'.$row[16].'","'.$row[4].'","'.$row[6].'","'.$row[7].'",
 								 "'.$row[5].'","'.$pass_a.'","'.$pass_k.'",
 								 "'.$row[13].'","'.$row[14].'","'.$owner.'","'.$category.'","'.$time_fact->format('H:i:s').'","'.$plane_type.'")';
@@ -188,13 +192,11 @@ class Flight
 			
 						}
 					
-					//$pack_res=ApplyPackage($flightid_NAV);
-					//if($pack_res) echo 'PACKAGE APPLIED SUCCESSFULLY!!! <\br>';
 					$counter+=1;
 				}
 		}
 		$content.= '</table>';
-		$content.='<footer><a href="localhost/avia/export_daily.php" > <img src="/avia/src/sap_small.png" alt="Export orders" title="Go" width="64" height="64"></a></footer>';
+		//$content.='<footer><a href="localhost/avia/export_daily.php" > <img src="/avia/src/sap_small.png" alt="Export orders" title="Go" width="64" height="64"></a></footer>';
 	Show_page($content);
 	sqlsrv_close($conn);
 	?>

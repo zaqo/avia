@@ -22,12 +22,21 @@ table.myTab {
 	align: center;
 	width: 30%;
 }
+table.fullTab {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+	margin:0px auto;
+	text-align: center;
+	align: center;
+	width: 75%;
+}
 td, th {
     border: 1px solid #dddddd;
     text-align: center;
     padding: 8px;
 	width: 20%;
 }
+
 td input[type="checkbox"] {
     float: left;
     margin: 0 auto;
@@ -155,7 +164,7 @@ caption {
   font-weight: bold;
   font-size: 2em;
   padding: 10px; 
-  color: #F3CD26;
+  color: navy;
   text-shadow: 1px 1px 0 rgba(0,0,0,.3);
  }
 caption:before, caption:after {

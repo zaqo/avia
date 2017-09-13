@@ -22,7 +22,7 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into packages TABLE failed: ".mysqli_error($db_server));
 		// Top of the conditions table
-		$content.= "<table><caption><b>Условия предоставления скидки № $id</b></caption><br>";
+		$content.= '<table class="fullTab"><caption><b>Условия предоставления скидки №'.$id.'</b></caption><br>';
 		$content.= '<tr><th>№ </th><th>Название</th><th>От:</th><th>До:</th><th>Перечисление</th><th>Условие</th><th>Дата</th></tr>';
 		// Iterating through the array
 		$counter=1;
@@ -63,14 +63,14 @@ include ("header.php");
 						$cond_str='><';
 						break;
 					case 6:
-						$cond_str='[]';
+						$cond_str='[...]';
 						break;
 					case 7:
-						$cond_str='][';
+						$cond_str='...][...';
 						break;
 				}
 					
-				$content.= "<tr><td>$counter</td>";
+				$content.= '<tr><td>'.$counter.'</td>';
 				$content.= "<td>$name_rus</td>";
 				$content.= "<td>$from</td>";
 				$content.= "<td>$to</td>";
@@ -86,7 +86,7 @@ include ("header.php");
 			}
 			$content.= '</table><hr><br/>';
 			// Top of the services table
-		$content.= "<table><caption><b>Услуги на которые распространяется скидка</b></caption><br>";
+		$content.= '<h1><b>Услуги на которые распространяется скидка</b></h1><table class="fullTab"><br>';
 		$content.= '<tr><th>№ </th><th>Название</th><th>ID</th></tr>';
 		
 		$check_services="SELECT discounts_ind_reg.id,services.id_NAV,services.description 
@@ -108,7 +108,7 @@ include ("header.php");
 				$name_serv_rus=$row_serv[2];
 				
 					
-				$content.= "<tr><td>$counter</td>";
+				$content.= '<tr><td>'.$counter.'</td>';
 				$content.= "<td>$name_serv_rus</td>";
 				$content.= "<td>$id_NAV</td>";
 				

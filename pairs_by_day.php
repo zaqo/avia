@@ -12,11 +12,60 @@
 	4. Exports to SAP ERP
 	
 	*/
-	
 	require_once 'login_avia.php';
+	include_once ("apply_discounts.php");
+	include_once ("apply_package.php");
+	include("/webservice/sapconnector.php");
 	set_time_limit(0);
 	include ("header.php"); 
-	
+	class Flight
+	{
+			public $id;						
+			public $id_NAV;
+			public $flight_date;
+			public $flight_num;
+			public $direction;
+			public $plane_id;
+			public $plane_type;
+			public $plane_mow;
+			public $airport;
+			public $passengers_adults;
+			public $passengers_kids;
+			public $customer;
+			public $bill_to;
+			public $plane_owner;
+			public $services;
+	}
+	class Item
+	{
+			public $ItmNumber;						
+			public $Material;
+			public $TargetQty;
+			public $PurchNoS;
+			public $PoDatS;
+			public $PoMethS;
+			public $SalesDist;
+	}
+
+	class ItemList
+	{
+			public $item;
+	}
+	class Request
+	{
+			public $Servicemode;
+			public $IdSalescontract;
+			public $IdSalesorder;
+			public $IdAircraft;
+			public $IdAirport;
+			public $IdDirection;
+			public $IdFlight;
+			public $Billdate;
+			public $IdPlaneowner;
+			public $SalesItemsIn;
+			public $Return2;
+			
+	}
 	
 		$day   = $_POST['day'];
 		$month = $_POST['month'];
@@ -34,7 +83,7 @@
 		$content.= "<b>  Пары рейсов за:</b> $date <hr>";
 		$content.= '<table><caption><b>Данные о рейсах</b></caption><br>
 					<form id="form" method=post action=update_erp_pairs.php >
-					<tr><th>*</th><th>№</th><th>ID->|</th><th>id NAV</th><th>ID|-></th><th>id NAV</th>
+					<tr><th>*</th><th>№</th><th>FLIGHT->|</th><th>FLIGHT|-></th><th>КЛИЕНТ</th>
 					</tr>';
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
@@ -45,7 +94,7 @@
 		
 		// 1. Check if there is a pair and make a record 
 		
-		$textsql='SELECT id,id_NAV,linked_to
+		$textsql='SELECT id,id_NAV,linked_to,flight
 						FROM  flights WHERE date="'.$date.'" AND direction=0 AND sent_to_SAP IS NULL';
 				
 		$answsql=mysqli_query($db_server,$textsql);
@@ -57,6 +106,7 @@
 			$in_id=$row[0];
 			$nav_id=$row[1];
 			$nav_pair_id=substr($row[2],-7);
+			$flight_num=$row[3];
 			if(!$nav_pair_id) echo "WARNING: FLIHT ID of linked flight is shorter than expected! - $nav_pair_id <br/>";
 			if(strlen($nav_pair_id)==7)
 			{
@@ -72,8 +122,8 @@
 				{
 					$num+=1;
 					$row_pair = mysqli_fetch_row($answsql1);
-					$pair_id=$row_pair[0];
-					$flight_id=$row_pair[1];
+					$out_id=$row_pair[0];
+					$flight_num_pair=$row_pair[1];
 					$customer=$row_pair[2];
 				//c. Check if we have a record on it already	
 					$sqlfindrec="SELECT id
@@ -88,11 +138,13 @@
 					
 					else//NO RECORDS - LET's INSERT
 					{	
+						
+					
 						$sqlrecordpair='INSERT
 							INTO  flight_pairs
 							(in_id,out_id)
 							VALUES
-							('.$in_id.','.$pair_id.')';
+							('.$in_id.','.$out_id.')';
 					
 						$answsql3=mysqli_query($db_server,$sqlrecordpair);
 						$position=$db_server->insert_id;
@@ -103,7 +155,7 @@
 						$content.="<tr>";
 						$content.= "<td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$position\" /></td>";//
 						$content.= "<td><a href=\"check_services_mysql.php?id=$nav_id\">$num</a></td>";
-						$content.="<td>$flight_id</td><td>$customer</td><td>$pair_id</td><td>$nav_pair_id</td></tr>";
+						$content.="<td>$flight_num</td><td>$flight_num_pair</td><td>$customer</td></tr>";
 				}
 				
 			}
