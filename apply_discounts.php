@@ -208,7 +208,7 @@ function ApplyDiscounts($flightid)
 									if(!$answsql6) die("Insert INTO discounts_journal table failed: ".mysqli_error($db_server));
 									$result_discount[$sid]=$disc_val;
 								}
-								else "NO GROUP CONDITIONS DISCOVERED, SWITCHING TO INDIVIDUAL <br/>";
+								else echo "NO GROUP CONDITIONS DISCOVERED for THE SERVICE: $sid, SWITCHING TO INDIVIDUAL <br/>";
 							}//end of processing individual discount
 						}//end of processing group discounts
 					
@@ -354,7 +354,7 @@ function ApplyDiscounts($flightid)
 								 if(!$answsql6) die("Insert INTO discounts_journal table failed: ".mysqli_error($db_server));
 								 $result_discount[$sid]=$disc_val;
 								}
-								else "NO INDIVIDUAL DISCOUNTS APPLIED FOR SERVICE $sid: SWITCHING TO THE NEXT <br/>";
+								else echo "NO INDIVIDUAL DISCOUNTS APPLIED FOR THE SERVICE $sid: SWITCHING TO THE NEXT SERVICE<br/>";
 							}//end of processing individual discount
 						}
 						//end of company discounts

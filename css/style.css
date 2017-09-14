@@ -20,8 +20,12 @@ table.myTab {
 	margin:0px auto;
 	text-align: center;
 	align: center;
+	table-layout:fixed;
 	width: 30%;
 }
+ .col1 { width: 30px; }
+   .col2 { width: 100px; }
+   .col3 { width: 290px; }
 table.fullTab {
     font-family: arial, sans-serif;
     border-collapse: collapse;

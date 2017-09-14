@@ -10,7 +10,7 @@ include ("header.php");
 			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
-			$check_in_mysql="SELECT id,id_NAV,id_SAP,isforKids,isValid,date_booked,id_mu
+			$check_in_mysql="SELECT id,id_NAV,id_SAP,isforKids,isValid,date_booked,id_mu,description
 								FROM services
 								WHERE 1 ORDER BY id_NAV";
 					
@@ -18,7 +18,7 @@ include ("header.php");
 					if(!$answsqlcheck) die("LOOKUP into services TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
 		$content.= "<table><caption><b>Коды услуг</b></caption><br>";
-		$content.= '<tr><th>№ </th><th>Код NAV</th><th>Код SAP</th><th>Ед.изм</th>
+		$content.= '<tr><th>№ </th><th>Услуга</th><th>Код NAV</th><th>Код SAP</th><th>Ед.изм</th>
 					<th>Для детей</th><th>Действует</th></tr>';
 		
 		// Prepare Mes Units 
@@ -55,8 +55,10 @@ include ("header.php");
 				$isvalid=$row[4];
 				$date=$row[5];
 				$mu_key=$row[6];
+				$desc=$row[7];
 				
 				$content.= "<tr><td>$counter</td>";
+				$content.= "<td>$desc</td>";
 				$content.= "<td><a href=\"edit_service.php?id=$rec_id\">$nav_id</a></td>";
 				$content.= "<td>$sap_id</td>";
 				$content.= "<td>".$mu[$mu_key]."</td>";

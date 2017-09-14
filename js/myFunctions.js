@@ -43,3 +43,11 @@ function addMyField () {
 			}
 			$("input#values").val(str.join("|"));
 		}
+		function checkIt () {
+			
+			var value=$("#flights").attr("checked");
+			if(value=='checked')
+			$("input:checkbox").removeAttr("checked");
+			else
+			$("input:checkbox").attr("checked","checked");
+		}

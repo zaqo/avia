@@ -3,7 +3,7 @@
 	For a given day
 	1. Combines pairs of flights. Make records in the flight_pairs table
 	
-	next after it update_erp_pairs.php
+	next when it calls update_erp_pairs.php
 	
 	2. Applies packages
 	
@@ -81,9 +81,10 @@
 		//----------------------------------------
 		// Top of the table
 		$content.= "<b>  Пары рейсов за:</b> $date <hr>";
-		$content.= '<table><caption><b>Данные о рейсах</b></caption><br>
+		$content.= '<table class="myTab"><caption><b>Данные о рейсах</b></caption><br>
 					<form id="form" method=post action=update_erp_pairs.php >
-					<tr><th>*</th><th>№</th><th>FLIGHT->|</th><th>FLIGHT|-></th><th>КЛИЕНТ</th>
+					<col class="col1"><col class="col1"><col class="col2"><col class="col2"><col class="col3">
+					<tr><td><input type="checkbox" id="flights" onclick="checkIt();" checked/></td><th>№</th><th>FLIGHT->|</th><th>FLIGHT|-></th><th>КЛИЕНТ</th>
 					</tr>';
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
@@ -126,20 +127,27 @@
 					$flight_num_pair=$row_pair[1];
 					$customer=$row_pair[2];
 				//c. Check if we have a record on it already	
-					$sqlfindrec="SELECT id
+					$sqlfindrec="SELECT id,sent_to_SAP
 								FROM  flight_pairs 
 								WHERE in_id=$in_id";
 				
 					$answsql2=mysqli_query($db_server,$sqlfindrec);
 					if(!$answsql2) die("Database SELECT TO flight_pairs table failed: ".mysqli_error($db_server));
 					$rec_id=mysqli_fetch_row($answsql2);
-					if($answsql2->num_rows)
+					if(($answsql2->num_rows)&&(!$rec_id[1]))
+					{
 						$position=$rec_id[0];
-					
-					else//NO RECORDS - LET's INSERT
+						//HERE CHECKBOXES FOR FLIGHTS
+						$content.="<tr>";
+						$content.= "<td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$position\" checked/></td>";//
+						$content.= "<td>$num</td>";
+						$content.= "<td><a href=\"show_flight.php?id=$in_id\">$flight_num</a></td>";
+						$content.= "<td><a href=\"show_flight.php?id=$out_id\">$flight_num_pair</a></td>";
+						$content.="<td>$customer</td></tr>";
+					}
+					elseif(!$answsql2->num_rows) 
 					{	
 						
-					
 						$sqlrecordpair='INSERT
 							INTO  flight_pairs
 							(in_id,out_id)
@@ -150,12 +158,25 @@
 						$position=$db_server->insert_id;
 					
 						if(!$answsql3) die("Database INSERT TO flight_pairs table failed: ".mysqli_error($db_server));
-					}
 					//HERE CHECKBOXES FOR FLIGHTS
 						$content.="<tr>";
-						$content.= "<td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$position\" /></td>";//
-						$content.= "<td><a href=\"check_services_mysql.php?id=$nav_id\">$num</a></td>";
-						$content.="<td>$flight_num</td><td>$flight_num_pair</td><td>$customer</td></tr>";
+						$content.= "<td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$position\" checked/></td>";//
+						$content.= "<td>$num</td>";
+						$content.= "<td><a href=\"show_flight.php?id=$in_id\">$flight_num</a></td>";
+						$content.= "<td><a href=\"show_flight.php?id=$out_id\">$flight_num_pair</a></td>";
+						$content.="<td>$customer</td></tr>";
+					
+					}
+					// UPDATE FLIGHTS, NOW THEY HAVE BEEN PROCESSED, SO sent_to_SAP=1
+					/*
+					//HERE CHECKBOXES FOR FLIGHTS
+						$content.="<tr>";
+						$content.= "<td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$position\" checked/></td>";//
+						$content.= "<td>$num</td>";
+						$content.= "<td><a href=\"show_flight.php?id=$in_id\">$flight_num</a></td>";
+						$content.= "<td><a href=\"show_flight.php?id=$out_id\">$flight_num_pair</a></td>";
+						$content.="<td>$customer</td></tr>";
+						*/
 				}
 				
 			}

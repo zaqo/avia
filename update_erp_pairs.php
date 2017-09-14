@@ -94,8 +94,8 @@ include ("header.php");
 			
 				$textsql='';
 				$content='<table id="ExportPairs"><caption><b>Результаты</b></caption>
-					<tr><th>РЕЙС</th><th>ID заказа</th></tr>
-					';
+					<tr><th>РЕЙС</th><th>ID заказа</th></tr>';
+					
 				foreach($flights as $value)
 				{
 					$order=SAP_export_pair($value);

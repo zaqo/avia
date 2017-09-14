@@ -70,7 +70,7 @@ function SAP_response_handler($Return2)
 			$date=$result->MESSAGE_V3;
 			$number=$result->MESSAGE_V4;
 			$system=$result->SYSTEM;
-	/*	
+	/*
 		echo "<tr><td colspan=\"2\" ><hr color=\"black\" ></td></tr>";		
 		if ($result->TYPE=='E')
 		{
@@ -92,7 +92,7 @@ function SAP_response_handler($Return2)
 			echo "<tr><td>System :</td><td>$system</td></tr>";
 		}*/
 	}
-	//echo '</table>';*/
+	//echo '</table>';
 	return $position;
 }
 
@@ -298,7 +298,8 @@ Same as before (above) but for a pair of flights
 
 function SAP_export_pair($rec_id)
 {
-
+//return SD order
+//OR 0 - if failed
 	include("login_avia.php");
 	ini_set("soap.wsdl_cache_enabled", "0");
 	include_once ("apply_discounts.php");
@@ -323,15 +324,15 @@ function SAP_export_pair($rec_id)
 			if (!$answsql->num_rows)
 			{
 				echo "WARNING: No flights found for a given ID in flight_pairs <br/>";
-				return 2;
+				return 0;
 			}	
 			$pair_data= mysqli_fetch_row($answsql);
 				
 			// CHECKING IF THE FLIGHT WAS ALREADY PROCESSED
 			if($pair_data[2])
 			{
-				echo "WARNING: flight data was already exported! Process aborted.<br/>";
-				return 1;
+				echo "WARNING: flight data for the pair=$rec_id has been already exported to SAP ERP! Process aborted.<br/>";
+				return 0;
 			}	
 			
 	//2.		
@@ -340,13 +341,14 @@ function SAP_export_pair($rec_id)
 			$in_id=$pair_data[0];
 			$out_id=$pair_data[1];
 			
-			//a. APPLY PACKAGE AND DISCOUNT
-			$discount_in=ApplyDiscounts($in_id);
-			$discount_out=ApplyDiscounts($out_id);
+			//a. APPLY PACKAGE 
+			
+			/* FOR DEBUIGGING
 			echo '<pre>';
 				var_dump($discount_in);
 				var_dump($discount_out);
 			echo '</pre>';
+			*/
 			if(!ApplyPackage($in_id))
 							echo "WARNING: COULD NOT APPLY PACKAGE TO THE FLIGHT: $in_id - FAILED! <br/>";
 			else
@@ -355,12 +357,16 @@ function SAP_export_pair($rec_id)
 							echo "WARNING: COULD NOT APPLY PACKAGE TO THE FLIGHT: $out_id - FAILED! <br/>";
 			else
 							echo "SUCCESS: APPLIED PACKAGE TO THE FLIGHT: $out_id ! <br/>";
+			// b.AND DISCOUNT
+			$discount_in=ApplyDiscounts($in_id);
+			$discount_out=ApplyDiscounts($out_id);			
+			
 			if(!$discount_in)
-							echo "WARNING: COULD NOT APPLY DISCOUNT TO THE FLIGHT: $in_id - FAILED! <br/>";
+							echo "WARNING: NO DISCOUNTS FOR THE FLIGHT: $in_id  <br/>";
 			else
 							echo "SUCCESS: APPLIED DISCOUNT TO THE FLIGHT: $in_id !<br/>";
 			if(!$discount_out)
-							echo "WARNING: COULD NOT APPLY DISCOUNT TO THE FLIGHT: $out_id - FAILED!<br/>";
+							echo "WARNING: NO DISCOUNTS FOR THE FLIGHT: $out_id <br/>";
 			else
 							echo "SUCCESS: APPLIED DISCOUNT TO THE FLIGHT: $out_id !<br/>";
 			

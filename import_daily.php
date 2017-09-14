@@ -83,61 +83,7 @@ include ("header.php");
 			</td></tr>
 			<tr><td colspan="3"><p><input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
 			</table>
-			<!---
-			</p>
-			<p>Авиакомпания:</p>
-			<div id="Carrier"><label><p> 	
-				<select name="carrier" id="carrier" class="carrier" >
-				<option value="0"> -- любая --</option>
-				<option value="FV">Россия</option>
-				<option value="SU">Аэрофлот</option>
-				<option value="DP">Победа</option>
-				<option value="S7">S7</option>
-				<option value="UT">UTair</option>
-				<option value="U6">Уральские ав.</option>
-				<option value="7R">РусЛайн</option>
-				<option value="GH">Глобус</option>
-				<option value="5N">Нордавиа</option>
-				<option value="6W">Саратовские авиал.</option>
-				<option value="N4">Северный ветер</option>
-				<option value="D2">Северсталь</option>
-				<option value="B2">Белавиа</option>
-				<option value="NN">Вим-Авиа</option>
-				<option value="I8">Ижавиа</option>
-				<option value="KO">Комиавиатранс</option>
-				<option value="VGV">Вологодское авиап.</option>
-				<option value="КБ">Костромское авиап.</option>
-				<option value="ЛП">Псков Авиа</option>
-				<option value="R3">Якутия</option>
-				<option value="YC">Ямал</option>
-				<option value="BT">Air Baltic</option>
-				<option value="AF">Air France</option>
-				<option value="AZ">Alitalia</option>
-				<option value="BA">British Airways</option>
-				<option value="SN">Brussel Airlines</option>
-				<option value="OK">Czech Airlines</option>,
-				<option value="AY">Finnair</option>
-				<option value="KL">K L M</option>
-				<option value="LO">L O T</option>
-				<option value="LH">Lufthansa</option>
-				<option value="BJ">Nouvelair Tunisie</option>
-				<option value="SK">S A S</option>
-				<option value="LX">SWISS</option>
-				<option value="RL">Royal Flight</option>
-				<option value="TK">Turkish Airlines</option>
-				<option value="VY">Vueling</option>
-				<option value="J2">A Z A L</option>
-				<option value="KC">Air Astana</option>
-				<option value="A9">Georgian Airways</option>
-				<option value="9U">Air Moldova</option>
-				<option value="5F">Fly One</option>
-				<option value="7J">Tajik Air</option>
-				<option value="T5">TurkmenistanAir</option>
-				<option value="HY">Uzbekistan Air</option>
-				<option value="SZ">Somon Air</option>
-				</select></p></label>
-			</div>
-			-->
+			
 			<p><div id="errors"></div></p>	
 			
 		</form>
