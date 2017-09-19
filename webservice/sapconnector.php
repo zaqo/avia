@@ -40,11 +40,11 @@ function SAP_connector($params)
 	//var_dump($result);
 	$order=SAP_response_handler($result);
 	
-	/*
+	
 	// Вывод запроса и ответа
 	echo "Запрос:<pre>".htmlspecialchars($client->__getLastRequest()) ."</pre>";
 	echo "Ответ:<pre>".htmlspecialchars($client->__getLastResponse())."</pre>";
-	*/
+	
 	// Вывод отладочной информации в случае возникновения ошибки
 	if (is_soap_fault($result)) 
 	{ 

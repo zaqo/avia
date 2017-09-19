@@ -27,7 +27,8 @@ include ("header.php");
 		
 		// Form begins
 		$content.= '<form id="form" method=post action=update_bundle.php >
-					<div id="add_field_area"><table id="myTab" class="myTab"><caption><b>Создаем пакет</b></caption>
+					<div id="add_field_area"><table id="myTab" class="fullTab"><caption><b>Создаем пакет</b></caption>
+					<tr><th></th></tr>
 					<tr><td><b>НАЗВАНИЕ:</b><input type="text" value="" name="pack_name" placeholder="Название пакета" /></td></tr>
 					<tr><td>Код NAV:<input type="text" value="" name="nav" /></td></tr>
 					<tr><td>Код SAP:<input type="text" value="" name="sap" /></td></tr>

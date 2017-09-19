@@ -74,6 +74,7 @@
 			echo "<div class='dropdown'>
 				<button onclick='myFunction4()' class='dropbtn'>Клиенты</button>
 				<div id=\"myDropdown4\" class=\"dropdown-content\">
+				
 				<a href=\"show_contracts.php\">Контракты</a>
 				<a href=\"create_contract.php\">Создать Контракт</a>
 				<a href=\"show_contracts.php\">Клиенты</a>
@@ -84,6 +85,7 @@
 			echo "<div class='dropdown'>
 				<button onclick='myFunction5()' class='dropbtn'>Прочее</button>
 				<div id=\"myDropdown5\" class=\"dropdown-content\">
+				<a href=\"list_flights.php\">Мед.осмотр экипажа</a>
 				<a href=\"show_mus.php\">Единицы измерения</a>
 				<a href=\"create_mu.php\">Добавить ед.изм.</a>
 				</div>
