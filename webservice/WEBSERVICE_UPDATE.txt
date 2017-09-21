@@ -1,0 +1,11 @@
+ПОСЛЕДОВАТЕЛЬНОСТЬ ИЗМЕНЕНИЯ ВЕБ_СЕРВИСА
+
+1. function SAP_connector($params) - меняем название функции, используем название 
+	из тэга wsoap12:operation soapAction после последнего двоеточия (/webservice/sapconnector.php)
+
+2. Меняем названия в структуре объекта $result function SAP_response_handler($Return2) 
+	для правильной обработки ошибок используем имена полей из xsd:complexType name="BAPIRET2
+	RETURN2 - это массив BAPIRET2
+	
+3. Меняем названия в структуре объекта class Request (update_req.php), 
+	используем названия полей из тэга element name="Z_PM_ALM_NOTIF_CRUD2

@@ -43,7 +43,7 @@
 						$content.="<tr>";
 						$content.= "<td>$num</td>";
 						$content.= "<td>$date_rec</a></td>";
-						$content.= "<td><a href=\"form_medical.php?id=$flight&id_nav=$id_NAV&customer=$customer\">$flight</a></td>";
+						$content.= "<td><a href=\"form_medical.php?id=$id\">$flight</a></td>";
 						$content.="<td>$customer</td></tr>";
 						$num+=1;
 		}

@@ -2,14 +2,16 @@
 //LINKING SERVICES TO THE DISCOUNT
 include ("header.php"); 
 	
-	if(isset($_REQUEST['id'])) 		$flight	= $_REQUEST['id'];
-	if(isset($_REQUEST['id_nav'])) 		$id_NAV	= $_REQUEST['id_nav'];
+
+	if(isset($_REQUEST['id_NAV'])) 		$id_NAV	= $_REQUEST['id_NAV'];
 	if(isset($_REQUEST['customer'])) $customer	= $_REQUEST['customer'];
 	if(isset($_REQUEST['num'])) $number	= $_REQUEST['num'];
 	if(isset($_REQUEST['comment'])) $comment	= $_REQUEST['comment'];
 	if(isset($_REQUEST['doctor'])) $doctor	= $_REQUEST['doctor'];
+	if(isset($_REQUEST['flight'])) $flight	= $_REQUEST['flight'];
 	
 		$content="";
+	
 		$today=date("d.m.y");;
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
@@ -30,7 +32,7 @@ include ("header.php");
 		// Top of the table
 		$content.='<h2 align="center">СПРАВКА</h2>';
 		$content.='<h3 align="center"> о прохождении предполетного досмотра</h3>';
-		$content.="<div align=\"center\"> экипаж рейса _______________<tab5>АК $customer </div><br/>";
+		$content.="<div align=\"center\"> экипаж рейса: $flight <tab5>АК: $customer</div><br/>";
 		$content.= '<table class="fullTab">';
 		
 		$content.= '<tr><th rowspan="2">ДАТА</th><th colspan="2">Сведения по услугам</th><th rowspan="2">Примечание</th></tr>';
