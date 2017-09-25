@@ -44,7 +44,7 @@
 			echo "<div class='dropdown'>
 				<button onclick='myFunction()' class='dropbtn'>Загрузка</button>
 				<div id=\"myDropdown\" class=\"dropdown-content\">
-				<a href=\"import_daily.php\">Импорт <-| NAV</a>
+				<a href=\"import_daily.php\">Импорт <-| AODB</a>
 				<a href=\"pairs_daily.php\">Экспорт |-> SAP ERP</a>
 				</div>
 			</div>

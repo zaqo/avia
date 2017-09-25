@@ -20,6 +20,7 @@ include ("header.php");
 		$date=$row[1];
 		$customer=$row[2];
 		$id_NAV=$row[3];
+		$date_show=substr($date,-2).'-'.substr($date,5,2).'-'.substr($date,2,2);
 		
 		// Top of the table
 		$content.= '<table class="fullTab"><caption><b>Регистрируем осмотр</b></caption><br>';
@@ -28,6 +29,7 @@ include ("header.php");
 		// Iterating through the array
 				
 				$content.="<tr><td>РЕЙС:</td><td>$flight</td></tr>";
+				$content.="<tr><td>ДАТА:</td><td>$date_show</td></tr>";
 				$content.="<tr><td>КЛИЕНТ:</td><td>$customer</td></tr>";
 				$content.='<tr><td>КОЛИЧЕСТВО:</td><td><input type="number" value="" name="num" /></td></tr>';
 				$content.='<tr><td>ПРИМЕЧАНИЕ:</td><td><input type="text" value="" name="comment" placeholder="Текст примечания"/></td></tr>';
