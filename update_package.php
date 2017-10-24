@@ -7,7 +7,7 @@ include ("login_avia.php");
 //if(!$loggedin) echo "<script>window.location.replace('/Agents/login.php');</script>";
  $in=$_REQUEST;
  echo "<pre>";
-// var_dump($in);
+ //var_dump($in);
  echo "</pre>";
 	
 	if(isset($_REQUEST['pack_name'])) $name	= $_REQUEST['pack_name'];
@@ -39,22 +39,24 @@ include ("login_avia.php");
 		$input=count($services);
 		for($i=0; $i<$input; $i++)
 		{
-			$serviceid=$services[$i];
-			if($serviceid)
+			$id_NAV=$services[$i];
+			if($id_NAV)
 			{
-				//a. get the service's NAV id
-				//$findid="SELECT id_NAV FROM services WHERE id=$serviceid";
+				//a. get the service's  id
+				$findid='SELECT id FROM services WHERE id_NAV="'.$id_NAV.'"';
 				//echo $findid.'<br/>';	
-				//$answsql=mysqli_query($db_server,$findid);
-				//if(!$answsql) die("Insert INTO packages table failed: ".mysqli_error($db_server));
+				$answsql=mysqli_query($db_server,$findid);
+				if(!$answsql) die("SEARCH INTO services table failed: ".mysqli_error($db_server));
 				//if($row = mysqli_fetch_row( $answsql))
 				//{
 				//	$NAV_id=$row[0];
+					$row_id = mysqli_fetch_row( $answsql);
+					$service_id=$row_id[0];
 					if($everybody[$i]) $scope=0;// Applies to all airports
 					else $scope=1;
 					$textsql="INSERT INTO package_content
 						(package_id,service_id,scope,isValid)
-						VALUES( $pack_id,$serviceid,$scope,1)";
+						VALUES( $pack_id,$service_id,$scope,1)";
 					//echo $textsql.'<br/>';				
 					$answsql=mysqli_query($db_server,$textsql);
 					if(!$answsql) die("Insert INTO package_content table failed: ".mysqli_error($db_server));
@@ -97,9 +99,7 @@ include ("login_avia.php");
 				//else echo 'NO service found by given id! <br/>';
 			}
 		}
-
-	
-	echo '<script>history.go(-2);</script>';	
+	echo '<script>history.go(-1);</script>';	
 	
 mysqli_close($db_server);
 ?>

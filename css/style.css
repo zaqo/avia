@@ -116,8 +116,12 @@ color: red;
 input {
 	height: 20px;
 	margin: 5px;
-	width:400px;
+	width:200px;
 }
+#livesearch_input{
+	width:100px;
+}
+
 .addbutton {
 	text-align: center;
 	vertical-align:middle;
@@ -203,3 +207,27 @@ caption:before, caption:after {
     tab15 { padding-left: 60em; }
     tab16 { padding-left: 64em; }
   
+  /* BELOW FOR LIVE SEARCH*/
+  .search_result{
+    background: #FFF;
+    border: 1px #ccc solid;
+    width: 100px;
+    border-radius: 4px;
+    max-height:100px;
+    overflow-y:scroll;
+    display:none;
+}
+
+.search_result li{
+    list-style: none;
+    padding: 5px 10px;
+    margin: 0 0 0 -40px;
+    color: #0896D3;
+    border-bottom: 1px #ccc solid;
+    cursor: pointer;
+    transition:0.3s;
+}
+
+.search_result li:hover{
+    background: #F9FF00;
+}
