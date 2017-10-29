@@ -18,7 +18,7 @@
 	$systems=array();
 	
 	//SAP web service
-	$SAP_username= 'PHP_SALES';
+	$SAP_username= 'PHP_SERVICE';
 	$SAP_password= 'Service5#';
 	//DO NOT FORGET TO CHANGE SAP's URL - must be A101!!!
 	//$wsdlurl = "http://SRVR-186.local.newpulkovo.ru:8002/sap/bc/srt/wsdl/flv_10002A101AD1/bndg_url/sap/bc/srt/rfc/sap/zsd_order_avi_crud/001/zsd_order_avi_crud/zsd_order_avi_crud?sap-client=001";

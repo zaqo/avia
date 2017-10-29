@@ -25,7 +25,7 @@ function SAP_connector($params)
 	try
 	{
 		//$result = $client->ZsdOrderAviCrud($params);
-		$result = $client->ZSD_ORDER_AVI_CRUD2($params);
+		$result = $client->Z_SD_ORDER_ZAVI_CRUD($params);
 	}
 	catch(SoapFault $fault)
 	{
@@ -264,9 +264,9 @@ function SAP_export_flight($flightid)
 			}
 				// General request section
 			if($flight->direction)
-					$SalesDist='1';
+					$SalesDist='01';
 			else
-					$SalesDist='0';
+					$SalesDist='00';
 			$req->Servicemode = 'SO_C'; 		// CREATE
 			$req->IdSalesorder = '';
 			$req->IdFlight=$flight->flight_num;
@@ -342,24 +342,27 @@ function SAP_export_pair($rec_id)
 			$out_id=$pair_data[1];
 			
 			//a. APPLY PACKAGE 
-			
+			// ALL SERVICES GO TO INCOMING FLIGHT
 			/* FOR DEBUIGGING
 			echo '<pre>';
 				var_dump($discount_in);
 				var_dump($discount_out);
 			echo '</pre>';
 			*/
-			if(!ApplyPackage($in_id))
-							echo "WARNING: COULD NOT APPLY PACKAGE TO THE FLIGHT: $in_id - FAILED! <br/>";
+			if(!ApplyPackage($rec_id))
+							echo "WARNING: COULD NOT APPLY PACKAGE TO THE PAIR of FLIGHTS: $rec_id - FAILED! <br/>";
 			else
-							echo "SUCCESS: APPLIED PACKAGE TO THE FLIGHT: $in_id ! <br/>";
-			if(!ApplyPackage($out_id))
-							echo "WARNING: COULD NOT APPLY PACKAGE TO THE FLIGHT: $out_id - FAILED! <br/>";
-			else
-							echo "SUCCESS: APPLIED PACKAGE TO THE FLIGHT: $out_id ! <br/>";
+							echo "SUCCESS: APPLIED PACKAGE TO THE FLIGHTS: $in_id, $out_id  ! <br/>";
+		
+			//if(!ApplyPackage($out_id))
+				//			echo "WARNING: COULD NOT APPLY PACKAGE TO THE FLIGHT: $out_id - FAILED! <br/>";
+			//else
+				//			echo "SUCCESS: APPLIED PACKAGE TO THE FLIGHT: $out_id ! <br/>";
 			// b.AND DISCOUNT
 			$discount_in=ApplyDiscounts($in_id);
 			$discount_out=ApplyDiscounts($out_id);			
+			
+			// NOW DISCOUNTS ARE IN TWO ARRAYS
 			
 			if(!$discount_in)
 							echo "WARNING: NO DISCOUNTS FOR THE FLIGHT: $in_id  <br/>";
@@ -425,7 +428,7 @@ function SAP_export_pair($rec_id)
 			else 
 				echo "ERROR: Aircraft record COULD NOT BE LOCATED!!! <br/>";
 		
-			//  LOCATE all services relevant to the flight
+			//  LOCATE all services relevant for the flight
 			$textsqlin='SELECT service,quantity FROM  service_reg WHERE flight="'.$flight_in->id_NAV.'"';
 			$answsql=mysqli_query($db_server,$textsqlin);
 			if(!$answsql) die("Database SELECT in service_reg table failed: ".mysqli_error($db_server));
@@ -511,7 +514,7 @@ function SAP_export_pair($rec_id)
 			$req = new Request();
 			
 			// Set up params
-			$terminal='01'; // AIRPORT's terminal of departure
+			$terminal='T1'; // AIRPORT's terminal of departure
 			$disc_type='ZK01'; //  Type of discount
 			$disc_value=1;		// and it's value 
 			$currency='';	// Currency in invoice
@@ -531,7 +534,7 @@ function SAP_export_pair($rec_id)
 			
 			//2.1 LOCATE SAP SERVICE Id
 			
-				$servicesql='SELECT id_SAP,id FROM services WHERE id_NAV="'.$service_id.'"';	
+				$servicesql='SELECT id_SAP,id,id_mu FROM services WHERE id_NAV="'.$service_id.'"';	
 				$answsql=mysqli_query($db_server,$servicesql);	
 				if(!$answsql) die("Database SELECT in services table failed: ".mysqli_error($db_server));	
 
@@ -541,10 +544,18 @@ function SAP_export_pair($rec_id)
 				{	
 					//LOCATE AND APPLY DISCOUNT
 					$service_id=$sap_service_id[1];
-					if(array_key_exists($service_id,$discount_in)) $disc_value=$discount_in[$service_id];
-					
+					if(array_key_exists($service_id,$discount_in))
+					{
+						$disc_value=$discount_in[$service_id];
+					}
+					else
+					{
+						$disc_value=0;
+					}
+					$qty=$flight_in->services[$it][1];
+					if($sap_service_id[2]==3) $qty/=1000;
 					$item1->MATERIAL=$sap_service_id[0];
-					$item1->TARGET_QTY=$flight_in->services[$it][1];
+					$item1->TARGET_QTY=$qty;//HERE WE FIX KILOS TO TONS NAVISION ISSUE
 					$item1->COND_TYPE=$disc_type;
 					$item1->COND_VALUE=$disc_value;
 					$item1->CURRENCY=$currency;
@@ -578,7 +589,7 @@ function SAP_export_pair($rec_id)
 			
 			//2.1 LOCATE SAP SERVICE Id
 			
-			$servicesql='SELECT id_SAP,id FROM services WHERE id_NAV="'.$service_id.'"';	
+			$servicesql='SELECT id_SAP,id,id_mu FROM services WHERE id_NAV="'.$service_id.'"';	
 			$answsql=mysqli_query($db_server,$servicesql);	
 			if(!$answsql) die("Database SELECT in services table failed: ".mysqli_error($db_server));	
 			$sap_service_id= mysqli_fetch_row($answsql);
@@ -586,11 +597,19 @@ function SAP_export_pair($rec_id)
 			if (isset($sap_service_id[0]))
 			{	
 				$service_id=$sap_service_id[1];
-					if(array_key_exists($service_id,$discount_out)) 
+					
+				if(array_key_exists($service_id,$discount_out))
+					{
 						$disc_value=$discount_out[$service_id];
-				
+					}
+					else
+					{
+						$disc_value=0;
+					}
+				$qty_out=$flight_out->services[$k][1];
+					if($sap_service_id[2]==3) $qty_out/=1000;     //ALSO FIXING NAVISION KILOS
 				$item2->MATERIAL=$sap_service_id[0];
-				$item2->TARGET_QTY=$flight_out->services[$k][1];
+				$item2->TARGET_QTY=$qty_out;
 				$item2->COND_TYPE=$disc_type;
 				$item2->COND_VALUE=$disc_value;
 				$item2->CURRENCY=$currency;
@@ -655,6 +674,10 @@ function SAP_export_pair($rec_id)
 					$SalesDist='1';
 			else
 					$SalesDist='0';
+			if($destination_zone)
+					$Sales_foreign='01';
+			else
+					$Sales_foreign='00';
 			$req->SERVICEMODE = $service_mode; 		
 			
 			$req->FLIGHTDATEIN=$flight_in->flight_date;
@@ -670,7 +693,9 @@ function SAP_export_pair($rec_id)
 			$req->ID_NOOFFLIGHTOUT=$flight_out->flight_num;
 			$req->ID_FLIGHTCATEGORY = $flight_out->flight_cat;
 			$req->ID_FLIGHTTYPE = $flight_out->flight_type;
-			$req->ID_AIRPORTCLASS = $destination_zone;// BUT ALTERNATIVELY IT COULD BE DONE VIA $destination_zone
+			$req->ID_AIRPORTCLASS = $Sales_foreign;// BUT ALTERNATIVELY IT COULD BE DONE VIA $destination_zone
+			$req->MTOWIN=$flight_in->plane_mow;
+			$req->MTOWOUT=$flight_out->plane_mow;
 			$req->RETURN2 = '';
 			//$req->BAPIRET2 = '';
 			

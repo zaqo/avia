@@ -63,7 +63,7 @@ include ("header.php");
 			</div>
 		 	</td><td>
 			<div id="month"><p> 	
-				<select name="month" id="month" class="date" >
+				<select name="month" id="month" class="date" required>
 				<option value="1">Январь</option>
 				<option value="2">Февраль</option>
 				<option value="3">Март</option>
@@ -79,18 +79,17 @@ include ("header.php");
 				</select></p>
 			
 			</div>
-			</td><td> <select name="year" id="year" class="date" >
+			</td><td> <select name="year" id="year" class="date" required >
+				<option disabled  value>---</option>
 				<option value="2017">2017</option>
+				<option value="2018">2018</option>
 				</select>
 			</td></tr>
-			<tr><td colspan="3"><p><input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
-			</table>
-			<!---
-			</p>
-			<p>Авиакомпания:</p>
-			<div id="Carrier"><label><p> 	
+			<tr><td colspan="3">
+			<label><b>Авиакомпания:</b></label>
+			<div id="Carrier"> 	
 				<select name="carrier" id="carrier" class="carrier" >
-				<option value="0"> -- любая --</option>
+				<option selected value="0">  -- все -- </option>
 				<option value="FV">Россия</option>
 				<option value="SU">Аэрофлот</option>
 				<option value="DP">Победа</option>
@@ -137,8 +136,14 @@ include ("header.php");
 				<option value="T5">TurkmenistanAir</option>
 				<option value="HY">Uzbekistan Air</option>
 				<option value="SZ">Somon Air</option>
-				</select></p></label>
-			</div>
+				</select>
+			</div></td>
+			</tr>
+			<tr><td colspan="3"><p><input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
+			</table>
+			<!---
+			</p>
+			
 			-->
 			<p><div id="errors"></div></p>	
 			

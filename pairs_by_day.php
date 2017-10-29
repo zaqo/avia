@@ -67,10 +67,11 @@
 			
 	}
 	
-		$day   = $_POST['day'];
-		$month = $_POST['month'];
-		$year  = $_POST['year'];
-				
+		$day  	 = $_POST['day'];
+		$month 	 = $_POST['month'];
+		$year  	 = $_POST['year'];
+		$carrier = $_POST['carrier'];	
+		
 		$input_d=array($year,$month,$day);
 	
 		$date_=mktime(0,0,0,$month,$day,$year);
@@ -94,8 +95,12 @@
 		
 		
 		// 1. Check if there is a pair and make a record 
-		
-		$textsql='SELECT id,id_NAV,linked_to,flight
+		if($carrier)
+			$textsql='SELECT id,id_NAV,linked_to,flight FROM  flights WHERE date="'.$date.'" 
+						AND direction=0 AND sent_to_SAP IS NULL 
+						AND flight LIKE "'.$carrier.'%"';
+		else
+		 $textsql='SELECT id,id_NAV,linked_to,flight
 						FROM  flights WHERE date="'.$date.'" AND direction=0 AND sent_to_SAP IS NULL';
 				
 		$answsql=mysqli_query($db_server,$textsql);
@@ -166,6 +171,11 @@
 						$content.= "<td><a href=\"show_flight.php?id=$out_id\">$flight_num_pair</a></td>";
 						$content.="<td>$customer</td></tr>";
 					
+					}
+					else 
+					{
+						//echo "NO variants for flight# $in_id <br/>";
+						$num--;
 					}
 					// UPDATE FLIGHTS, NOW THEY HAVE BEEN PROCESSED, SO sent_to_SAP=1
 					/*

@@ -1,5 +1,8 @@
 ﻿<?php require_once 'login_avia.php';
-
+/*
+		SHOWS CONTENT OF A TEMPLATE
+			INPUT: ID
+*/ 
 include ("header.php"); 
 	
 		if(isset($_REQUEST['id']))
@@ -12,15 +15,29 @@ include ("header.php");
 			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
-			$check_in_mysql="SELECT package_content.id,service_id,scope,date,services.description,services.id_NAV FROM package_content
-								LEFT JOIN services ON package_content.service_id=services.id
-									WHERE package_id=$id AND package_content.isValid=1";
+			// TOP OF THE TABLE
+			
+			$check_name='SELECT name
+								FROM packages
+								WHERE id='.$id ;
 					
-					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
-					if(!$answsqlcheck) die("LOOKUP into packages TABLE failed: ".mysqli_error($db_server));
-		// Top of the table
-		$content.= "<table><caption><b>Содержание шаблона услуг № $id</b></caption><br>";
-		$content.= '<tr><th>№ </th><th>Услуга</th><th>Описание</th><th>Для всех</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th><th>Дата</th></tr>';
+			$answsqlname=mysqli_query($db_server,$check_name);
+			if(!$answsqlname) die("LOOKUP into packages TABLE failed: ".mysqli_error($db_server));
+			$pack_name=mysqli_fetch_row( $answsqlname );
+			
+				$content.= '<table><caption><b>Шаблон услуг: '.$pack_name[0].'</b></caption><br>';
+				$content.= '<tr><th>№ </th><th>Услуга</th><th>Описание</th><th>Для всех</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th><th>Дата</th></tr>';
+			
+			// GO LINE BY LINE
+			
+			$check_in_mysql="SELECT package_content.id,service_id,scope,date,services.description,services.id_NAV
+								FROM package_content
+								LEFT JOIN services ON package_content.service_id=services.id
+								WHERE package_id=$id AND package_content.isValid=1";
+					
+			$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
+			if(!$answsqlcheck) die("LOOKUP into packages TABLE failed: ".mysqli_error($db_server));
+		
 		// Iterating through the array
 		$counter=1;
 		

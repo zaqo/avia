@@ -1,5 +1,8 @@
 ﻿<?php
-// This script sends data to SAP and updates record
+/* 
+		This script sends data to SAP and updates record
+			INPUT: array of pairs IDs
+*/
 include ("login_avia.php"); 
 include("/webservice/sapconnector.php");
 include ("functions.php");
@@ -45,10 +48,7 @@ include ("header.php");
 			public $ID_TERMINAL;
 			public $ID_AIRPORT;
 			public $ID_AIRCRAFTCLASS;
-			//public $PurchNoS;
-			//public $PoDatS;
-			//public $PoMethS;
-			//public $SalesDist;
+			
 	}
 
 	class ItemList
@@ -74,18 +74,10 @@ include ("header.php");
 			public $ID_PLANEOWNER;
 			public $SALES_ITEMS_IN;
 			public $ID_AIRPORTCLASS;
+			public $MTOWIN;
+			public $MTOWOUT;
 			public $RETURN2;
-			public $BAPIRET2;
-			//public $IdTerminal;
-			//public $IdAodb;
-			//public $Aodbdate;
-			//public $IdSalesorder;
-			//public $IdAircraft;
-			//public $IdAircraftclass;
-			//public $IdAirport;
-			//public $IdDirection;
-			//public $IdFlight;
-			//public $Billdate;
+			public $BAPIRET2;			
 	}
 		$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
 		$db_server->set_charset("utf8");
@@ -100,12 +92,24 @@ include ("header.php");
 				{
 					$order=SAP_export_pair($value);
 					
-					if($order)
+					if($order) //UPDATE FLAGS FOR PAIR AND FLIGHTS
 					{
 						$textsql="UPDATE flight_pairs SET sent_to_SAP=1, sd_order=$order WHERE id=$value";
-						
 						$answsql=mysqli_query($db_server,$textsql);
 						if(!$answsql) die("UPDATE of flight_pairs table failed: ".mysqli_error($db_server));
+						//DRAW INDIVIDUAL FLIGHTS
+						$textsql_fl="SELECT in_id,out_id FROM flight_pairs WHERE id=$value";
+						$answsql_fl=mysqli_query($db_server,$textsql_fl);
+						if(!$answsql_fl) die("SELECT TO flight_pairs table failed: ".mysqli_error($db_server));
+						$row=mysqli_fetch_row($answsql_fl);
+						$in_=$row[0];
+						$out_=$row[1];
+						$textsql_fl_update="UPDATE flights SET sent_to_SAP=1, sdorder=$order WHERE id=$in_";
+						$answsql=mysqli_query($db_server,$textsql_fl_update);
+						if(!$answsql) die("UPDATE of flights table failed: ".mysqli_error($db_server));
+						$textsql_fl_update="UPDATE flights SET sent_to_SAP=1, sdorder=$order WHERE id=$out_";
+						$answsql=mysqli_query($db_server,$textsql_fl_update);
+						if(!$answsql) die("UPDATE of flights table failed: ".mysqli_error($db_server));
 					}
 					$content.="<tr><td>$value</td><td>$order</td></th>";
 				}

@@ -16,18 +16,19 @@ include ("header.php");
 					if(!$answsqlcheck) die("SELECT into services TABLE failed: ".mysqli_error($db_server));
 		
 		// Constructs services dropdown
-		$services='<select name="val[]" id="val1" class="services" >';
+		$services='<select name="val[]" id="val1" class="services" required>';
 		while ($row = mysqli_fetch_row( $answsqlcheck ))
 		$services.='<option value="'.$row[0].'">'.$row[1].'</option>';
 		$services.='</select>';	
 
 		// Constructs clients dropdown
-		$check_clients='SELECT id,name FROM clients WHERE isValid=1';
+		$check_clients='SELECT id,name FROM clients WHERE name!="" AND isValid';
 					
 					$answsqlcheck=mysqli_query($db_server,$check_clients);
 					if(!$answsqlcheck) die("SELECT into clients TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
-		$clients='<select name="client" id="client" >';
+		$clients='<select name="client" id="client" required>';
+		$clients.='<option disabled selected value> -- выберите компанию -- </option>';
 		while ($row = mysqli_fetch_row( $answsqlcheck ))
 		$clients.='<option value="'.$row[0].'">'.$row[1].'</option>';
 		$clients.='</select>';		
@@ -37,9 +38,9 @@ include ("header.php");
 		$content.= '<form id="form" method=post action=update_discount.php >
 					<div id="add_field_area"><table id="myTab"><caption><b>Создаем скидку на клиента</b></caption>
 					<tr><th></th><th></th></tr>
-					<tr><td><b>НАЗВАНИЕ:</b></td><td><input type="text" value="" name="name" /></td></tr>
+					<tr><td><b>НАЗВАНИЕ:</b></td><td><input type="text" value="" name="name" required/></td></tr>
 					<tr><td><b>КЛИЕНТ:</b></td><td>'.$clients.'</td></tr>
-					<tr><td><b>СКИДКА (%):</b></td><td><input type="number" value="" name="val" value="0" min="0" max="100" step="0.1" /></td></tr>
+					<tr><td><b>СКИДКА (%):</b></td><td><input type="number" value="" name="val" value="0" min="0" max="100" step="0.001" required/></td></tr>
 					<tr><td><b>C:</b></td><td><input type="text" class="date_input" value="" name="from" onfocus="this.select();lcs(this)"
 												onclick="event.cancelBubble=true;this.select();lcs(this)"/></td></tr>
 					<tr><td><b>ПО:</b></td><td><input type="text" class="date_input" value="" name="to" onfocus="this.select();lcs(this)"

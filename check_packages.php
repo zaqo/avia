@@ -18,8 +18,8 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into packages TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
-		$content.= "<table><caption><b>Шаблоны услуг по рейсу</b></caption><br>";
-		$content.= '<tr><th>№ </th><th>Название</th><th>Клиент</th><th>Действует</th><th>Дата</th></tr>';
+		$content.= "<table class='aviaTab_pack'><caption><b>Шаблоны услуг по рейсу</b></caption><br>";
+		$content.= '<tr><th class="col1">№ </th><th class="col3"> Название</th><th class="col80">Клиент</th><th class="col50">Действует</th><th class="col50">Дата</th><th class="col1"></th></tr>';
 		// Iterating through the array
 		$counter=1;
 		
@@ -29,17 +29,24 @@ include ("header.php");
 				$name=$row[1];
 				$client=$row[2];
 				$date=$row[4];
-				
+				$cdate=substr($date,8,2)."-".substr($date, 5,2)."-".substr($date, 2,2);
 				$content.= "<tr><td>$counter</td>";
 				$content.= "<td><a href=\"show_package.php?id=$rec_id\">$name</a></td>";
 				$content.= "<td>$client</td>";
 				
 				if ($row[3])
-					$content.= "<td>Да</td>";
+				{	
+					$content.= "<td><img src='/avia/css/green_circle.png' alt='Ok' title='Статус' height='30' width='30' ></td>";
+					$content.= "<td>$cdate</td>";
+					$content.="<td ><a href='delete_package.php?id=$rec_id' ><img src='/avia/css/delete.png' alt='Delete' title='Удалить' ></a></td>";
+				}
 				else
-					$content.= "<td>Нет</td>";
-		$content.= "<td>$date</td>";
-				$content.= '</tr>';
+				{
+					$content.= "<td><img src='/avia/css/red_ball.png' alt='No' title='Статус' height='30' width='30'></td>";
+					$content.= "<td>$cdate</td>";
+					$content.="<td></td>";
+				
+				}$content.= '</tr>';
 				
 			$counter+=1;
 			

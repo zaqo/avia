@@ -23,9 +23,20 @@ table.myTab {
 	table-layout:fixed;
 	width: 30%;
 }
- .col1 { width: 30px; }
-   .col2 { width: 100px; }
-   .col3 { width: 290px; }
+	.col1 { width: 30px; }
+	.col2 { width: 100px; }
+	.col3 { width: 290px; }
+	.col50 { width: 50px; }
+	.col80 { width: 80px; }
+table.aviaTab_pack {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+	margin:0px auto;
+	text-align: center;
+	align: center;
+	table-layout:fixed;
+	width: 60%;
+}
 table.fullTab {
     font-family: arial, sans-serif;
     border-collapse: collapse;
