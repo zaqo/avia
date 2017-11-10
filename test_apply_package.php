@@ -2,6 +2,7 @@
 
 	include ("header.php"); 
 	include_once("login_avia.php");
+	include_once("apply_package.php");
 	include_once ("functions.php"); 
 	//require_once 'login_avia.php';
 
@@ -61,7 +62,7 @@
 	echo '<hr><br>';
 	
 	//$result=SAP_connector($req);
-	$res=ApplyPackage(1301684);
+	$res=ApplyPackage(244);
 	if ($res) echo "Package applied successfully! <br/>";
 	else echo "ERROR: package application aborted! <br/>";
 	//Show_page($content);

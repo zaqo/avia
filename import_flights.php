@@ -55,7 +55,7 @@ class Flight
 							echo "Error in statement preparation/execution.\n";
 							die( print_r( sqlsrv_errors(), true));
 						}
-		sqlsrv_fetch( $stmt );
+		//sqlsrv_fetch( $stmt );
 		$direction='';
 		
 		//Set up mySQL connection
@@ -71,7 +71,7 @@ class Flight
 						<th>Бортовой номер</th><th>Аэропорт</th><th>Тип полета</th><th>Макс.масса</th>
 						<th>->Пасс.Взр</th><th>->Пасс.Дети</th>
 						<th><-Пасс.Взр</th><th><-Пасс.Дети</th>
-						<th>Связка</th><th>Клиент</th><th>Плательщик</th><th>Владелец</th><th>Вертолет</th><th>Кат.</th></tr>';
+						<th>Связка</th><th>Клиент</th><th>Плательщик</th><th>Владелец</th><th>Вертолет</th><th>Кат.</th><th>Отправл.</th><th>Услуги</th></tr>';
 		// Iterating through the array
 		
 		$counter=1;
@@ -104,8 +104,6 @@ class Flight
 				
 					foreach ($row as $key=>$value)
 						$content.= "<td>$value</td>";
-				
-					$content.= '</tr>';
 				
 				
 					//Transfer to MySQL section
@@ -162,7 +160,7 @@ class Flight
 							echo "Error in SQL server execution.\n";
 							die( print_r( sqlsrv_errors(), true));
 						}
-						sqlsrv_fetch( $stmtnext );
+						//sqlsrv_fetch( $stmtnext );
 				
 						//Set up mySQL connection
 						// 1. Clean old
@@ -174,12 +172,13 @@ class Flight
 								
 						if(!$answsqlnext) die("DELETE in service_reg TABLE failed: ".mysqli_error($db_server));
 						
+						$content.= '<td><ul>';
 						while( $rownew = sqlsrv_fetch_array( $stmtnext, SQLSRV_FETCH_NUMERIC) )  
 						{ 
 
 							$rownew[0]=iconv('windows-1251','utf-8',$rownew[0]);
 				
-													
+							$content.= '<li>'.$rownew[0].'</li>';						
 							// 2. INSERT new
 							$transfer_mysql='INSERT INTO service_reg
 									(flight,service,quantity) 
@@ -191,13 +190,16 @@ class Flight
 								if(!$answsqlnext) die("INSERT into TABLE failed: ".mysqli_error($db_server));
 			
 						}
-					
+					$content.= '</ul></td>';
+					$content.= '</tr>';
 					$counter+=1;
 				}
 		}
 		$content.= '</table>';
 		//$content.='<footer><a href="localhost/avia/export_daily.php" > <img src="/avia/src/sap_small.png" alt="Export orders" title="Go" width="64" height="64"></a></footer>';
 	Show_page($content);
-	sqlsrv_close($conn);
+	sqlsrv_free_stmt( $stmt);  
+	mysqli_close($db_server);
+sqlsrv_close($conn);
 	?>
 	

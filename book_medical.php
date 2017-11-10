@@ -1,14 +1,14 @@
 ﻿<?php require_once 'login_avia.php';
 //LINKING SERVICES TO THE DISCOUNT
-include ("header.php"); 
+include ("header_tpl_doc.php"); 
 	
 
-	if(isset($_REQUEST['id_NAV'])) 		$id_NAV	= $_REQUEST['id_NAV'];
-	if(isset($_REQUEST['customer'])) $customer	= $_REQUEST['customer'];
-	if(isset($_REQUEST['num'])) $number	= $_REQUEST['num'];
-	if(isset($_REQUEST['comment'])) $comment	= $_REQUEST['comment'];
-	if(isset($_REQUEST['doctor'])) $doctor	= $_REQUEST['doctor'];
-	if(isset($_REQUEST['flight'])) $flight	= $_REQUEST['flight'];
+	if(isset($_REQUEST['flight'])) 		$flight	= $_REQUEST['flight'];
+	if(isset($_REQUEST['date'])) 		$date	= $_REQUEST['date'];
+	if(isset($_REQUEST['qty'])) 		$quantity	= $_REQUEST['qty'];
+	if(isset($_REQUEST['comment'])) 	$comment	= $_REQUEST['comment'];
+	if(isset($_REQUEST['who'])) 		$doctor	= $_REQUEST['who'];
+	//if(isset($_REQUEST['flight'])) 		$flight	= $_REQUEST['flight'];
 	
 		$content="";
 	
@@ -20,10 +20,10 @@ include ("header.php");
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
 		// 1. RECORD THE SERVICE
-				$transfer_mysql='INSERT INTO service_reg
-								(flight,service,quantity) 
+				$transfer_mysql='INSERT INTO avia.medical_reg
+								(flight,date,qty,who,comment,isValid) 
 								VALUES
-								('.$id_NAV.',"A0300462",'.$number.')';
+								("'.$flight.'","'.$date.'","'.$quantity.'","'.$doctor.'","'.$comment.'",1)'; //A0300462 HARDCODED NOW!!!
 								
 								$answsqlnext=mysqli_query($db_server,$transfer_mysql);
 								
@@ -32,7 +32,7 @@ include ("header.php");
 		// Top of the table
 		$content.='<h2 align="center">СПРАВКА</h2>';
 		$content.='<h3 align="center"> о прохождении предполетного досмотра</h3>';
-		$content.="<div align=\"center\"> экипаж рейса: $flight <tab5>АК: $customer</div><br/>";
+		$content.="<div align=\"center\"> экипаж рейса: $flight <tab5>АК: </div><br/>";
 		$content.= '<table class="fullTab">';
 		
 		$content.= '<tr><th rowspan="2">ДАТА</th><th colspan="2">Сведения по услугам</th><th rowspan="2">Примечание</th></tr>';
@@ -41,7 +41,7 @@ include ("header.php");
 				$content.="<tr><td>Ед.изм.</td><td>Кол-во</td></tr>";
 				//$content.="<tr><td>КЛИЕНТ:</td><td>$customer</td></tr>";
 				$content.="<tr><td>1</td><td>2</td><td>3</td><td>4</td></tr>";
-				$content.="<tr><td>$today</td><td>ЧЕЛ</td><td>$number</td><td>$comment</td></tr>";
+				$content.="<tr><td>$today</td><td>ЧЕЛ</td><td>$quantity</td><td>$comment</td></tr>";
 				$content.= '</table>';
 				$content.='<br/><br/><br/><div align="left"><tab4>ПОДПИСИ:</div><br/><br/>';
 				$content.='<div align="center"><b>От: ООО ВВСС <tab6>От: ЭКИПАЖА</b></div><br/><br/>';

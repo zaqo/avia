@@ -29,6 +29,7 @@ include ("header.php");
 			public $plane_class;
 			public $plane_mow;
 			public $airport;
+			public $airport_class;
 			public $passengers_adults;
 			public $passengers_kids;
 			public $customer;
@@ -47,6 +48,7 @@ include ("header.php");
 			public $ID_AODB;
 			public $ID_TERMINAL;
 			public $ID_AIRPORT;
+			public $ID_AIRPORTCLASS;
 			public $ID_AIRCRAFTCLASS;
 			
 	}

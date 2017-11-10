@@ -114,6 +114,7 @@ include ("header.php");
 				<option value="BT">Air Baltic</option>
 				<option value="AF">Air France</option>
 				<option value="AZ">Alitalia</option>
+				<option value="OS">Austrian</option>
 				<option value="BA">British Airways</option>
 				<option value="SN">Brussel Airlines</option>
 				<option value="OK">Czech Airlines</option>,

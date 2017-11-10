@@ -80,13 +80,13 @@ function ApplyPackage($rec_id)
 						plane_mow,airport,passengers_adults,passengers_kids,customer_id,
 						bill_to_id,owner,time_fact,package_applied FROM  flights WHERE id="'.$out_.'"';
 				
-			$answsql=mysqli_query($db_server,$textsql);
+			$answsql_out=mysqli_query($db_server,$textsql);
 				
-			if(!$answsql) die("Database SELECT TO flights table failed: ".mysqli_error($db_server));	
+			if(!$answsql_out) die("Database SELECT TO flights table failed: ".mysqli_error($db_server));	
 			
-				$flight_data= mysqli_fetch_row($answsql);
-				$flight_num=$flight_data[3];
-				$pack_flag=$flight_data[15];
+				$flight_data_out= mysqli_fetch_row($answsql_out);
+				$flight_num=$flight_data_out[3];
+				$pack_flag=$flight_data_out[15];
 				//Check out if package was already applied
 				if($pack_flag)
 				{
@@ -95,21 +95,21 @@ function ApplyPackage($rec_id)
 				}
 		//SET UP OUT Flight's Object
 				$flight_out= new Flight();
-				$flight_out->id=$flight_data[0];
-				$flight_out->id_NAV=$flight_data[1];
-				$flight_out->flight_date=$flight_data[2];
+				$flight_out->id=$flight_data_out[0];
+				$flight_out->id_NAV=$flight_data_out[1];
+				$flight_out->flight_date=$flight_data_out[2];
 				$flight_out->flight_num=$flight_num;
-				$flight_out->direction=$flight_data[4];
-				$flight_out->plane_id=$flight_data[5];
-				$flight_out->plane_type=$flight_data[6];
-				$flight_out->plane_mow=$flight_data[7];
-				$flight_out->airport=$flight_data[8];
-				$flight_out->passengers_adults=$flight_data[9];
-				$flight_out->passengers_kids=$flight_data[10];
-				$flight_out->customer=$flight_data[11];
-				$flight_out->bill_to=$flight_data[12];
-				$flight_out->plane_owner=$flight_data[13];
-				$flight_out->time_fact=$flight_data[14];
+				$flight_out->direction=$flight_data_out[4];
+				$flight_out->plane_id=$flight_data_out[5];
+				$flight_out->plane_type=$flight_data_out[6];
+				$flight_out->plane_mow=$flight_data_out[7];
+				$flight_out->airport=$flight_data_out[8];
+				$flight_out->passengers_adults=$flight_data_out[9];
+				$flight_out->passengers_kids=$flight_data_out[10];
+				$flight_out->customer=$flight_data_out[11];
+				$flight_out->bill_to=$flight_data_out[12];
+				$flight_out->plane_owner=$flight_data_out[13];
+				$flight_out->time_fact=$flight_data_out[14];
 			
 		//  1. LOCATE all packages relevant to the flight
 			$clientsql='SELECT id FROM clients WHERE id_NAV="'.$flight->bill_to.'"';
@@ -118,7 +118,11 @@ function ApplyPackage($rec_id)
 				
 			if(!$answsql0) die("Database SELECT in clients table failed: ".mysqli_error($db_server));
 				//echo 'Package with:'.$answsql->num_rows.' rows<\br>';
-			if(!$answsql0->num_rows) return 1; // No information about client
+			if(!$answsql0->num_rows)
+			{
+				echo "WARNING: NO INFO ABOUT Client! <br/>";
+				return 0; // No information about client
+			}
 			$client_id=mysqli_fetch_row($answsql0);
 			//PICKING UP PACKAGE BY CLIENT ID - NEED REFACTORING HERE!
 			$textsql='SELECT id FROM packages WHERE client_id='.$client_id[0].' AND isValid=1';
@@ -152,12 +156,16 @@ function ApplyPackage($rec_id)
 							$passengers=$flight_out->passengers_adults;
 							$passengers_kids=$flight_out->passengers_kids;
 							$plane_mow=$flight_out->plane_mow;
+							$flight_id=$flight_out->id_NAV;
+							$airport=$flight_out->airport;
 						}
 						else
 						{
 							$passengers=$flight->passengers_adults;
 							$passengers_kids=$flight->passengers_kids;
 							$plane_mow=$flight->plane_mow;
+							$flight_id=$flight->id_NAV;
+							$airport=$flight->airport;
 						}
 						$sqlgetservice='SELECT id_mu,isforKids,id_NAV FROM services 
 									WHERE id='.$service_id;
@@ -175,7 +183,7 @@ function ApplyPackage($rec_id)
 							case 1: // applies to a flight
 								$quantity=1;
 								break;
-							case 2:  // based on passengers quantity
+							case 2:  // based on passengers quantity - depending on kids or adults
 								if($mes_unit[1]) $quantity=$passengers_kids;
 								else $quantity=$passengers;
 								break;
@@ -184,9 +192,16 @@ function ApplyPackage($rec_id)
 							break;
 							case 6:  // WATER - NOW IT"S ZEROED
 								$quantity=0;
-							case 8:  // TIME FOR OVERDRAFT - NOW IT"S ZEROED
+							case 7:  // TIME FOR PARKING OVERDRAFT IN HOURS - NOW IT"S ZEROED
 								$quantity=0;
 							break;
+							case 8:  // TIME FOR PARKING OVERDRAFT IN DAYS - NOW IT"S ZEROED
+								$quantity=0;
+							break;
+							case 9:  // based on TOTAL passengers quantity - independing on kids or adults
+								$quantity=$passengers_kids+$passengers;
+								
+								break;
 							default:
 								echo "WARNING: Measurement unit for a service: $service_id  is not defined! <br/>";
 								$quantity=0;
@@ -198,36 +213,49 @@ function ApplyPackage($rec_id)
 							$transfer_mysql='INSERT INTO service_reg 
 									(flight,service,quantity) 
 									VALUES
-									("'.$flight->id_NAV.'","'.$service_nav.'",'.$quantity.')';
+									("'.$flight_id.'","'.$service_nav.'","'.$quantity.'")';
 							//echo "<br/> ALL FLIGHTS ".$transfer_mysql."<br/>";
 							$answsql=mysqli_query($db_server,$transfer_mysql);
-							if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));
+							if(!$answsql) die("INSERT into TABLE failed: #1".mysqli_error($db_server));
 						}	
 						else              // apply to certain flights, depends on the airport
 						{
 							$pack_pos=$cond[0];
 						 // Apply conditions
-							$sqlairports='SELECT cond FROM package_conditions 
-									WHERE airport_id='.$flight->airport.'
-									AND package_position_id = '.$pack_pos.'
+						 // CHECK IF CONDITION IS INCLUSIVE OR EXCLUSIVE
+						 $sqlairports='SELECT cond,airport_id FROM package_conditions 
+									WHERE  package_position_id = "'.$pack_pos.'"
 									AND isValid=1';
 							$answairport=mysqli_query($db_server,$sqlairports);
 							if(!$answairport) die("SELECT into package conditions TABLE failed: ".mysqli_error($db_server));
+							$airport_flag=0;
 							$res_cond=mysqli_fetch_row($answairport);
-							if($res_cond[0]) // Apply for this airport 
+							$include_flag=$res_cond[0];
+							if($res_cond[1]==$airport)
+								$airport_flag=1;
+							else
 							{
-								$transfer_mysql='INSERT INTO service_reg 
-									(flight,service,quantity) 
-									VALUES
-									("'.$flight->id_NAV.'","'.$service_nav.'",'.$quantity.')';
-								//echo "<br/>SPECIAL AIRPORTS FLIGHTS ".$transfer_mysql."<br/>";
-								$answsql=mysqli_query($db_server,$transfer_mysql);
-								if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));
+								while( $res_cond=mysqli_fetch_row($answairport))
+								{
+									if($res_cond[1]==$airport)
+										$airport_flag=1;
+								}
 							}
+							if(($airport_flag&&$include_flag)||(!$airport_flag&&!$include_flag))
+							{
+									$transfer_mysql='INSERT INTO service_reg 
+										(flight,service,quantity) 
+										VALUES
+									("'.$flight_id.'","'.$service_nav.'","'.$quantity.'")';
+									//echo "<br/>SPECIAL AIRPORTS CONDITION ".$transfer_mysql."<br/>";
+									$answsql=mysqli_query($db_server,$transfer_mysql);
+									if(!$answsql) die("INSERT into TABLE failed: #2".mysqli_error($db_server));
+							}	
 						}
 					}
 				}
 			}
+		
 		$finish_mysql="UPDATE  flights SET package_applied=1 WHERE id=$in_";
 		$answsql=mysqli_query($db_server,$finish_mysql);
 		if(!$answsql) die("UPDATE flights TABLE failed: ".mysqli_error($db_server));

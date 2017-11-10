@@ -304,6 +304,7 @@ function SAP_export_pair($rec_id)
 	ini_set("soap.wsdl_cache_enabled", "0");
 	include_once ("apply_discounts.php");
 	include_once ("apply_package.php");
+	include_once ("apply_bundle.php");	
 		
 		//Setting up the object
 		$flight_in= new Flight();
@@ -350,15 +351,21 @@ function SAP_export_pair($rec_id)
 			echo '</pre>';
 			*/
 			if(!ApplyPackage($rec_id))
-							echo "WARNING: COULD NOT APPLY PACKAGE TO THE PAIR of FLIGHTS: $rec_id - FAILED! <br/>";
+							echo "WARNING: COULD NOT APPLY TEMPLATE TO THE PAIR of FLIGHTS: $rec_id - FAILED! <br/>";
 			else
-							echo "SUCCESS: APPLIED PACKAGE TO THE FLIGHTS: $in_id, $out_id  ! <br/>";
+							echo "SUCCESS: APPLIED TEMPLATE TO THE FLIGHTS: $in_id, $out_id  ! <br/>";
 		
 			//if(!ApplyPackage($out_id))
 				//			echo "WARNING: COULD NOT APPLY PACKAGE TO THE FLIGHT: $out_id - FAILED! <br/>";
 			//else
 				//			echo "SUCCESS: APPLIED PACKAGE TO THE FLIGHT: $out_id ! <br/>";
-			// b.AND DISCOUNT
+			// b. AND BUNDLE
+			if(!ApplyBundle($rec_id))
+							echo "WARNING: COULD NOT APPLY BUNDLE TO THE PAIR of FLIGHTS: $rec_id - FAILED! <br/>";
+			else
+							echo "SUCCESS: APPLIED BUNDLE TO THE FLIGHTS: $in_id, $out_id  ! <br/>";
+			
+			// c.AND DISCOUNT
 			$discount_in=ApplyDiscounts($in_id);
 			$discount_out=ApplyDiscounts($out_id);			
 			
@@ -412,7 +419,11 @@ function SAP_export_pair($rec_id)
 			
 			$aport= mysqli_fetch_row($answsql);
 			if(isset($aport[0])) 
+			{
 				$flight_in->airport=$aport[0];
+				//$airport_cl_in=$aport[1];
+				$flight_in->airport_class=$aport[1];
+			}
 			else 
 				echo "ERROR: Airport CODE COULD NOT BE LOCATED!!! <br/>";
 			
@@ -429,7 +440,7 @@ function SAP_export_pair($rec_id)
 				echo "ERROR: Aircraft record COULD NOT BE LOCATED!!! <br/>";
 		
 			//  LOCATE all services relevant for the flight
-			$textsqlin='SELECT service,quantity FROM  service_reg WHERE flight="'.$flight_in->id_NAV.'"';
+			$textsqlin='SELECT service,quantity FROM  service_reg WHERE flight="'.$flight_in->id_NAV.'" AND isValid=1';
 			$answsql=mysqli_query($db_server,$textsqlin);
 			if(!$answsql) die("Database SELECT in service_reg table failed: ".mysqli_error($db_server));
 			$rows = $answsql->num_rows;
@@ -474,11 +485,12 @@ function SAP_export_pair($rec_id)
 			$answsql=mysqli_query($db_server,$aportsql);
 			if(!$answsql) die("Database SELECT in airports table failed: ".mysqli_error($db_server));	
 	
-			$aport= mysqli_fetch_row($answsql);
-			if(isset($aport[0])) 
+			$aport_out= mysqli_fetch_row($answsql);
+			if(isset($aport_out[0])) 
 			{	
-				$flight_out->airport=$aport[0];
-				$destination_zone=$aport[1];  // <-- TAKEN BY THE DEPARTURE AIRPORT
+				$flight_out->airport=$aport_out[0];
+				$destination_zone=$aport_out[1];  // <-- TAKEN BY THE DEPARTURE AIRPORT
+				$flight_out->airport_class=$aport_out[1];
 			}
 			else 
 				echo "ERROR: Airport CODE COULD NOT BE LOCATED!!! <br/>";
@@ -497,7 +509,7 @@ function SAP_export_pair($rec_id)
 				echo "ERROR: Aircraft record COULD NOT BE LOCATED!!! <br/>";
 		
 			//  LOCATE all services relevant to the flight
-			$textsql='SELECT service,quantity FROM service_reg WHERE flight="'.$flight_out->id_NAV.'"';	
+			$textsql='SELECT service,quantity FROM service_reg WHERE flight="'.$flight_out->id_NAV.'" AND isValid=1';	
 			$answsql=mysqli_query($db_server,$textsql);	
 			if(!$answsql) die("Database SELECT in service_reg table failed: ".mysqli_error($db_server));	
 			
@@ -524,24 +536,26 @@ function SAP_export_pair($rec_id)
 			$items=new ItemList();
 			for($it=0;$it<$services_count_in;$it++)
 			{	
-				$item1 = new Item();
-				// 1. Item number
-				$item_num=($it+1).'0';
-				$item1->ITM_NUMBER=$item_num;
+				//if($flight_in->services[$it][1])//THIS BANS ZERO QUANTITY ITEMS
+				//{
+				 $item1 = new Item();
+				 // 1. Item number
+				 $item_num=($it+1).'0';
+				 $item1->ITM_NUMBER=$item_num;
 			
-				// 2. Material code
-				$service_id=$flight_in->services[$it][0];
+				 // 2. Material code
+				 $service_id=$flight_in->services[$it][0];
 			
-			//2.1 LOCATE SAP SERVICE Id
+			     //2.1 LOCATE SAP SERVICE Id
 			
-				$servicesql='SELECT id_SAP,id,id_mu FROM services WHERE id_NAV="'.$service_id.'"';	
-				$answsql=mysqli_query($db_server,$servicesql);	
-				if(!$answsql) die("Database SELECT in services table failed: ".mysqli_error($db_server));	
+				 $servicesql='SELECT id_SAP,id,id_mu FROM services WHERE id_NAV="'.$service_id.'"';	
+				 $answsql=mysqli_query($db_server,$servicesql);	
+				 if(!$answsql) die("Database SELECT in services table failed: ".mysqli_error($db_server));	
 
-				$sap_service_id= mysqli_fetch_row($answsql);
-			//echo "SERVICE ID: $service_id |--> SAP ID: $sap_service_id[0]<br/>  ";
-				if (isset($sap_service_id[0]))
-				{	
+				 $sap_service_id= mysqli_fetch_row($answsql);
+			     //echo "SERVICE ID: $service_id |--> SAP ID: $sap_service_id[0]<br/>  ";
+				 if (isset($sap_service_id[0]))
+				 {	
 					//LOCATE AND APPLY DISCOUNT
 					$service_id=$sap_service_id[1];
 					if(array_key_exists($service_id,$discount_in))
@@ -562,16 +576,19 @@ function SAP_export_pair($rec_id)
 					$item1->ID_AODB=$flight_in->id_NAV;
 					$item1->ID_TERMINAL=$terminal;
 					$item1->ID_AIRPORT=$flight_in->airport;
+					$item1->ID_AIRPORTCLASS=$flight_in->airport_class;
 					$item1->ID_AIRCRAFTCLASS=$flight_in->plane_class;
-				}
-				else 
-				{	
-					echo "No SAP service ID located for service: $service_id  FLIGHT $out_id CANCELLED <br/> ";
+				 }
+				 else 
+				 {	
+				 	echo "No SAP service ID located for service: $service_id  FLIGHT $out_id CANCELLED <br/> ";
 					return 0;
-				}
+				 }
+				 $items->item[$it] = $item1;
+				//}
 			//Item List section
 			
-				$items->item[$it] = $item1;
+				
 			}
 		
 		// AND ADDING UP ONES FOR THE OUTGOING
@@ -616,11 +633,12 @@ function SAP_export_pair($rec_id)
 				$item2->ID_AODB=$flight_out->id_NAV;
 				$item2->ID_TERMINAL=$terminal;
 				$item2->ID_AIRPORT=$flight_out->airport;
+				$item2->ID_AIRPORTCLASS=$flight_out->airport_class;
 				$item2->ID_AIRCRAFTCLASS=$flight_out->plane_class;
 			}
 			else 
 			{	
-				echo "No SAP service ID located for service: $service_id  FLIGHT $out_id CANCELLED <br/> ";
+				echo "WARNING: NO SAP service ID located for service: $service_id  FLIGHT $out_id CANCELLED <br/> ";
 				return 0;
 			}
 			//Item List section
@@ -664,7 +682,7 @@ function SAP_export_pair($rec_id)
 			}
 			else 
 			{
-				echo "No SAP ERP ID defined for Client ID: $client_id  => FLIGHT $flightid CANCELLED<br/>";
+				echo "WARNING: NO SAP ERP ID defined for Client ID: $client_id  => FLIGHT $flightid CANCELLED<br/>";
 				return 0;
 			}
 				// General request section
@@ -674,6 +692,7 @@ function SAP_export_pair($rec_id)
 					$SalesDist='1';
 			else
 					$SalesDist='0';
+			$Sales_foreign='XX';
 			if($destination_zone)
 					$Sales_foreign='01';
 			else

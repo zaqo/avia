@@ -16,8 +16,10 @@ function ApplyDiscounts($flightid)
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
 			//  LOCATE flight data
-			$textsql="SELECT id,id_NAV,date,flight,direction,plane_num,plane_type,plane_mow,airport,passengers_adults,passengers_kids,
-						category,isHelicopter,time_fact FROM  flights WHERE id=$flightid";
+			$textsql="SELECT flights.id,flights.id_NAV,date,flight,direction,plane_num,plane_type,plane_mow,airport,passengers_adults,passengers_kids,
+						category,isHelicopter,time_fact,clients.id FROM  flights 
+						LEFT JOIN clients ON clients.id_NAV=flights.bill_to_id
+						WHERE flights.id=$flightid";
 				
 			$answsql=mysqli_query($db_server,$textsql);
 				
@@ -42,7 +44,7 @@ function ApplyDiscounts($flightid)
 				$category=$flight_data[11];
 				$isHelicopter=$flight_data[12];
 				$time_fact=$flight_data[13];
-				//$flight->bill_to=$flight_data[14];
+				$client_id=$flight_data[14];
 				//$flight->plane_owner=$flight_data[15];
 				$result_discount=array();
 		
@@ -217,7 +219,8 @@ function ApplyDiscounts($flightid)
 						$sqlservices='SELECT discount_id,discounts_individual.discount_val 
 									FROM discounts_ind_reg 
 									LEFT JOIN discounts_individual on discounts_individual.id = discounts_ind_reg.discount_id 
-									WHERE service_id='.$sid.' 
+									WHERE service_id="'.$sid.'" 
+										AND discounts_individual.client_id="'.$client_id.'"
 										AND discounts_individual.isValid=1 
 										AND discounts_individual.valid_from<="'.$flight_date.'" 
 										AND discounts_individual.valid_to>="'.$flight_date.'" ';//If we need zero as unlimited in valid_to, add it after additional OR here
@@ -298,10 +301,10 @@ function ApplyDiscounts($flightid)
 														break;
 												
 													case 4:  // based on plane MOW (not checking type of condition now)
-														if(($start_val<=$plane_mow)&&($end_val>=$plane_mow))
+														if(($start_val<=$plane_mow))
 															{	
 															$flag=1;
-															//echo "Flag was set! Condition 4. <br/>";
+															echo "Flag was set! Condition 4. <br/>";
 														}
 														break;
 													
