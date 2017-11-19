@@ -152,7 +152,7 @@ class Flight
 					*/
 						// Services registry update
 						
-						$tsql_route_detail="SELECT [Resource No_],[Quantity (Fact)] FROM dbo.[NCG\$AODB Route Detail] WHERE [Resource No_] <> '' AND [Route No_]=$flightid";
+						$tsql_route_detail="SELECT [Resource No_],[Quantity (Fact)],[AODB Service Code] FROM dbo.[NCG\$AODB Route Detail] WHERE [Resource No_] <> '' AND [Route No_]=$flightid";
 						$stmtnext = sqlsrv_query( $conn, $tsql_route_detail);
 		
 						if ( $stmtnext === false ) 
@@ -181,9 +181,9 @@ class Flight
 							$content.= '<li>'.$rownew[0].'</li>';						
 							// 2. INSERT new
 							$transfer_mysql='INSERT INTO service_reg
-									(flight,service,quantity) 
+									(flight,service,quantity,aodb_msg) 
 									VALUES
-									("'.$flightid_NAV.'","'.$rownew[0].'","'.$rownew[1].'")';
+									("'.$flightid_NAV.'","'.$rownew[0].'","'.$rownew[1].'","'.$rownew[2].'")';
 								
 								$answsqlnext=mysqli_query($db_server,$transfer_mysql);
 								

@@ -62,7 +62,8 @@
 	echo '<hr><br>';
 	
 	//$result=SAP_connector($req);
-	$res=ApplyPackage(244);
+	for ($i=0;$i<20;$i++)
+	$res=ApplyPackage(642);
 	if ($res) echo "Package applied successfully! <br/>";
 	else echo "ERROR: package application aborted! <br/>";
 	//Show_page($content);

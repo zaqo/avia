@@ -12,6 +12,7 @@ function ApplyPackage($rec_id)
 //	- 0 if package was already applied 
 	include("login_avia.php");
 	
+		set_time_limit(0);
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
 			$db_server->set_charset("utf8");
@@ -52,11 +53,13 @@ function ApplyPackage($rec_id)
 				$flight_num=$flight_data[3];
 				$pack_flag=$flight_data[15];
 				//Check out if package was already applied
+				
 				if($pack_flag)
 				{
 					echo "WARNING: FLIGHT #".$flight_num." PACKAGES HAVE BEEN ALREADY APPLIED! -=EXITING=- <br/> ";
 					return 0;
 				}
+				
 				//SET UP IN Flight's Object
 				$flight= new Flight();
 				$flight->id=$flight_data[0];
@@ -88,11 +91,13 @@ function ApplyPackage($rec_id)
 				$flight_num=$flight_data_out[3];
 				$pack_flag=$flight_data_out[15];
 				//Check out if package was already applied
+				
 				if($pack_flag)
 				{
 					echo "WARNING: FLIGHT #".$flight_num." PACKAGES HAVE BEEN ALREADY APPLIED! -=EXITING=- <br/> ";
 					return 0;
 				}
+				
 		//SET UP OUT Flight's Object
 				$flight_out= new Flight();
 				$flight_out->id=$flight_data_out[0];

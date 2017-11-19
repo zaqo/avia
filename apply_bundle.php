@@ -94,7 +94,7 @@ function ApplyBundle($rec_id)
 									(flight,service,quantity) 
 									VALUES
 									("'.$flight_id_out.'","'.$bundle_id_NAV.'","1")';//BUNDLE IS APPLIED TO THE OUTGOING
-				echo $transfer_mysql.'<br/>';			
+				//echo $transfer_mysql.'<br/>';			
 							$answsql=mysqli_query($db_server,$transfer_mysql);
 							if(!$answsql) die("INSERT into service_reg TABLE failed:".mysqli_error($db_server));
 			//PICKING UP BUNDLE CONTENT
@@ -132,13 +132,13 @@ function ApplyBundle($rec_id)
 				
 							$answsql3=mysqli_query($db_server,$conditionsql);
 							if(!$answsql3) die("Database SELECT in bundle_content table failed: ".mysqli_error($db_server));
-							$cond_worked=0;
+							
 							if($answsql3->num_rows)	
 							{
-							// b. CHECK IT
+							// b. CHECK IF THE SERVICE IN CONDITION WAS TAKEN FOR THE FLIGHT
 								$row_cond= mysqli_fetch_row($answsql3);
 								$checkservices='SELECT id,quantity FROM service_reg 
-								WHERE (flight='.$flight_id_in.' OR flight='.$flight_id_out.' )AND service="'.$row_cond[0].'"';
+								WHERE (flight='.$flight_id_in.' OR flight='.$flight_id_out.') AND service="'.$row_cond[0].'"';
 				
 								$answsql4=mysqli_query($db_server,$checkservices);
 								if(!$answsql4) die("Database SELECT in service_reg table failed: ".mysqli_error($db_server));

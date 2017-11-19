@@ -1,5 +1,5 @@
 ﻿<?php 
-echo time_over(534);
+echo time_over(202);
 
 function time_over( $pair_id)
 {
@@ -23,7 +23,7 @@ include ("header.php");
 			$pair= mysqli_fetch_row($answsql);
 			$in_id=$pair[0];
 			$out_id=$pair[1];
-			$textsqlout='SELECT time_fact FROM flights WHERE id="'.$in_id.'" OR id="'.$out_id.'"';	
+			$textsqlout='SELECT id,time_fact FROM flights WHERE id="'.$in_id.'" OR id="'.$out_id.'"';	
 			$answsql2=mysqli_query($db_server,$textsqlout);	
 			if(!$answsql2) die("Database SELECT TO flights table failed: ".mysqli_error($db_server));	
 			
@@ -31,15 +31,27 @@ include ("header.php");
 				
 				//SETTING UP outgoing Flight's Object
 				
-				$flight_in_time_fact=$flight_data_in[0];
+				if($flight_data_in[0]==$in_id)
+					$flight_in_time_fact=$flight_data_in[1];
+	
+				else
+					$flight_out_time_fact=$flight_data_in[1];
+				$flight_data_out= mysqli_fetch_row($answsql2);
+				
+				if($flight_data_out[0]==$out_id)
+					$flight_out_time_fact=$flight_data_out[1];
+		
+				else
+					$flight_in_time_fact=$flight_data_out[1];
+				
 				$in_H=(int)substr($flight_in_time_fact,0,2);
 				$in_S=(int)substr($flight_in_time_fact,-2);
 				$in_M=(int)substr($flight_in_time_fact,3,2);
 				
-				$flight_data_out= mysqli_fetch_row($answsql2);
+				
 				//SETTING UP outgoing Flight's Object
 				
-				$flight_out_time_fact=$flight_data_out[0];
+				//$flight_out_time_fact=$flight_data_out[0];
 				$out_H=(int)substr($flight_out_time_fact,0,2);
 				$out_S=(int)substr($flight_out_time_fact,-2);
 				$out_M=(int)substr($flight_out_time_fact,3,2);

@@ -3,7 +3,7 @@ function SAP_connector($params)
 {
 
 	include("login_avia.php");
-	include("parking_time.php");
+	
 	ini_set("soap.wsdl_cache_enabled", "0");
 	set_time_limit(0);
 	$locale = 'ru';
@@ -313,7 +313,9 @@ function SAP_export_pair($rec_id)
 		$flight_out= new Flight();
 		// CHECK PARKING OVERTIME
 		$parking_time=time_over_parking($rec_id);
-		echo "PARKING TIME IS: ".$parking_time."<br/>";
+		if($parking_time<0) $parking_time=0;
+		//echo "PARKING TIME IS: ".$parking_time."<br/>";
+		
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
 			$db_server->set_charset("utf8");
@@ -349,21 +351,13 @@ function SAP_export_pair($rec_id)
 			
 			//a. APPLY PACKAGE 
 			// ALL SERVICES GO TO INCOMING FLIGHT
-			/* FOR DEBUIGGING
-			echo '<pre>';
-				var_dump($discount_in);
-				var_dump($discount_out);
-			echo '</pre>';
-			*/
+			
 			if(!ApplyPackage($rec_id))
 							echo "WARNING: COULD NOT APPLY TEMPLATE TO THE PAIR of FLIGHTS: $rec_id - FAILED! <br/>";
 			else
 							echo "SUCCESS: APPLIED TEMPLATE TO THE FLIGHTS: $in_id, $out_id  ! <br/>";
 		
-			//if(!ApplyPackage($out_id))
-				//			echo "WARNING: COULD NOT APPLY PACKAGE TO THE FLIGHT: $out_id - FAILED! <br/>";
-			//else
-				//			echo "SUCCESS: APPLIED PACKAGE TO THE FLIGHT: $out_id ! <br/>";
+			
 			// b. AND BUNDLE
 			if(!ApplyBundle($rec_id))
 							echo "WARNING: COULD NOT APPLY BUNDLE TO THE PAIR of FLIGHTS: $rec_id - FAILED! <br/>";
@@ -418,9 +412,10 @@ function SAP_export_pair($rec_id)
 				
 				$airport_in=$flight_data[15];
 				$client_geo=$flight_data[16];
-				//$flight_in->plane_type=$flight_data[15];
 				
-			
+				if ($flight_in->passengers_adults||$flight_in->passengers_kids) $SZV_in_flag=1;
+				else $SZV_in_flag=0;
+				$SZV_exclude=' AND service <> "P0300422"'; // EXCLUDE SZV service if there are PAX on the flight
 			// Bill Date is now a date of incoming flight
 			$billdate=$flight_data[2];
 		
@@ -433,7 +428,7 @@ function SAP_export_pair($rec_id)
 			if(isset($aport[0])) 
 			{
 				$flight_in->airport=$aport[0];
-				//$airport_cl_in=$aport[1];
+				
 				$flight_in->airport_class=$aport[1];
 			}
 			else 
@@ -449,38 +444,14 @@ function SAP_export_pair($rec_id)
 			if(isset($aircraft[0])) 
 				$flight_in->plane_class=$aircraft[0];
 			else 
-				echo "ERROR: Aircraft record COULD NOT BE LOCATED!!! <br/>";
+				echo "ERROR: Aircraft record COULD NOT BE LOCATED. UPDATE TABLE OF AIRCRAFTS!!! <br/>";
 			
-			//CHECK OUT MEDICAL SERVICES
-			/* MUST BE FOR DEPARTING ONLY :)
-			$sql_med='SELECT quantity FROM  SUM(medical_reg) WHERE flight="'.$flight_in->flight_num'" AND date="'.$flight_in->flight_date'" AND isValid=1';
-			$answsql_med=mysqli_query($db_server,$sql_med);
-			if(!$answsql_med) die("Database SELECT in medical_reg table failed: ".mysqli_error($db_server));
-			$row_med= mysqli_fetch_row($answsql);
-			$qty_med=$row_med[0];
-			if($qty_med)//BOOK MEDICAL
-			{
-				if($client_geo) //RUSSIAN AIRLINES
-				{
-					$service_med="A0300462";// HARDCODED!!!
-				}
-				else
-				{
-					$service_med="A0300462";
-				}
-				$med_svs='INSERT INTO service_reg
-									(flight,service,quantity) 
-									VALUES
-									("'.$flight_in->id_NAV.'","'.$service_med.'","'.$qty_med.'")';
-								
-								$answsql_med_ins=mysqli_query($db_server,$med_svs);
-								
-								if(!$answsql_med_ins) die("INSERT into service_reg TABLE failed: ".mysqli_error($db_server));
-			}
-			*/
-			
-			//  LOCATE all services relevant for the flight
-			$textsqlin='SELECT service,quantity FROM  service_reg WHERE flight="'.$flight_in->id_NAV.'" AND isValid=1 AND quantity>0';
+			//  LOCATE all services relevant for the flight IN
+			$textsqlin='SELECT service,quantity FROM  service_reg 
+						WHERE flight="'.$flight_in->id_NAV.'" 
+						AND isValid=1 AND quantity>0
+						AND (aodb_msg NOT IN (SELECT aodb_msg FROM services_exclude) OR aodb_msg IS NULL)';
+			if($SZV_in_flag) $textsqlin.=$SZV_exclude;
 			$answsql=mysqli_query($db_server,$textsqlin);
 			if(!$answsql) die("Database SELECT in service_reg table failed: ".mysqli_error($db_server));
 			$rows = $answsql->num_rows;
@@ -522,7 +493,8 @@ function SAP_export_pair($rec_id)
 				$flight_out->time_fact=$flight_data_out[14];
 				
 				$airport_out=$flight_data_out[15];
-			
+				if ($flight_out->passengers_adults||$flight_out->passengers_kids) $SZV_out_flag=1;
+				else $SZV_out_flag=0;
 			// Locate Airport IATA code
 			$aportsql='SELECT code,domain FROM airports WHERE id="'.$airport_out.'"';	
 			$answsql=mysqli_query($db_server,$aportsql);
@@ -558,8 +530,10 @@ function SAP_export_pair($rec_id)
 					$service_parking="A0100207";// HARDCODED!!!
 				}
 				else
-				{
+				{//FOREIGN IN DAYS
 					$service_parking="A0100208";
+					$parking_time=round($parking_time/24);
+					
 				}
 				$parking_svs='INSERT INTO service_reg
 									(flight,service,quantity) 
@@ -596,8 +570,13 @@ function SAP_export_pair($rec_id)
 								if(!$answsql_med_ins) die("INSERT into service_reg TABLE failed: ".mysqli_error($db_server));
 			}
 			
-			//  LOCATE all services relevant to the flight
-			$textsql='SELECT service,quantity FROM service_reg WHERE flight="'.$flight_out->id_NAV.'" AND isValid=1 AND quantity>0';	
+			//  LOCATE all services relevant to the flight OUT
+			$textsql='SELECT service,quantity FROM  service_reg 
+						WHERE flight="'.$flight_out->id_NAV.'" 
+						AND isValid=1 AND quantity>0
+						AND (aodb_msg NOT IN (SELECT aodb_msg FROM services_exclude) OR aodb_msg IS NULL)';
+			if($SZV_out_flag) $textsql.=$SZV_exclude;
+			
 			$answsql=mysqli_query($db_server,$textsql);	
 			if(!$answsql) die("Database SELECT in service_reg table failed: ".mysqli_error($db_server));	
 			
@@ -655,9 +634,9 @@ function SAP_export_pair($rec_id)
 						$disc_value=0;
 					}
 					$qty=$flight_in->services[$it][1];
-					if($sap_service_id[2]==3) $qty/=1000;
+					if($sap_service_id[2]==3) $qty=round($qty/1000);//HERE WE FIX KILOS TO TONS NAVISION ISSUE
 					$item1->MATERIAL=$sap_service_id[0];
-					$item1->TARGET_QTY=$qty;//HERE WE FIX KILOS TO TONS NAVISION ISSUE
+					$item1->TARGET_QTY=$qty;
 					$item1->COND_TYPE=$disc_type;
 					$item1->COND_VALUE=$disc_value;
 					$item1->CURRENCY=$currency;
@@ -712,7 +691,7 @@ function SAP_export_pair($rec_id)
 						$disc_value=0;
 					}
 				$qty_out=$flight_out->services[$k][1];
-					if($sap_service_id[2]==3) $qty_out/=1000;     //ALSO FIXING NAVISION KILOS
+					if($sap_service_id[2]==3) $qty_out=round($qty_out/1000);     //ALSO FIXING NAVISION KILOS
 				$item2->MATERIAL=$sap_service_id[0];
 				$item2->TARGET_QTY=$qty_out;
 				$item2->COND_TYPE=$disc_type;
@@ -817,6 +796,10 @@ function SAP_export_pair($rec_id)
 
 function time_over_parking($pair_id)
 {
+/* 
+	INPUT: 	PAIR ID
+	OUTPUT: TIME IN HOURS, ROUNDED UP 
+*/
 include 'login_avia.php';
 
 //include ("header.php"); 
@@ -837,42 +820,35 @@ include 'login_avia.php';
 			$pair= mysqli_fetch_row($answsql);
 			$in_id=$pair[0];
 			$out_id=$pair[1];
-			$textsqlout='SELECT time_fact FROM flights WHERE id="'.$in_id.'" OR id="'.$out_id.'"';	
+			$textsqlout='SELECT id,time_fact FROM flights WHERE id="'.$in_id.'" OR id="'.$out_id.'"';	
 			$answsql2=mysqli_query($db_server,$textsqlout);	
 			if(!$answsql2) die("Database SELECT TO flights table failed: ".mysqli_error($db_server));	
 			
 			$flight_data_in= mysqli_fetch_row($answsql2);
 				
-				//SETTING UP outgoing Flight's Object
+				//SETTING UP in and outgoing Flight's Object
+				//IN CASE OUTGOING GOT INTO THE DATABASE EARLIER WE HAVE TO CHECK WHICH ONE WE GOT FIRST
+				if($flight_data_in[0]==$in_id)
+					$flight_in_time_fact=$flight_data_in[1];
+				else
+					$flight_out_time_fact=$flight_data_in[1];
 				
-				$flight_in_time_fact=$flight_data_in[0];
+				$flight_data_out= mysqli_fetch_row($answsql2);
+				
+				if($flight_data_out[0]==$out_id)
+					$flight_out_time_fact=$flight_data_out[1];
+				else
+					$flight_in_time_fact=$flight_data_out[1];
+				
 				$in_H=(int)substr($flight_in_time_fact,0,2);
 				$in_S=(int)substr($flight_in_time_fact,-2);
 				$in_M=(int)substr($flight_in_time_fact,3,2);
-				
-				$flight_data_out= mysqli_fetch_row($answsql2);
-				//SETTING UP outgoing Flight's Object
-				
-				$flight_out_time_fact=$flight_data_out[0];
 				$out_H=(int)substr($flight_out_time_fact,0,2);
 				$out_S=(int)substr($flight_out_time_fact,-2);
 				$out_M=(int)substr($flight_out_time_fact,3,2);
-				//echo " FLIGHT IN: $flight_in_time_fact  <br/> FLIGHT OUT: $flight_out_time_fact <br/>";
-				//echo " HOURS: $in_H MIN: $in_M SEC: $in_S <br/>";
-				//echo " HOURS: $out_H MIN: $out_M SEC: $out_S <br/>";
-				/*
-				var_dump($flight_in_time_fact);
-				var_dump($flight_out_time_fact);
-				echo "Difference is:".($flight_out_time_fact-$difference)."<br/>" ;
-				var_dump($difference);*/
+				
 				//Difference
 				$delta_S=$out_S-$in_S;
-				
-				
-				
-				// ALLOWANCE 3 HOURS 15 MINUTES
-				//$out_H-=3;
-				//$out_M-=15;
 				
 				if($delta_S>=0) $diff_S=$delta_S;
 				else 
@@ -895,14 +871,14 @@ include 'login_avia.php';
 					$diff_H=24+$delta_H;
 				}
 				
-				
+				// ALLOWANCE 3 HOURS 15 MINUTES
 				$diff_H-=3;
 				$diff_M-=15;
 			
 				if (($diff_H<=0)&&($diff_M<=0)) return 0;
 				else
 				{
-					//echo "PARKING TIME is:".$diff_H.":".$diff_M.":".$diff_S."<br/>";
+					echo "PARKING TIME is:".$diff_H.":".$diff_M.":".$diff_S."<br/>";
 					if($diff_M>30) $diff_H+=1;
 					
 					return $diff_H;

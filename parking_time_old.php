@@ -1,5 +1,5 @@
 ﻿<?php 
-function time_over( $pair_id)
+function time_over_old( $pair_id)
 {
 include 'login_avia.php';
 
