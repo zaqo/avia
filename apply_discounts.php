@@ -223,7 +223,7 @@ function ApplyDiscounts($flightid)
 										AND discounts_individual.client_id="'.$client_id.'"
 										AND discounts_individual.isValid=1 
 										AND discounts_individual.valid_from<="'.$flight_date.'" 
-										AND discounts_individual.valid_to>="'.$flight_date.'" ';//If we need zero as unlimited in valid_to, add it after additional OR here
+										AND (discounts_individual.valid_to>="'.$flight_date.'" OR discounts_individual.valid_to="0000-00-00")';//If we need zero as unlimited in valid_to, add it after additional OR here
 				
 						//echo "WARNING: $sqlservices <br/>";
 						$answsql2=mysqli_query($db_server,$sqlservices);
@@ -238,7 +238,7 @@ function ApplyDiscounts($flightid)
 								$disc_id=$discount[0];
 								$disc_val=$discount[1];
 								$flag=0;
-								//echo "ENTERED PROCESSING INDIVIDUAL DISCOUNT $disc_id , $disc_val % <br/>";
+								echo "ENTERED PROCESSING INDIVIDUAL DISCOUNT $disc_id , $disc_val % <br/>";
 								//echo "2 ind. Discounts are: $disc_id, $disc_val <br/>";
 								$sqlgetconditions="SELECT condition_id,composition FROM discount_ind_content 
 												WHERE discount_id=$disc_id ORDER BY sequence";
@@ -265,8 +265,8 @@ function ApplyDiscounts($flightid)
 												$param=$cond_data[0];
 												$start_val=$cond_data[1];
 												$end_val=$cond_data[2];
-												//echo "ENTERED PROCESSING CONDITIONS: param is  $param , start from: $start_val plane: $plane_type<br/>";
-												//echo "RESULT OF COMPARISON: ".strpos($start_val, $plane_type)."<br/>";
+												echo "ENTERED PROCESSING CONDITIONS: param is  $param , start from: $start_val plane: $plane_type<br/>";
+												echo "RESULT OF COMPARISON: ".strpos($start_val, $plane_type)."<br/>";
 												$flag=0;
 												switch($param)
 												{

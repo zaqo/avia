@@ -40,7 +40,7 @@ include ("header.php");
 					<tr><th></th><th></th></tr>
 					<tr><td><b>НАЗВАНИЕ:</b></td><td><input type="text" value="" name="name" required/></td></tr>
 					<tr><td><b>КЛИЕНТ:</b></td><td>'.$clients.'</td></tr>
-					<tr><td><b>СКИДКА (%):</b></td><td><input type="number" value="" name="val" value="0" min="0" max="100" step="0.001" required/></td></tr>
+					<tr><td><b>СКИДКА (%):</b></td><td><input type="number" value="" name="val" value="0" min="-100" max="100" step="0.001" required/></td></tr>
 					<tr><td><b>C:</b></td><td><input type="text" class="date_input" value="" name="from" onfocus="this.select();lcs(this)"
 												onclick="event.cancelBubble=true;this.select();lcs(this)"/></td></tr>
 					<tr><td><b>ПО:</b></td><td><input type="text" class="date_input" value="" name="to" onfocus="this.select();lcs(this)"

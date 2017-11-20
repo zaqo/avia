@@ -123,6 +123,7 @@ function ApplyBundle($rec_id)
 					if($cond_flag)
 					{
 							$cond_worked=0;
+							
 							// a. PULL CONDITION
 							$conditionsql='SELECT services.id_NAV
 									FROM bundle_content 
@@ -155,6 +156,7 @@ function ApplyBundle($rec_id)
 					$num_svs=$answsql1->num_rows;	
 					if(($num_svs)&&($cond_worked))
 					{
+						
 						$qty_svs=0;
 						while($row_svs= mysqli_fetch_row($answsql1))
 						{
