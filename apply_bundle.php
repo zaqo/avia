@@ -56,6 +56,7 @@ function ApplyBundle($rec_id)
 				$flight_data= mysqli_fetch_row($answsql);
 				$flight_id_in=$flight_data[0];
 				$customer=$flight_data[1];
+				echo "CUSTOMER ID: $customer <br/>";
 				
 			
 		//  LOCATE OUT flight data
@@ -90,6 +91,18 @@ function ApplyBundle($rec_id)
 			
 			$bundle_id=$b_row[0];
 			$bundle_id_NAV=$b_row[1];
+			//echo "LOCATED BUNDLE  ID: $bundle_id <br/>";
+			//  CLEAN OLD RECORD
+						$clean_mysql='DELETE FROM service_reg 
+									WHERE
+									service="'.$bundle_id_NAV.'" AND 
+									flight= "'.$flight_id_out.'"';
+								
+						$answsqlnext=mysqli_query($db_server,$clean_mysql);
+								
+						if(!$answsqlnext) die("DELETE in service_reg TABLE failed: ".mysqli_error($db_server));
+			
+			// MAKE A NEW ONE
 			$transfer_mysql='INSERT INTO service_reg 
 									(flight,service,quantity) 
 									VALUES

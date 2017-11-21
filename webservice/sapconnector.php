@@ -532,7 +532,7 @@ function SAP_export_pair($rec_id)
 				else
 				{//FOREIGN IN DAYS
 					$service_parking="A0100208";
-					$parking_time=round($parking_time/24);
+					$parking_time=ceil($parking_time/24); // ROUNDS UP 
 					
 				}
 				$parking_svs='INSERT INTO service_reg

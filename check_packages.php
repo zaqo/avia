@@ -10,16 +10,14 @@ include ("header.php");
 			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
-			$check_in_mysql="SELECT packages.id,packages.name,clients.name,packages.isValid,packages.date_booked
-							FROM packages
-									LEFT JOIN clients on packages.client_id=clients.id
-									WHERE 1";
+			$check_in_mysql="SELECT packages.id,packages.name,packages.isValid,packages.date_booked
+							FROM packages WHERE 1";
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into packages TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
 		$content.= "<table class='aviaTab_pack'><caption><b>Шаблоны услуг по рейсу</b></caption><br>";
-		$content.= '<tr><th class="col1">№ </th><th class="col3"> Название</th><th class="col80">Клиент</th><th class="col50">Действует</th><th class="col50">Дата</th><th class="col1"></th></tr>';
+		$content.= '<tr><th class="col1">№ </th><th class="col3"> Название</th><th class="col50">Действует</th><th class="col50">Дата</th><th class="col1"></th></tr>';
 		// Iterating through the array
 		$counter=1;
 		
@@ -27,14 +25,14 @@ include ("header.php");
 		{ 
 				$rec_id=$row[0];
 				$name=$row[1];
-				$client=$row[2];
-				$date=$row[4];
+				
+				$date=$row[3];
 				$cdate=substr($date,8,2)."-".substr($date, 5,2)."-".substr($date, 2,2);
 				$content.= "<tr><td>$counter</td>";
 				$content.= "<td><a href=\"show_package.php?id=$rec_id\">$name</a></td>";
-				$content.= "<td>$client</td>";
+				//$content.= "<td>$client</td>";
 				
-				if ($row[3])
+				if ($row[2])
 				{	
 					$content.= "<td><img src='/avia/css/green_circle.png' alt='Ok' title='Статус' height='30' width='30' ></td>";
 					$content.= "<td>$cdate</td>";

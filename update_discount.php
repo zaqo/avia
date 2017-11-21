@@ -16,6 +16,8 @@ include ("login_avia.php");
 	if(isset($_REQUEST['from'])) $date_fr= $_REQUEST['from'];
 	if(isset($_REQUEST['to'])) $date_to= $_REQUEST['to'];
 	if(isset($_REQUEST['priority'])) $prio	= $_REQUEST['priority'];
+	if(isset($_REQUEST['isGroup'])) $isGroup	= $_REQUEST['isGroup'];
+	if(isset($_REQUEST['group_id'])) $group	= $_REQUEST['group_id'];
 	
 		$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
 		$db_server->set_charset("utf8");
@@ -24,7 +26,13 @@ include ("login_avia.php");
 		$date_fr=substr($date_fr,-4).substr($date_fr,3,2).substr($date_fr,0,2);
 		$date_to=substr($date_to,-4).substr($date_to,3,2).substr($date_to,0,2);
 // 1. Create discount		
-		$textsql='INSERT INTO discounts_individual
+		if($isGroup)
+			$textsql='INSERT INTO discounts_group
+						(name,group_id,discount_val,valid_from,valid_to,priority,isValid)
+						VALUES("'.$name.'","'.$group.'","'.$disc_val.'","'.$date_fr.'",
+						"'.$date_to.'","'.$prio.'",1)';
+		else
+			$textsql='INSERT INTO discounts_individual
 						(name,client_id,discount_val,valid_from,valid_to,priority,isValid)
 						VALUES("'.$name.'",'.$client_id.',"'.$disc_val.'","'.$date_fr.'",
 						"'.$date_to.'","'.$prio.'",1)';
@@ -32,7 +40,7 @@ include ("login_avia.php");
 		$answsql=mysqli_query($db_server,$textsql);
 		if(!$answsql) die("Insert INTO discounts_individual table failed: ".mysqli_error($db_server));
 
-	echo '<script>history.go(-2);</script>';	
+	echo '<script>history.go(-1);</script>';	
 	
 mysqli_close($db_server);
 ?>

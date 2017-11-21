@@ -11,7 +11,7 @@ include ("login_avia.php");
  echo "</pre>";
 	
 	if(isset($_REQUEST['pack_name'])) $name	= $_REQUEST['pack_name'];
-	if(isset($_REQUEST['client'])) $client_id= $_REQUEST['client'];
+	//if(isset($_REQUEST['client'])) $client_id= $_REQUEST['client'];
 	if(isset($_REQUEST['val'])) $services	= $_REQUEST['val'];
 	if(isset($_REQUEST['to_all'])) $everybody= $_REQUEST['to_all'];
 	else $everybody=1; // IF NO ONE OF CHECKBOXES WAS CLICKED
@@ -27,8 +27,8 @@ include ("login_avia.php");
 		
 // 1.create package		
 		$textsql='INSERT INTO packages
-						(name,client_id,isValid)
-						VALUES("'.$name.'",'.$client_id.',1)';
+						(name,isValid)
+						VALUES("'.$name.'",1)';
 		//echo $textsql.'<br/>';				
 		$answsql=mysqli_query($db_server,$textsql);
 		if(!$answsql) die("Insert INTO packages table failed: ".mysqli_error($db_server));

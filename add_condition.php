@@ -2,7 +2,7 @@
 //LISTING ALL CONDITIONS IN THE SYSTEM
 include ("header.php"); 
 	
-	if(isset($_REQUEST['id'])) $disc_id	= $_REQUEST['id'];
+	if(isset($_REQUEST['id'])) $disc_id	= $_REQUEST['id']; // ID OF THE RELEVANT DISCOUNT
 	if(isset($_REQUEST['isGroup'])) $isGroup= $_REQUEST['isGroup'];
 	
 		$content="";
@@ -14,11 +14,18 @@ include ("header.php");
 		
 		
 		// Prepare list of conditions
-			$check_individual='SELECT * 
-								FROM discount_conditions 
-								WHERE isValid=1';
+		if ($isGroup)
+			$check_dsc='SELECT * FROM discount_conditions 
+						LEFT JOIN discount_grp_content 
+						ON (discount_conditions.id=discount_grp_content.condition_id AND discount_grp_content.discount_id='.$disc_id.')			
+						WHERE isValid=1 ORDER BY discount_conditions.id';
+		else
+			$check_dsc='SELECT * FROM discount_conditions 
+						LEFT JOIN discount_ind_content 
+						ON (discount_conditions.id=discount_ind_content.condition_id	AND discount_ind_content.discount_id='.$disc_id.')			
+						WHERE isValid=1 ORDER BY discount_conditions.id';
 					
-			$answsqlcheck=mysqli_query($db_server,$check_individual);
+			$answsqlcheck=mysqli_query($db_server,$check_dsc);
 			if(!$answsqlcheck) die("LOOKUP into discounts_individual TABLE failed: ".mysqli_error($db_server));
 		
 		// Top of the table
@@ -32,7 +39,7 @@ include ("header.php");
 		{ 
 				$val_to='';
 				$val_from='';
-				
+				$sel='';
 				$rec_id=$row[0];
 				$name=$row[1];
 				$param=$row[2];
@@ -42,6 +49,7 @@ include ("header.php");
 				$val_enum=$row[5];
 				$condition=$row[6];
 				
+				if($row[8]) $sel='checked';
 				// Visualize condition
 				$cond_char='';
 				switch ($condition)
@@ -82,7 +90,7 @@ include ("header.php");
 				$paramcheck=mysqli_query($db_server,$check_params);
 				if(!$paramcheck) die("LOOKUP into params TABLE failed: ".mysqli_error($db_server));
 				$param_name = mysqli_fetch_row( $paramcheck );
-				$content.="<tr><td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$rec_id\" /></td>";
+				$content.="<tr><td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$rec_id\"  ".$sel."/></td>";
 				$content.= "<td>$counter</td>";
 				$content.= "<td>$name</a></td>";
 				$content.= "<td>".$param_name[0]."</td><td>$val_from</td><td>$val_to</td><td>$val_enum</td>";

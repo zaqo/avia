@@ -129,12 +129,12 @@ function ApplyPackage($rec_id)
 				return 0; // No information about client
 			}
 			$client_id=mysqli_fetch_row($answsql0);
-			//PICKING UP PACKAGE BY CLIENT ID - NEED REFACTORING HERE!
-			$textsql='SELECT id FROM packages WHERE client_id='.$client_id[0].' AND isValid=1';
+			//PICKING UP PACKAGE BY CLIENT ID
+			$textsql='SELECT package_id FROM package_reg WHERE client_id="'.$client_id[0].'"';
 			//echo $textsql.'<br/>';	
 			$answsql=mysqli_query($db_server,$textsql);
 			$num_rows=$answsql->num_rows;	
-			if(!$answsql) die("Database SELECT in packages table failed: ".mysqli_error($db_server));
+			if(!$answsql) die("Database SELECT in package_reg table failed: ".mysqli_error($db_server));
 				//echo 'Package with:'.$num_rows.' rows<\br>';
 				
 			if($num_rows)

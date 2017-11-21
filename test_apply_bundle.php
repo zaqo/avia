@@ -2,11 +2,12 @@
 
 	include ("header.php"); 
 	include_once("login_avia.php");
+	include_once("apply_bundle.php");
 	include_once ("functions.php"); 
-	include_once ("apply_discounts.php");
+	//require_once 'login_avia.php';
 
 	include("/webservice/sapconnector.php");
-		class Flight
+	class Flight
 	{
 			public $id;						
 			public $id_NAV;
@@ -61,10 +62,10 @@
 	echo '<hr><br>';
 	
 	//$result=SAP_connector($req);
-	$res=ApplyDiscounts(4207);
-	var_dump($res);
-	if ($res) echo "Discounts applied successfully! <br/>";
-	else echo "ERROR: discount application aborted! <br/>";
+	//for ($i=0;$i<20;$i++)
+	$res=ApplyBundle(614);
+	if ($res) echo "Bundle applied successfully! <br/>";
+	else echo "ERROR: BUNDLE application aborted! <br/>";
 	//Show_page($content);
 ?>
 	

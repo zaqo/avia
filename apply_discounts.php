@@ -43,7 +43,7 @@ function ApplyDiscounts($flightid)
 				$passengers_kids=$flight_data[10];
 				$category=$flight_data[11];
 				$isHelicopter=$flight_data[12];
-				$time_fact=$flight_data[13];
+				$time_fact=(int)substr($flight_data[13],2,2);
 				$client_id=$flight_data[14];
 				//$flight->plane_owner=$flight_data[15];
 				$result_discount=array();
@@ -186,7 +186,7 @@ function ApplyDiscounts($flightid)
 														break;	
 													
 													case 10:  // Time of arrival START_VAL, END_VAL must be time!!!
-														if(($time_fact>=$start_val)&&($time_fact<=$end_val))
+														if(($time_fact>=$start_val)||($time_fact<=$end_val))
 															$flag=1;
 														break;
 												

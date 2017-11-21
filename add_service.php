@@ -14,12 +14,17 @@ include ("header.php");
 		
 		
 		// Prepare list of services
-			$check_individual='SELECT services.id,services.id_NAV,services.description,units.description_rus 
+			if($isGroup) $check_svs='SELECT services.id,services.id_NAV,services.description,units.description_rus,discounts_grp_reg.id 
 								FROM services 
 								LEFT JOIN units ON services.id_mu=units.id
+								LEFT JOIN discounts_grp_reg ON ( services.id=discounts_grp_reg.service_id AND discounts_grp_reg.discount_id='.$disc_id.' )
 								WHERE isValid=1 ORDER BY services.id_NAV';
-					
-			$answsqlcheck=mysqli_query($db_server,$check_individual);
+			else $check_svs='SELECT services.id,services.id_NAV,services.description,units.description_rus,discounts_ind_reg.id
+								FROM services 
+								LEFT JOIN units ON services.id_mu=units.id
+								LEFT JOIN discounts_ind_reg ON ( services.id=discounts_ind_reg.service_id AND discounts_ind_reg.discount_id='.$disc_id.' )
+								WHERE isValid=1 ORDER BY services.id_NAV';	
+			$answsqlcheck=mysqli_query($db_server,$check_svs);
 			if(!$answsqlcheck) die("LOOKUP into services TABLE failed: ".mysqli_error($db_server));
 		
 		// Top of the table
@@ -31,13 +36,13 @@ include ("header.php");
 				
 		while( $row = mysqli_fetch_row( $answsqlcheck ))  
 		{ 
-				
+				$checked='';
 				$rec_id=$row[0];
 				$NAV_id=$row[1];
 				$name=$row[2];
 				$mu_desc=$row[3];
-				
-				$content.="<tr><td><input type=\"checkbox\" name=\"to_export[]\" class=\"services\" value=\"$rec_id\" /></td>";
+				if($row[4]) $checked='checked disabled';
+				$content.="<tr><td><input type=\"checkbox\" name=\"to_export[]\" class=\"services\" value=\"$rec_id\" ".$checked.'/></td>';
 				$content.= "<td>$counter</td>";
 				$content.= "<td>$NAV_id</a></td>";
 				$content.= "<td>$name</a></td>";

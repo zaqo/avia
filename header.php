@@ -65,7 +65,8 @@
 				<button onclick='myFunction3()' class='dropbtn'>Скидки</button>
 				<div id=\"myDropdown3\" class=\"dropdown-content\">
 				<a href=\"show_discounts_all.php\">Скидки</a>
-				<a href=\"create_discount_ind.php\">Создать Скидку</a>
+				<a href=\"create_discount_grp.php\">Создать Скидку | Группа</a>
+				<a href=\"create_discount_ind.php\">Создать Скидку | Клиент</a>
 				<a href=\"show_conditions.php\">Условия</a>
 				<a href=\"create_condition.php\">Создать Условие</a>
 				</div>
