@@ -7,7 +7,7 @@ include ("login_avia.php");
 //if(!$loggedin) echo "<script>window.location.replace('/Agents/login.php');</script>";
  $in=$_REQUEST;
  echo "<pre>";
-	var_dump($in);
+	//var_dump($in);
  echo "</pre>";
 	
 	if(isset($_REQUEST['cond_name'])) $name	= $_REQUEST['cond_name'];
@@ -48,13 +48,13 @@ include ("login_avia.php");
 						(name_rus,param_id,from_val,to_val,enum_of_values,condition_id,isValid)
 						VALUES ("'.$name.'",'.$param_id.',"'.$from.'","'.$to.'","'.$enum.'",'.$cond_id.',1)';
 
-		echo $textsql;
+		//echo $textsql;
 		$answsql=mysqli_query($db_server,$textsql);
 		if(!$answsql) die("Insert INTO discount_conditions table failed: ".mysqli_error($db_server));
 
 		
 	
-	//echo '<script>history.go(-2);</script>';	
+	echo '<script>history.go(-1);</script>';	
 	
 mysqli_close($db_server);
 ?>

@@ -15,21 +15,28 @@ include ("header.php");
 		
 		// Prepare list of conditions
 		if ($isGroup)
-			$check_dsc='SELECT * FROM discount_conditions 
+			$check_dsc='SELECT discount_conditions.id,name_rus,param_id,from_val,to_val,enum_of_values,discount_conditions.condition_id,
+						discount_grp_content.id, discounts_group.name 
+						FROM discount_conditions 
 						LEFT JOIN discount_grp_content 
 						ON (discount_conditions.id=discount_grp_content.condition_id AND discount_grp_content.discount_id='.$disc_id.')			
-						WHERE isValid=1 ORDER BY discount_conditions.id';
+						LEFT JOIN discounts_group ON discounts_group.id='.$disc_id.'
+						WHERE discount_conditions.isValid=1 ORDER BY discount_conditions.id';
 		else
-			$check_dsc='SELECT * FROM discount_conditions 
+			$check_dsc='SELECT discount_conditions.id,name_rus,param_id,from_val,to_val,enum_of_values,discount_conditions.condition_id,
+						discount_ind_content.id, discounts_individual.name 
+						FROM discount_conditions 
 						LEFT JOIN discount_ind_content 
-						ON (discount_conditions.id=discount_ind_content.condition_id	AND discount_ind_content.discount_id='.$disc_id.')			
-						WHERE isValid=1 ORDER BY discount_conditions.id';
+						ON (discount_conditions.id=discount_ind_content.condition_id AND discount_ind_content.discount_id='.$disc_id.')			
+						LEFT JOIN discounts_individual ON discounts_individual.id='.$disc_id.'
+						WHERE discount_conditions.isValid=1 ORDER BY discount_conditions.id';
 					
 			$answsqlcheck=mysqli_query($db_server,$check_dsc);
 			if(!$answsqlcheck) die("LOOKUP into discounts_individual TABLE failed: ".mysqli_error($db_server));
+
 		
 		// Top of the table
-		$content.= '<table><caption><b>Условия предоставления скидки</b></caption><br>';
+		//$content_top.= '<table><caption><b>Условия предоставления скидки</b></caption><br>';
 		$content.='<form id="form" method=post action=link_discount.php >';
 		$content.= '<tr><th>&</th><th>№</th><th>Название</th><th>Параметр</th><th>Значение,от:</th><th>Значение, до:</th><th>Перечисление:</th><th>Сравнение</th></tr>';
 		// Iterating through the array
@@ -49,7 +56,7 @@ include ("header.php");
 				$val_enum=$row[5];
 				$condition=$row[6];
 				
-				if($row[8]) $sel='checked';
+				if($row[7]) $sel='checked';
 				// Visualize condition
 				$cond_char='';
 				switch ($condition)
@@ -96,13 +103,14 @@ include ("header.php");
 				$content.= "<td>".$param_name[0]."</td><td>$val_from</td><td>$val_to</td><td>$val_enum</td>";
 				$content.= "<td>$cond_char</td>";
 				//$content.= '<td><a href="localhost/avia/add_condition.php?id='.$rec_id.'">Добавить условие</a></td></tr>';
-				
+			$disc_name=$row[8];
 			$counter+=1;
 			
 		}
 		$content.='<input type="hidden" name="isGroup" value="'.$isGroup.'"><input type="hidden" name="disc_id" value="'.$disc_id.'">';
 		$content.= '<tr><td colspan="8"><input type="submit" name="send" class="send" value="ВВОД"></td></tr></form>';
 		$content.= '</table>';
+		$content= '<table><caption><b>Условия предоставления скидки: '.$disc_name.' </b></caption><br>'.$content;
 	Show_page($content);
 	mysqli_close($db_server);
 	

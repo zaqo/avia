@@ -10,8 +10,9 @@ include ("header.php");
 			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
-			$check_in_mysql="SELECT id,id_NAV,id_SAP,isforKids,isValid,date_booked,id_mu,description
+			$check_in_mysql="SELECT services.id,id_NAV,id_SAP,isforKids,isValid,date_booked,units.description_rus,description
 								FROM services
+								LEFT JOIN units ON services.id_mu=units.id
 								WHERE 1 ORDER BY id_NAV";
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
@@ -20,28 +21,6 @@ include ("header.php");
 		$content.= "<table><caption><b>Коды услуг</b></caption><br>";
 		$content.= '<tr><th>№ </th><th>Услуга</th><th>Код NAV</th><th>Код SAP</th><th>Ед.изм</th>
 					<th>Для детей</th><th>Действует</th></tr>';
-		
-		// Prepare Mes Units 
-		$check_mu='SELECT id,description_rus FROM units WHERE 1';
-					
-					$answsql_mu=mysqli_query($db_server,$check_mu);
-					if(!$answsql_mu) die("SELECT into units TABLE failed: ".mysqli_error($db_server));
-		// Prepare Mes Units 
-		$check_in_mysql='SELECT id,description_rus FROM units WHERE 1';
-					
-					$answsql_mu=mysqli_query($db_server,$check_in_mysql);
-					if(!$answsql_mu) die("SELECT into units TABLE failed: ".mysqli_error($db_server));
-		
-		
-		$mu=Array ("-");
-		while($row_d = mysqli_fetch_row( $answsql_mu ))
-		{
-			$key=$row_d[0];
-			$value=$row_d[1];
-			$mu[$key]=$value;
-		}
-			
-		
 		
 		// Iterating through the array
 		$counter=1;
@@ -54,14 +33,14 @@ include ("header.php");
 				$iskids=$row[3];
 				$isvalid=$row[4];
 				$date=$row[5];
-				$mu_key=$row[6];
+				$mu=$row[6];
 				$desc=$row[7];
 				
 				$content.= "<tr><td>$counter</td>";
 				$content.= "<td>$desc</td>";
 				$content.= "<td><a href=\"edit_service.php?id=$rec_id\">$nav_id</a></td>";
 				$content.= "<td>$sap_id</td>";
-				$content.= "<td>".$mu[$mu_key]."</td>";
+				$content.= "<td>".$mu."</td>";
 				
 				if ($row[3])
 					$content.= "<td>Да</td>";

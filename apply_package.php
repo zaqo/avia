@@ -131,7 +131,7 @@ function ApplyPackage($rec_id)
 			$client_id=mysqli_fetch_row($answsql0);
 			//PICKING UP PACKAGE BY CLIENT ID
 			$textsql='SELECT package_id FROM package_reg WHERE client_id="'.$client_id[0].'"';
-			//echo $textsql.'<br/>';	
+			echo $textsql.'<br/>';	
 			$answsql=mysqli_query($db_server,$textsql);
 			$num_rows=$answsql->num_rows;	
 			if(!$answsql) die("Database SELECT in package_reg table failed: ".mysqli_error($db_server));
@@ -146,7 +146,7 @@ function ApplyPackage($rec_id)
 				//var_dump($package);
 					$sqlservices='SELECT id,service_id,scope,direction FROM package_content 
 								WHERE package_id='.$package[0].' AND isValid=1';
-				//echo $sqlservices.'<br/>';
+				echo $sqlservices.'<br/>';
 					$answsql1=mysqli_query($db_server,$sqlservices);
 					$passengers=0;
 					$passengers_kids=0;

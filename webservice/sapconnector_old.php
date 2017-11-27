@@ -388,7 +388,7 @@ function SAP_export_pair($rec_id)
 			
 			$textsql="SELECT flights.id_NAV,date,flight,direction,plane_num,flight_type,plane_type,plane_mow,
 						passengers_adults,passengers_kids,customer_id, bill_to_id,owner,category,time_fact,airport,
-							clients.isRusCarrier,clients.id
+							clients.isRusCarrier
 						FROM flights 
 						LEFT JOIN clients ON flights.bill_to_id=clients.id_NAV
 						WHERE flights.id=$in_id";
@@ -418,7 +418,7 @@ function SAP_export_pair($rec_id)
 				
 				$airport_in=$flight_data[15];
 				$client_geo=$flight_data[16];
-				$client_my_id=$flight_data[17]; // INTERNAL ID, NOT NAVISION
+				
 				if ($flight_in->passengers_adults||$flight_in->passengers_kids) $SZV_in_flag=1;
 				else $SZV_in_flag=0;
 				$SZV_exclude=' AND service <> "P0300422"'; // EXCLUDE SZV service if there are PAX on the flight
@@ -600,83 +600,6 @@ function SAP_export_pair($rec_id)
 				$flight_out->services[]=$row;	
 			}
 			$services_count_out=count($flight_out->services);
-	//============================================================
-	// 			DISCOUNT SECTION
-	//------------------------------------------------------------
-	// A. CHECK ALL APPLICABLE DISCOUNTS
-	//	1. GROUP: RUSSIAN CARRIERS OR FOREIGN AND ALL
-		$result_gr=array();
-		$result_ind=array();
-		if($client_geo)
-			$get_services='SELECT DISTINCT service_id
-							FROM discounts_grp_reg 
-							LEFT JOIN discounts_group on discounts_group.id = discounts_grp_reg.discount_id 
-									WHERE (discounts_group.group_id=1 OR discounts_group.group_id=0) 
-									AND discounts_group.isValid=1 AND discounts_group.valid_from<="'.$flight_date.'" AND discounts_group.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
-		else 
-			$get_services='SELECT DISTINCT service_id
-							FROM discounts_grp_reg 
-							LEFT JOIN discounts_group on discounts_group.id = discounts_grp_reg.discount_id 
-									WHERE (discounts_group.group_id=2 OR discounts_group.group_id=0) 
-									AND discounts_group.isValid=1 AND discounts_group.valid_from<="'.$flight_date.'" AND discounts_group.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
-
-		
-		//echo '1. '.$sqlservices.'group <br/>';
-		$answsql_group=mysqli_query($db_server,$get_services);
-		
-			if(!$answsql_group) die("Database SELECT in discounts_group table failed: ".mysqli_error($db_server));
-				//echo 'THERE ARE:'.$answsql->num_rows.' group discounts in the system<br/>';
-			if($answsql_group->num_rows)
-			{
-				while($row_srv= mysqli_fetch_row($answsql_group))
-				{	
-					array_push($result_gr,$row_srv[0]);
-				}
-			}
-		// INDIVIDUAL DISCOUNTS
-			$get_services_ind='SELECT DISTINCT service_id
-							FROM discounts_ind_reg 
-							LEFT JOIN discounts_individual on discounts_individual.id = discounts_ind_reg.discount_id 
-									WHERE discounts_individual.client_id="'.$client_my_id.'"
-										AND discounts_individual.isValid=1  
-									 AND discounts_individual.valid_from<="'.$flight_date.'" AND discounts_individual.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
-
-		
-		//echo '1. '.$sqlservices.' INDIVIDUAL <br/>';
-		$answsql_ind=mysqli_query($db_server,$get_services_ind);
-		
-			if(!$answsql_ind) die("Database SELECT in discounts_individual table failed: ".mysqli_error($db_server));
-				//echo 'THERE ARE:'.$answsql->num_rows.' DISTINCT individual discounts in the system<br/>';
-			if($answsql_ind->num_rows)
-			{
-				while($row_srv_ind= mysqli_fetch_row($answsql_ind))
-				{	
-					array_push($result_ind,$row_srv_ind[0]);
-				}
-			}
-		//--------------------------------------------------------------------------
-		// BUILD A LIST OF SERVICES
-		$list_srv='SELECT DISTINCT services.id FROM service_reg 
-						LEFT JOIN services ON service_reg.service=services.id_NAV
-						WHERE flight="'.$flight_out->id_NAV.'" OR flight="'.$flight_in->id_NAV.'"
-						AND service_reg.isValid=1 AND quantity>0
-						AND (aodb_msg NOT IN (SELECT aodb_msg FROM services_exclude) OR aodb_msg IS NULL)';
-		$services_list=mysqli_query($db_server,$list_srv);
-		
-			if(!$services_list) die("Database SELECT in service_reg table failed: ".mysqli_error($db_server));
-				//echo 'THERE ARE:'.$answsql->num_rows.' DISTINCT individual discounts in the system<br/>';
-			if($services_list->num_rows)
-			{
-				while($row_services= mysqli_fetch_row($services_list))
-				{	
-					if(array_key_exists($row_services[0],$result_ind))
-					{
-						//CHECK APPLICABILITY FOR THIS SERVICE
-						//PUSH INTO DISCOUNTS TABLE
-						$disc_value=$discount_in[$service_id];
-					}
-				}
-			}
 	//4.	
 			// Prepare request for SAP ERPclass Item
 	
