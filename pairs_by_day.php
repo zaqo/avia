@@ -174,7 +174,7 @@
 					}
 					else 
 					{
-						//echo "NO variants for flight# $in_id <br/>";
+						echo "NO variants for flight# $in_id <br/>";
 						$num--;
 					}
 					// UPDATE FLIGHTS, NOW THEY HAVE BEEN PROCESSED, SO sent_to_SAP=1

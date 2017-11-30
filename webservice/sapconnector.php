@@ -245,7 +245,7 @@ function SAP_export_flight($flightid)
 		// Locate Customer ID for SAP ERP
 		// it is going to be used as Owner
 			
-			$clientsql='SELECT id_SAP FROM clients WHERE id_NAV="'.$client_id.'" AND isValid=1';
+			$clientsql='SELECT id_SAP,id FROM clients WHERE id_NAV="'.$client_id.'" AND isValid=1';
 				
 			$answsql=mysqli_query($db_server,$clientsql);
 				
@@ -309,9 +309,9 @@ function SAP_export_pair($rec_id)
 	//include_once ("parking_time.php");	
 		
 		// PRICE SETTINGS FOR PARKING
-		$parking_price_rus=3613*5/1000; // 361.3 RUR per TON per HOUR
-		$parking_price_ROSSIJA=35989*5/10000; // 359.89 RUR per TON per HOUR
-		$parking_price_int=147/100; // 1.47 EUR per TON per DAY
+		$parking_price_rus=361.3*0.05; // 361.3 RUR per TON per HOUR
+		$parking_price_ROSSIJA=35.989*0.05; // FAULTY! MUST BE 359.89 RUR per TON per HOUR
+		$parking_price_int=1.47; // 1.47 EUR per TON per DAY
 		
 		
 		//Setting up the object
@@ -319,7 +319,8 @@ function SAP_export_pair($rec_id)
 		$flight_out= new Flight();
 		// CHECK PARKING OVERTIME
 		$parking_time=time_over_parking($rec_id);
-		if($parking_time<0) $parking_time=0;
+		//if($parking_time<0) $parking_time=-$parking_time;//INVERSE TIME
+		$parking_time-=3.25;
 		//echo "PARKING TIME IS: ".$parking_time."<br/>";
 		
 		//Set up mySQL connection
@@ -370,20 +371,12 @@ function SAP_export_pair($rec_id)
 			else
 							echo "SUCCESS: APPLIED BUNDLE TO THE FLIGHTS: $in_id, $out_id  ! <br/>";
 			
-			// c.AND DISCOUNT
-			$discount_in=ApplyDiscounts($in_id);
-			$discount_out=ApplyDiscounts($out_id);			
+			// c. DEFINE ARRAYS FOR DISCOUNT
+				
+				$discounts=array();
+				$discounts_out=array();
+				$result_svs=array();
 			
-			// NOW DISCOUNTS ARE IN TWO ARRAYS
-			
-			if(!$discount_in)
-							echo "WARNING: NO DISCOUNTS FOR THE FLIGHT: $in_id  <br/>";
-			else
-							echo "SUCCESS: APPLIED DISCOUNT TO THE FLIGHT: $in_id !<br/>";
-			if(!$discount_out)
-							echo "WARNING: NO DISCOUNTS FOR THE FLIGHT: $out_id <br/>";
-			else
-							echo "SUCCESS: APPLIED DISCOUNT TO THE FLIGHT: $out_id !<br/>";
 			
 			
 			$textsql="SELECT flights.id_NAV,date,flight,direction,plane_num,flight_type,plane_type,plane_mow,
@@ -474,7 +467,7 @@ function SAP_export_pair($rec_id)
 			//  LOCATE outgoing flight's data
 			
 			$textsqlout="SELECT flights.id_NAV,date,flight,direction,plane_num,flight_type,plane_type,plane_mow,
-						passengers_adults,passengers_kids,customer_id,bill_to_id,owner,category,time_fact,airport
+						passengers_adults,passengers_kids,customer_id,bill_to_id,owner,category,time_fact,airport,isHelicopter
 							FROM flights WHERE id=$out_id";	
 			$answsql2=mysqli_query($db_server,$textsqlout);	
 			if(!$answsql2) die("Database SELECT TO flights table failed: ".mysqli_error($db_server));	
@@ -499,6 +492,8 @@ function SAP_export_pair($rec_id)
 				$flight_out->time_fact=$flight_data_out[14];
 				
 				$airport_out=$flight_data_out[15];
+				
+				$heli_flag=$flight_data_out[16];
 				// SZV EXCLUDE SECTION
 				if ($flight_out->passengers_adults||$flight_out->passengers_kids) $SZV_out_flag=1;
 				else $SZV_out_flag=0;
@@ -535,27 +530,33 @@ function SAP_export_pair($rec_id)
 				if($client_geo) //RUSSIAN AIRLINES
 				{
 					$service_parking="A0100207";			// HARDCODED!!!
-					if ($flight_out->bill_to=='K07814') 	// SPECIAL PRICE FOR ROSSIJA
-						$parking_price=$parking_time*$parking_price_ROSSIJA;
+					$parking_time=round($parking_time);		// ROUND UP
+					if ($flight_out->bill_to=='К07814') 	// SPECIAL PRICE FOR ROSSIJA
+						$parking_price=$parking_price_ROSSIJA;
 					else	
-						$parking_price=$parking_time*$parking_price_rus;
+						$parking_price=$parking_price_rus;
 				}
 				else
 				{//FOREIGN IN DAYS
 					$service_parking="A0100208";
 					$parking_time=ceil($parking_time/24); // ROUNDS UP 
-					$parking_price=$parking_time*$parking_price_int;
+					$parking_price=$parking_price_int;
 				}
-				$mtow=ceil($flight_out->plane_mow/1000);
+				if($flight_in->flight_cat==2) $parking_price=0;
+				echo "PARKING PRICE IS: $parking_price <br/>";
+				$mtow=$flight_out->plane_mow/1000;
 				$parking_price*=$mtow;
-				$parking_svs='INSERT INTO service_reg
+				if ($parking_time>0)
+				{
+					$parking_svs='INSERT INTO service_reg
 									(flight,service,quantity,price) 
 									VALUES
 									("'.$flight_out->id_NAV.'","'.$service_parking.'","'.$parking_time.'","'.$parking_price.'")';
 								
-								$answsql_parking=mysqli_query($db_server,$parking_svs);
+					$answsql_parking=mysqli_query($db_server,$parking_svs);
 								
-								if(!$answsql_parking) die("INSERT into service_reg TABLE failed: ".mysqli_error($db_server));
+					if(!$answsql_parking) die("INSERT into service_reg TABLE failed: ".mysqli_error($db_server));
+				}
 			}
 			//CHECK OUT MEDICAL SERVICES
 			$sql_med_out='SELECT SUM(qty) FROM  medical_reg WHERE flight="'.$flight_out->flight_num.'" AND date="'.$flight_out->flight_date.'" AND isValid=1';
@@ -605,8 +606,8 @@ function SAP_export_pair($rec_id)
 	//------------------------------------------------------------
 	// A. CHECK ALL APPLICABLE DISCOUNTS
 	//	1. GROUP: RUSSIAN CARRIERS OR FOREIGN AND ALL
-		$result_gr=array();
-		$result_ind=array();
+		//$result_svs=array();
+		$flight_date=$flight_out->flight_date;
 		if($client_geo)
 			$get_services='SELECT DISTINCT service_id
 							FROM discounts_grp_reg 
@@ -621,7 +622,7 @@ function SAP_export_pair($rec_id)
 									AND discounts_group.isValid=1 AND discounts_group.valid_from<="'.$flight_date.'" AND discounts_group.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
 
 		
-		//echo '1. '.$sqlservices.'group <br/>';
+		//echo 'STARTING WITh discounts: 1. '.$get_services.'group <br/>';
 		$answsql_group=mysqli_query($db_server,$get_services);
 		
 			if(!$answsql_group) die("Database SELECT in discounts_group table failed: ".mysqli_error($db_server));
@@ -630,10 +631,13 @@ function SAP_export_pair($rec_id)
 			{
 				while($row_srv= mysqli_fetch_row($answsql_group))
 				{	
-					array_push($result_gr,$row_srv[0]);
+					$index_=$row_srv[0];
+					$result_svs[$index_]=1;
+					
 				}
 			}
-		// INDIVIDUAL DISCOUNTS
+		
+		// 2. INDIVIDUAL DISCOUNTS
 			$get_services_ind='SELECT DISTINCT service_id
 							FROM discounts_ind_reg 
 							LEFT JOIN discounts_individual on discounts_individual.id = discounts_ind_reg.discount_id 
@@ -641,19 +645,20 @@ function SAP_export_pair($rec_id)
 										AND discounts_individual.isValid=1  
 									 AND discounts_individual.valid_from<="'.$flight_date.'" AND discounts_individual.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
 
-		
-		//echo '1. '.$sqlservices.' INDIVIDUAL <br/>';
+		//echo 'INDIVIDUAL DISCOUNTS 2. '.$get_services_ind.' INDIVIDUAL <br/>';
 		$answsql_ind=mysqli_query($db_server,$get_services_ind);
 		
 			if(!$answsql_ind) die("Database SELECT in discounts_individual table failed: ".mysqli_error($db_server));
-				//echo 'THERE ARE:'.$answsql->num_rows.' DISTINCT individual discounts in the system<br/>';
+				//echo 'THERE ARE:'.$answsql_ind->num_rows.' DISTINCT individual discounts in the system<br/>';
 			if($answsql_ind->num_rows)
 			{
 				while($row_srv_ind= mysqli_fetch_row($answsql_ind))
 				{	
-					array_push($result_ind,$row_srv_ind[0]);
+					$index_=$row_srv_ind[0];
+					$result_svs[$index_]=1;
 				}
 			}
+			var_dump($result_svs);
 		//--------------------------------------------------------------------------
 		// BUILD A LIST OF SERVICES
 		$list_srv='SELECT DISTINCT services.id FROM service_reg 
@@ -669,17 +674,31 @@ function SAP_export_pair($rec_id)
 			{
 				while($row_services= mysqli_fetch_row($services_list))
 				{	
-					if(array_key_exists($row_services[0],$result_ind))
+					$svs_on_flight=$row_services[0];
+					if(array_key_exists($svs_on_flight,$result_svs))
 					{
 						//CHECK APPLICABILITY FOR THIS SERVICE
 						//PUSH INTO DISCOUNTS TABLE
-						$disc_value=$discount_in[$service_id];
+						
+						$res_discount=CheckDiscountApp($flight_out,$row_services[0],$client_my_id,$flight_in->time_fact,$heli_flag,$airport_out);
+						//$discounts=array_merge($discounts,$discounts_out);
+						if ($res_discount)
+						{
+							echo "DISCOUNTS HAVE BEEN CALCULATED!<br/>";
+							$discounts[$svs_on_flight]=$res_discount;
+						}
+						else 
+							echo "NO DISCOUNTS FOR $svs_on_flight <br/>";
+						
 					}
 				}
 			}
-	//4.	
+			echo "DISCOUNTS ON THE EXIT:<pre>";
+			var_dump($discounts);
+			echo "</pre><br/>";
+			//***********************************************************	
 			// Prepare request for SAP ERPclass Item
-	
+			//-----------------------------------------------------------
 			$req = new Request();
 			
 			// Set up params
@@ -715,9 +734,9 @@ function SAP_export_pair($rec_id)
 				 {	
 					//LOCATE AND APPLY DISCOUNT
 					$service_id=$sap_service_id[1];
-					if(array_key_exists($service_id,$discount_in))
+					if(array_key_exists($service_id,$discounts))
 					{
-						$disc_value=$discount_in[$service_id];
+						$disc_value=$discounts[$service_id];
 					}
 					else
 					{
@@ -771,9 +790,9 @@ function SAP_export_pair($rec_id)
 			{	
 				$service_id=$sap_service_id[1];
 					
-				if(array_key_exists($service_id,$discount_out))
+				if(array_key_exists($service_id,$discounts))
 					{
-						$disc_value=$discount_out[$service_id];
+						$disc_value=$discounts[$service_id];
 					}
 					else
 					{
@@ -794,7 +813,7 @@ function SAP_export_pair($rec_id)
 				$item2->MATERIAL=$sap_service_id[0];
 				$item2->TARGET_QTY=$qty_out;
 				$item2->COND_TYPE=$disc_type;
-				$item2->COND_VALUE=$disc_value;
+				$item2->COND_VALUE=$disc_value;//HERE WE FIX DECIMAL SEPARATOR ISSUE (".",",")
 				$item2->CURRENCY=$currency;
 				$item2->ID_AODB=$flight_out->id_NAV;
 				$item2->ID_TERMINAL=$terminal;
@@ -897,7 +916,7 @@ function time_over_parking($pair_id)
 {
 /* 
 	INPUT: 	PAIR ID
-	OUTPUT: TIME IN HOURS, ROUNDED UP 
+	OUTPUT: TIME IN HOURS
 */
 include 'login_avia.php';
 
@@ -950,7 +969,8 @@ include 'login_avia.php';
 					$flight_in_time_fact=$flight_data_out[1];
 					$flight_in_date=$flight_data_out[2];
 				}
-				
+				//echo "FLIGHT IN $flight_in_date | $flight_in_time_fact <br/>";
+				//echo "FLIGHT OUT $flight_out_date | $flight_out_time_fact <br/>";
 				$in_Y=(int)substr($flight_in_date,0,4);
 				$out_Y=(int)substr($flight_out_date,0,4);
 				
@@ -968,73 +988,397 @@ include 'login_avia.php';
 				$out_H=(int)substr($flight_out_time_fact,0,2);
 				$out_S=(int)substr($flight_out_time_fact,-2);
 				$out_M=(int)substr($flight_out_time_fact,3,2);
-				
-				
-				// CHECK IF DEPARTURE IS AFTER ARRIVAL AND INVERSE IF NOT
-				$inverse_flag=0;
-				if ($out_Y<$in_Y)	$inverse_flag=1;
-				elseif($out_Mo<$in_Mo)	$inverse_flag=1;
-				elseif($out_D<$in_D)	$inverse_flag=1;
-				elseif($out_H<$in_H)	$inverse_flag=1;
-				elseif($out_M<$in_M) 	$inverse_flag=1;
-				elseif($out_S<$in_S)	$inverse_flag=1;
-				
-				if ($inverse_flag)
-				{
-					echo "INVERSED ARR/DPT <br/>";
-					$t_Y=$in_Y;$in_Y=$out_Y;$out_Y=$t_Y;
-					$t_Mo=$in_Mo;$in_Mo=$out_Mo;$out_Mo=$t_Mo;
-					$t_D=$in_D;$in_D=$out_D;$out_D=$t_D;
-					$t_H=$in_H;$in_H=$out_H;$out_H=$t_H;
-					$t_M=$in_M;$in_M=$out_M;$out_M=$t_M;
-					$t_S=$in_S;$in_S=$out_S;$out_S=$t_S;
-				}	
-				//Difference
-				$delta_S=$out_S-$in_S;
-				
-				if($delta_S>=0) $diff_S=$delta_S;
-				else 
-				{	
-					$out_M-=1;
-					if($out_M<0)
-					{
-						$out_M+=60;
-						$out_H-=1;
-					}
-					$diff_S=60+$delta_S;
-				}
-				$delta_M=$out_M-$in_M;
-				if($delta_M>=0) $diff_M=$delta_M;
-				else 
-				{	
-					$diff_M=60+$delta_M;
-					$out_H-=1;
-				}
-				 $diff_H=$out_H-$in_H;
-				
-				
-				// ALLOWANCE 3 HOURS 15 MINUTES
-				$diff_M-=15;
-				if($diff_M<0)
-					{
-						$diff_M+=60;
-						$diff_H-=1;
-					}
-				$diff_H-=3;
-				
-			
-				if (($diff_H<=0)&&($diff_M<=0)) return 0;
-				else
-				{
-					echo "PARKING TIME is:".$diff_H.":".$diff_M.":".$diff_S."<br/>";
-					if($diff_M>30) $diff_H+=1;
+				//echo "$in_H, $in_M, $in_S, $in_Mo, $in_D, $in_Y <br/>";
+				//echo "$out_H, $out_M, $out_S, $out_Mo, $out_D, $out_Y <br/>";
+				$time_stamp_in=date('U',mktime($in_H, $in_M, $in_S, $in_Mo, $in_D, $in_Y));
+				$time_stamp_out=date('U',mktime($out_H, $out_M, $out_S, $out_Mo, $out_D, $out_Y));
+				$time_stamp_diff=$time_stamp_out-$time_stamp_in;
+				$res=( $time_stamp_diff/3600);//IN HOURS
+				//echo "<p>" . ( $time_stamp_diff/3600) . "</p>";
 					
-					return $diff_H;
-				}
-			
 	mysqli_close($db_server);
 	
-return $diff_H;
-}	
+return $res;
+}
+function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, $airport_out)
+{
+/* 
+	CHECKS APPLICABILITY OF DISCOUNT FOR THIS PAIR FOR PARTICULAR SERVICE 
+	INPUT: 	
+		$flight_out - FLIGHT OBJECT 
+		$sid 		- ID of SERVICE
+		$client_id	- ID of CLIENT
+		$time_fact	- TIME OF ARRIVAL!
+		$isHelicopter - HELICOPTER FLAG
+	OUTPUT:  discount value 
+*/
+	include 'login_avia.php';
+	
+			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
+			$db_server->set_charset("utf8");
+			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
+			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
+	//echo "HELICOPTER FLAG IS $isHelicopter <br/> ";
+	$result_discount=array();// OBSOLETE ! CLEAN!
+	$disc_val=0;
+		$hour_of_arrival=substr($time_fact,0,2);
+		$flightid=$flight_out->id;
+		$airport=$airport_out;
+		$zone=$flight_out->airport_class; //DOMAIN
+		$plane_id=$flight_out->plane_id;
+		$plane_type=$flight_out->plane_type;
+		$plane_mow=$flight_out->plane_mow;
+		$passengers_adults=$flight_out->passengers_adults;	
+		$passengers_kids=$flight_out->passengers_kids;
+		$category=$flight_out->flight_cat;
+		$flight_date=$flight_out->flight_date;
+	echo "AIRPORT is $airport <br/>";
+		
+		//	1. GROUP discounts
+						$sqlservices='SELECT discount_id,discounts_group.discount_val 
+									FROM discounts_grp_reg 
+									LEFT JOIN discounts_group on discounts_group.id = discounts_grp_reg.discount_id 
+									WHERE service_id="'.$sid.'" AND discounts_group.isValid=1 AND discounts_group.valid_from<="'.$flight_date.'" AND discounts_group.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
+				
+						//echo '1. '.$sqlservices.'group <br/>';
+						$answsql2=mysqli_query($db_server,$sqlservices);
+						//var_dump($answsql2);
+						if($answsql2->num_rows)
+						{	
+			// Process  discount from the list		
+							while($discount= mysqli_fetch_row($answsql2))
+							{
+			// Get conditions for applicability of discount
+								$disc_id=$discount[0];
+								$disc_val=$discount[1];
+								$flag=0;
+								//echo "2. Discounts are: $disc_id, $disc_val <br/>";
+								$sqlgetconditions="SELECT condition_id,composition FROM discount_grp_content 
+												WHERE discount_id=$disc_id ORDER BY sequence";
+								//echo '3. '.$sqlgetconditions.' group conditions<br/>';
+								$answsql3=mysqli_query($db_server,$sqlgetconditions);
+								if($answsql3->num_rows) 
+								{
+					//Process individual condition
+									while ($condition=mysqli_fetch_row($answsql3))
+									{	
+										$cond_id=$condition[0];
+										$cond_comp=$condition[1];
+										$sqlgetconditiondata="SELECT param_id,from_val,to_val,enum_of_values,condition_id FROM discount_conditions 
+												WHERE id=$cond_id AND isValid=1";
+										//echo '4.'.$sqlgetconditiondata.' inside condition <br/>';
+										$answsql4=mysqli_query($db_server,$sqlgetconditiondata);
+										if($answsql4)
+										{	
+											
+											$cond_data=mysqli_fetch_row($answsql4);
+											//echo "5. Analyzing condition: ".$cond_data[0]."<br/>";
+											if($cond_data)
+											{
+					// Process applicability of condition!
+												$param=$cond_data[0];
+												$start_val=$cond_data[1];
+												$end_val=$cond_data[2];
+												$enum_string=$cond_data[3];
+												$comparison=$cond_data[4];
+												$flag=0;
+												switch($param)
+												{
+													case 1: // Is the destination domestic or foreign?
+														//Now check the condition value and register the discount
+															if($zone==2) $zone=1; // eliminating CIS!
+															if($zone==$start_val) 
+															$flag=1;
+															
+														break;
+													
+													case 2:  // Discount for the given aircraft number
+														if(strcasecmp($start_val, $plane_id) == 0)
+															$flag=1;
+														break;
+													
+													case 3:  // based on plane type
+														switch($comparison){
+															case 0: // " = "
+															if((int)$start_val==(int)$plane_type)
+															{	
+															//echo "FLAG IS SET! for PLANE TYPE $plane_type <br/>";
+																$flag=1;
+															}
+															break;
+															case 6: // " [ ... ] "
+															if($enum_string)
+															{	
+															
+																$values=explode(',',$enum_string);
+																$total=count($values);
+																if ($total)
+																{
+																	for($ind=0;$ind<$total;$ind++)
+																	{
+																		if($values[$ind]==$plane_type)
+																		{
+																			$flag=1;
+																			echo "FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type <br/>";
+																		}
+																	}
+																}
+															}
+															break;
+														}
+														break;
+												
+													case 4:  // based on plane MOW (not checking type of condition now)
+														if(($start_val<=$plane_mow)&&($end_val>=$plane_mow))
+														{	
+															$flag=1;
+															//echo "Flag was set! PLANE MOW = $plane_mow <br/>";
+														}
+														break;
+													
+													case 5:  // based on destination (no support for diapazone yet)
+														if((int)$start_val==(int)$airport)
+															$flag=1;
+														else "AIRPORT $airport DOES NOT MATCH $start_val! <br/>";
+														break;	
 
+													case 6:  // PAX only if above the limit
+														if($start_val<=$passengers_adults)
+															$flag=1;
+														break;	
+													
+													case 7:  // PAX only if above the limit
+														if($start_val<=$passengers_kids)
+															$flag=1;
+														break;	
+													
+													case 8:  // category is equal to
+														if($start_val==$category)
+															$flag=1;
+														break;		
+												
+													case 9:  // Helicopter
+														
+														if($isHelicopter)
+														{
+															echo "FLAG IS SET FOR HELICOPTER! <br/>";
+															$flag=1;
+														}
+														break;	
+													
+													case 10:  // Time of arrival START_VAL, END_VAL must be time!!!
+														if(($hour_of_arrival>=$start_val)||($hour_of_arrival<=$end_val))
+														{
+															echo "NIGHT TIME! : START FROM ->$start_val END BY ->$end_val ||| ACTUAL $hour_of_arrival <br/>";
+															$flag=1;
+														}
+														break;
+												
+													default:
+													echo "WARNING: Parameter for condition for a service: $service_id  does not exist! <br/>";
+												}
+											}
+										}
+										if(($flag==0)&&($cond_comp==1)) break; // If we have combination of conditions and condition with AND is FALSE discount is not appplied
+									}
+								}
+								
+							// make a record of it
+								if($flag)
+								{
+									$textsql='INSERT INTO discounts_journal
+										(flight_id,service_id,discount_id,isGroup,condition_id,value)
+										VALUES( '.$flightid.','.$sid.','.$disc_id.',1,'.$cond_id.','.$disc_val.')';
+									//echo 'FINISH grp.'.$textsql.'<br/>';				
+									$answsql6=mysqli_query($db_server,$textsql);
+									if(!$answsql6) die("Insert INTO discounts_journal table failed: ".mysqli_error($db_server));
+									
+									// DISCOUNTS MULTIPLIED
+									if(isset($result_discount[$sid])) $result_discount[$sid]*=$disc_val;
+									else $result_discount[$sid]=$disc_val;
+								}
+								else
+									$disc_val=0;
+								//else echo "NO GROUP CONDITIONS DISCOVERED for THE SERVICE: $sid, SWITCHING TO INDIVIDUAL <br/>";
+							}//end of processing individual discount
+						}//end of processing group discounts
+					
+			// 2. INDIVIDUAL COMPANY discounts	
+						
+						$sqlservices='SELECT discount_id,discounts_individual.discount_val 
+									FROM discounts_ind_reg 
+									LEFT JOIN discounts_individual on discounts_individual.id = discounts_ind_reg.discount_id 
+									WHERE service_id="'.$sid.'" 
+										AND discounts_individual.client_id="'.$client_id.'"
+										AND discounts_individual.isValid=1 
+										AND discounts_individual.valid_from<="'.$flight_date.'" 
+										AND (discounts_individual.valid_to>="'.$flight_date.'" OR discounts_individual.valid_to="0000-00-00")';//If we need zero as unlimited in valid_to, add it after additional OR here
+				
+						//echo "WARNING: $sqlservices <br/>";
+						$answsql2=mysqli_query($db_server,$sqlservices);
+						//var_dump($answsql2);
+						if($answsql2->num_rows)
+						{	
+			// Process individual discount from the list		
+							
+							while($discount= mysqli_fetch_row($answsql2))
+							{
+			// Get conditions for applicability of discount
+								$disc_id=$discount[0];
+								$disc_val=$discount[1];
+								$flag=0;
+								//echo "ENTERED PROCESSING INDIVIDUAL DISCOUNT $disc_id , $disc_val % <br/>";
+								//echo "2 ind. Discounts are: $disc_id, $disc_val <br/>";
+								$sqlgetconditions="SELECT condition_id,composition FROM discount_ind_content 
+												WHERE discount_id=$disc_id ORDER BY sequence";
+								//echo "3 ind. ".$sqlgetconditions.' individual<br/>';
+								$answsql3=mysqli_query($db_server,$sqlgetconditions);
+								if($answsql3->num_rows) 
+								{
+					//Process individual condition
+									while ($condition=mysqli_fetch_row($answsql3))
+									{	
+										$cond_id=$condition[0];
+										$cond_comp=$condition[1];
+										$sqlgetconditiondata="SELECT param_id,from_val,to_val,enum_of_values,condition_id FROM discount_conditions 
+												WHERE id=$cond_id AND isValid=1";
+										//echo "4 ind. LOOKING FOR CONDITIONS".$sqlgetconditiondata.'individual <br/>';
+										$answsql4=mysqli_query($db_server,$sqlgetconditiondata);
+										if($answsql4->num_rows)
+										{	
+											$cond_data=mysqli_fetch_row($answsql4);
+											if($cond_data)
+											{
+					// Process applicability of condition!
+												
+												$param=$cond_data[0];
+												$start_val=$cond_data[1];
+												$end_val=$cond_data[2];
+												$enum_string=$cond_data[3];
+												$comparison=$cond_data[4];
+												//echo "ENTERED PROCESSING CONDITIONS: param is  $param , start from: $start_val airport: $airport, VALUES: $enum_string <br/>";
+												//echo "RESULT OF COMPARISON: ".strpos($start_val, $airport)."<br/>";
+												$flag=0;
+												switch($param)
+												{
+													case 1: // Is the destination domestic or foreign?
+												
+															if($zone==2) $zone=1; // eliminating CIS!
+															if($zone==$start_val) 
+																$flag=1;
+														break;
+													
+													case 2:  // Discount for the given aircraft number
+														if(strcasecmp($start_val, $plane_id) == 0)
+															$flag=1;
+														break;
+													
+													case 3:  // based on plane type
+														switch($comparison){
+															case 0: // " = "
+															if((int)$start_val==(int)$plane_type)
+															{	
+															//echo "FLAG IS SET! for PLANE TYPE $plane_type <br/>";
+																$flag=1;
+															}
+															break;
+															case 6: // " [ ... ] "
+															if($enum_string)
+															{	
+															
+																$values=explode(',',$enum_string);
+																$total=count($values);
+																if ($total)
+																{
+																	for($ind=0;$ind<$total;$ind++)
+																	{
+																		if($values[$ind]==$plane_type)
+																		{
+																			$flag=1;
+																			echo "FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type <br/>";
+																		}
+																	}
+																}
+															}
+															break;
+														}
+														break;
+												
+													case 4:  // based on plane MOW (not checking type of condition now)
+														if(($start_val<=$plane_mow))
+														{	
+															$flag=1;
+															//echo "Flag was set! Condition 4. <br/>";
+														}
+														break;
+													
+													case 5:  // based on destination (no support for diapazone yet)
+														if((int)$start_val==(int)$airport)
+														{
+															$flag=1;
+															//echo "DESTINATION AIRPORT CONDITION! <br/>";
+														}
+														else "AIRPORT $airport DOES NOT MATCH $start_val! <br/>";
+														break;
+
+													case 6:  // PAX only if above the limit
+														if($start_val<=$passengers_adults)
+															$flag=1;
+														break;	
+													
+													case 7:  // PAX only if above the limit
+														if($start_val<=$passengers_kids)
+															$flag=1;
+														break;	
+													
+													case 8:  // category is equal to
+														
+														//echo "CHECKING OUT CATEGORY OF FLIGHT: $category <br/>";
+														if($start_val==$category)
+															$flag=1;
+														break;		
+												
+													case 9:  // Helicopter
+														if($isHelicopter)
+														{
+															//echo "FLAG IS SET FOR HELICOPTER! <br/>";
+															$flag=1;
+														}
+														break;	
+													
+													case 10:  // Time of arrival START_VAL, END_VAL must be time!!!
+														if(($time_fact>=$start_val)&&($time_fact<$end_val))
+															$flag=1;
+														break;	
+												
+													default:
+													echo "WARNING: Parameter for condition for a service: $service_id  does not exist! <br/>";
+												}
+											}
+										}
+										if(($flag==0)&&($cond_comp==1)) break; // If we have combination of conditions and condition with AND is FALSE discount is not appplied
+									}
+								}
+							// make a record of it
+								if($flag)
+								{
+								 $textsql='INSERT INTO discounts_journal
+									(flight_id,service_id,discount_id,isGroup,condition_id,value)
+									VALUES( '.$flightid.','.$sid.','.$disc_id.',0,'.$cond_id.','.$disc_val.')';
+								   //echo "FINISH ind. ".$textsql.'  JOURNAL individual<br/>';				
+							 	 $answsql6=mysqli_query($db_server,$textsql);
+								 if(!$answsql6) die("Insert INTO discounts_journal table failed: ".mysqli_error($db_server));
+								 // DISCOUNTS MULTIPLIED
+									if(isset($result_discount[$sid])) $result_discount[$sid]*=$disc_val;
+									else $result_discount[$sid]=$disc_val;
+								}
+								else
+									$disc_val=0;
+								//else echo "NO INDIVIDUAL DISCOUNTS APPLIED FOR THE SERVICE $sid: SWITCHING TO THE NEXT SERVICE<br/>";
+							}//end of processing individual discount
+						}
+						//end of company discounts
+	mysqli_close($db_server);
+	return $disc_val;
+}
 ?>

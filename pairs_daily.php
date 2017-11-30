@@ -117,7 +117,8 @@ include ("header.php");
 				<option value="OS">Austrian</option>
 				<option value="BA">British Airways</option>
 				<option value="SN">Brussel Airlines</option>
-				<option value="OK">Czech Airlines</option>,
+				<option value="OK">Czech Airlines</option>
+				<option value="CY">CHARLIE</option>,
 				<option value="AY">Finnair</option>
 				<option value="KL">K L M</option>
 				<option value="LO">L O T</option>

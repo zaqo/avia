@@ -7,7 +7,7 @@
 *		 INPUT: pair ID
 * 		 Returns:
 *		  	- 1 Ok
-*			- 0 if package was already applied 
+*			- 0 if bundle was already applied 
 */
 
 function ApplyBundle($rec_id)
@@ -44,9 +44,10 @@ function ApplyBundle($rec_id)
 			}
 		
 		//  LOCATE CUSTOMER in the IN flight data
-			$textsql='SELECT flights.id_NAV, clients.id 
+			$textsql='SELECT flights.id_NAV, clients.id,airport,aircrafts.air_class 
 						FROM  flights
 						LEFT JOIN clients ON flights.bill_to_id=clients.id_NAV 
+						LEFT JOIN aircrafts ON flights.plane_num=aircrafts.reg_num
 						 WHERE flights.id="'.$in_.'"';
 				
 			$answsql=mysqli_query($db_server,$textsql);
@@ -56,11 +57,17 @@ function ApplyBundle($rec_id)
 				$flight_data= mysqli_fetch_row($answsql);
 				$flight_id_in=$flight_data[0];
 				$customer=$flight_data[1];
-				echo "CUSTOMER ID: $customer <br/>";
+				$airport=$flight_data[2];
+				$airplane_cl=$flight_data[3];
+				//echo "CUSTOMER ID: $customer <br/>";
 				
 			
 		//  LOCATE OUT flight data
-			$textsql='SELECT id_NAV FROM  flights WHERE id="'.$out_.'"';
+			$textsql='SELECT flights.id_NAV, clients.id,airport,aircrafts.air_class 
+						FROM  flights
+						LEFT JOIN clients ON flights.bill_to_id=clients.id_NAV 
+						LEFT JOIN aircrafts ON flights.plane_num=aircrafts.reg_num
+						 WHERE flights.id="'.$out_.'"';
 				
 			$answsql_out=mysqli_query($db_server,$textsql);
 				
@@ -68,13 +75,17 @@ function ApplyBundle($rec_id)
 			
 				$flight_data_out= mysqli_fetch_row($answsql_out);
 				$flight_id_out=$flight_data_out[0];
-				
+				$customer_out=$flight_data_out[1];
+				$airport_out=$flight_data_out[2];
+				$airplane_cl_out=$flight_data_out[3];
+				if($airplane_cl_out!=$airplane_cl) echo "WARNING: DIFFERENT CLASSES OF AIRVESSEL ON THE ROUTE^ $flight_id_out <br/>";
 			
 		//  1. LOCATE all relevant BUNDLES  
 		
-			$b_sql='SELECT bundle_id,services.id_NAV FROM bundle_reg 
-						LEFT JOIN services ON bundle_reg.bundle_id=services.id
-						WHERE client_id="'.$customer.'"';
+			$b_sql='SELECT bundle_id,services.id_NAV, class, airports 
+						FROM bundle_reg 
+						LEFT JOIN services ON bundle_reg.bundle_id=services.id 
+						WHERE client_id="'.$customer.'" AND (class="'.$airplane_cl_out.'" OR class IS NULL) AND (airports LIKE "%'.$airport_out.'%" OR airports IS NULL) ';
 			//echo $textsql.'<br/>';	
 			$answsql0=mysqli_query($db_server,$b_sql);
 				

@@ -26,7 +26,7 @@ include ("login_avia.php");
 		If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 		mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 			
-		if (isset($id))		
+		if (isset($id))		// ! DOEs NOT EXIST NOW!
 			$textsql='UPDATE services SET id_NAV="'.$nav_id.'",id_SAP="'.$sap_id.'",description="'.$desc.'",isValid="'.$isValid.'" WHERE id='.$id;
 		else
 			$textsql='INSERT INTO services
@@ -41,7 +41,7 @@ include ("login_avia.php");
 		{
 			if($value)
 			{
-				$reg_bundle="INSERT INTO bundle_reg
+				$reg_bundle="INSERT INTO bundle_content
 						(bundle_id,service_id)
 						VALUES( $svs_id,$value)";
 				$answsql=mysqli_query($db_server,$reg_bundle);
