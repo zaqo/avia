@@ -409,7 +409,12 @@ function TestCheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopt
 																$values=explode(',',$enum_string);
 																var_dump($values);
 																echo " values array <br/>";
-																$total=count($values);
+																//$total=count($values);
+																$compare=array_keys($values,$plane_type);
+																$total=count($compare);
+																if ($total) $flag=1;
+																break;
+																/*
 																if ($total)
 																{
 																	for($ind=0;$ind<$total;$ind++)
@@ -422,7 +427,7 @@ function TestCheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopt
 																		}
 																		else echo $values[$ind]." is not equal $plane_type ! </br> "; 
 																	}
-																}
+																}*/
 															}
 															break;
 														}
@@ -490,8 +495,8 @@ function TestCheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopt
 									(flight_id,service_id,discount_id,isGroup,condition_id,value)
 									VALUES( '.$flightid.','.$sid.','.$disc_id.',0,'.$cond_id.','.$disc_val.')';
 								   //echo "FINISH ind. ".$textsql.'  JOURNAL individual<br/>';				
-							 	 //$answsql6=mysqli_query($db_server,$textsql);
-								 //if(!$answsql6) die("Insert INTO discounts_journal table failed: ".mysqli_error($db_server));
+							 	 $answsql6=mysqli_query($db_server,$textsql);
+								 if(!$answsql6) die("Insert INTO discounts_journal table failed: ".mysqli_error($db_server));
 								 // DISCOUNTS MULTIPLIED
 									if(isset($result_discount[$sid])) $result_discount[$sid]*=$disc_val;
 									else $result_discount[$sid]=$disc_val;

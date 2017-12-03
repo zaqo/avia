@@ -1124,21 +1124,12 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 															case 6: // " [ ... ] "
 															if($enum_string)
 															{	
-															
 																$values=explode(',',$enum_string);
-																$total=count($values);
-																if ($total)
-																{
-																	for($ind=0;$ind<$total;$ind++)
-																	{
-																		if($values[$ind]==$plane_type)
-																		{
-																			$flag=1;
-																			echo "FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type <br/>";
-																			break;
-																		}
-																	}
-																}
+																$values=explode(',',$enum_string);
+																$compare=array_keys($values,$plane_type);
+																$total=count($compare);
+																if ($total) $flag=1;
+																break;
 															}
 															break;
 														}
@@ -1301,21 +1292,11 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 															case 6: // " [ ... ] "
 															if($enum_string)
 															{	
-															
 																$values=explode(',',$enum_string);
-																$total=count($values);
-																if ($total)
-																{
-																	for($ind=0;$ind<$total;$ind++)
-																	{
-																		if($values[$ind]==$plane_type)
-																		{
-																			$flag=1;
-																			echo "FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type <br/>";
-																			break;
-																		}
-																	}
-																}
+																$compare=array_keys($values,$plane_type);
+																$total=count($compare);
+																if ($total) $flag=1;
+																break;
 															}
 															break;
 														}
