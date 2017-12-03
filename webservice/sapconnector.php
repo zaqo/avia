@@ -224,7 +224,7 @@ function SAP_export_flight($flightid)
 		// Currently the contract is selected by the payer (bill-to)
 			$client_id=$flight->bill_to;  
 			//echo "CLIENT ID: $client_id <br/>  ";
-			$contractsql='SELECT id_SAP FROM contracts WHERE id_NAV="'.$client_id.'" AND isValid=1';
+			$contractsql='SELECT id_SAP,isBased FROM contracts WHERE id_NAV="'.$client_id.'" AND isValid=1';
 				
 			$answsql=mysqli_query($db_server,$contractsql);
 				
@@ -232,6 +232,7 @@ function SAP_export_flight($flightid)
 			
 			$client_contract= mysqli_fetch_row($answsql);
 			$contract_id=$client_contract[0];
+			$isBased=$client_contract[1];
 			if (isset($client_contract[0]))
 			{	
 				//echo "GOT IT! Contract # $contract_id<br/>";
@@ -249,7 +250,7 @@ function SAP_export_flight($flightid)
 				
 			$answsql=mysqli_query($db_server,$clientsql);
 				
-			if(!$answsql) die("Database SELECT in contracts table failed: ".mysqli_error($db_server));	
+			if(!$answsql) die("Database SELECT in CLIENTS table failed: ".mysqli_error($db_server));	
 			
 			$client_rec= mysqli_fetch_row($answsql);
 			$client_id_SAP=$client_rec[0];
@@ -524,6 +525,26 @@ function SAP_export_pair($rec_id)
 				$flight_out->plane_class=$aircraft[0];
 			else 
 				echo "ERROR: Aircraft record COULD NOT BE LOCATED!!! <br/>";
+	
+	//===========================================================
+	//	CLIENT SET UP
+	//-----------------------------------------------------------
+	// Locate Sales Contract ID
+		// Currently the contract is selected by the payer (bill-to)
+			$client_id=$flight_out->bill_to;  	
+	
+			$contractsql='SELECT id_SAP,isBased FROM contracts WHERE id_NAV="'.$client_id.'" AND isValid=1';
+				
+			$answsql=mysqli_query($db_server,$contractsql);
+				
+			if(!$answsql) die("Database SELECT in contracts table failed: ".mysqli_error($db_server));	
+			
+			$client_contract= mysqli_fetch_row($answsql);
+			$contract_id=$client_contract[0];
+			$isBased=$client_contract[1];
+	
+				
+			
 			// BOOK PARKING IF APPLICABLE
 			if($parking_time)
 			{
@@ -542,8 +563,9 @@ function SAP_export_pair($rec_id)
 					$parking_time=ceil($parking_time/24); // ROUNDS UP 
 					$parking_price=$parking_price_int;
 				}
-				if($flight_in->flight_cat==2) $parking_price=0;
-				echo "PARKING PRICE IS: $parking_price <br/>";
+				if($flight_in->flight_cat==2) $parking_time=0;
+				if ($isBased) $parking_time=0;
+				//echo "PARKING PRICE IS: $parking_price <br/>";
 				$mtow=$flight_out->plane_mow/1000;
 				$parking_price*=$mtow;
 				if ($parking_time>0)
@@ -601,6 +623,7 @@ function SAP_export_pair($rec_id)
 				$flight_out->services[]=$row;	
 			}
 			$services_count_out=count($flight_out->services);
+	
 	//============================================================
 	// 			DISCOUNT SECTION
 	//------------------------------------------------------------
@@ -706,7 +729,17 @@ function SAP_export_pair($rec_id)
 			$disc_type='ZK01'; //  Type of discount
 			$disc_value=1;		// and it's value 
 			$currency='';	// Currency in invoice
-	
+			
+			// CONTRACT DATA
+			if (isset($client_contract[0]))
+			{	
+				$req->ID_SALESCONTRACT = $contract_id;
+			}
+			else 
+			{
+				echo "No contract defined for Client ID: $client_id  FLIGHT $out_id CANCELLED<br/>";
+				return 0;
+			}	
 		
 			// Preparing Items for INCOMING FLIGHT
 			$items=new ItemList();
@@ -833,25 +866,7 @@ function SAP_export_pair($rec_id)
 		$req->SALES_ITEMS_IN = $items;
 	//5.
 		// GENERAL SECTION (HEADER)
-		// Locate Sales Contract ID
-		// Currently the contract is selected by the payer (bill-to)
-			$client_id=$flight_out->bill_to;  
-			$contractsql='SELECT id_SAP FROM contracts WHERE id_NAV="'.$client_id.'" AND isValid=1';	
-			$answsql=mysqli_query($db_server,$contractsql);
-				
-			if(!$answsql) die("Database SELECT in contracts table failed: ".mysqli_error($db_server));	
-			
-			$client_contract= mysqli_fetch_row($answsql);
-			$contract_id=$client_contract[0];
-			if (isset($client_contract[0]))
-			{	
-				$req->ID_SALESCONTRACT = $contract_id;
-			}
-			else 
-			{
-				echo "No contract defined for Client ID: $client_id  FLIGHT $out_id CANCELLED<br/>";
-				return 0;
-			}
+		
 		// Locate Customer ID for SAP ERP
 		// it is going to be used as Owner
 			
@@ -1120,6 +1135,7 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 																		{
 																			$flag=1;
 																			echo "FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type <br/>";
+																			break;
 																		}
 																	}
 																}
@@ -1296,6 +1312,7 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 																		{
 																			$flag=1;
 																			echo "FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type <br/>";
+																			break;
 																		}
 																	}
 																}
@@ -1379,6 +1396,6 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 						}
 						//end of company discounts
 	mysqli_close($db_server);
-	return $disc_val;
+	return $result_discount[$sid];
 }
 ?>

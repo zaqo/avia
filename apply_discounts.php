@@ -522,7 +522,7 @@ function ApplyDiscountsIncoming($flightid)
 								$disc_id=$discount[0];
 								$disc_val=$discount[1];
 								$flag=0;
-								//echo "2. Discounts are: $disc_id, $disc_val <br/>";
+								echo "2. Discounts are: $disc_id, $disc_val <br/>";
 								$sqlgetconditions="SELECT condition_id,composition FROM discount_grp_content 
 												WHERE discount_id=$disc_id ORDER BY sequence";
 								//echo '3. '.$sqlgetconditions.' group conditions<br/>';
@@ -542,7 +542,7 @@ function ApplyDiscountsIncoming($flightid)
 										{	
 											
 											$cond_data=mysqli_fetch_row($answsql4);
-											//echo "5. Analyzing condition: ".$cond_data[0]."<br/>";
+											echo "5. Analyzing condition: ".$cond_data[0]."<br/>";
 											if($cond_data)
 											{
 					// Process applicability of condition!
