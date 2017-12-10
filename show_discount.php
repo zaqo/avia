@@ -15,8 +15,8 @@ include ("header.php");
 			$check_in_mysql="SELECT date_set,composition,name_rus,from_val,to_val,enum_of_values,discount_conditions.condition_id 
 							FROM discount_ind_content 
 							LEFT JOIN discount_conditions 
-							ON discount_ind_content.condition_id=discount_conditions.id
-							WHERE discount_id=$id AND discount_conditions.isValid=1
+							ON discount_ind_content.condition_id=discount_conditions.id 
+							WHERE discount_id=$id AND discount_conditions.isValid=1 AND discount_ind_content.isValid=1
 							ORDER BY sequence";
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
@@ -92,8 +92,8 @@ include ("header.php");
 		$check_services="SELECT discounts_ind_reg.id,services.id_NAV,services.description 
 							FROM discounts_ind_reg 
 							LEFT JOIN services 
-							ON discounts_ind_reg.service_id=services.id
-							WHERE discount_id=$id";
+							ON discounts_ind_reg.service_id=services.id 
+							WHERE discount_id=$id AND discounts_ind_reg.isValid=1";
 					
 					$answsql2=mysqli_query($db_server,$check_services);
 					if(!$answsql2) die("LOOKUP into services TABLE failed: ".mysqli_error($db_server));

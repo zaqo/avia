@@ -96,12 +96,14 @@ include ("header.php");
 				<option value="S7">S7</option>
 				<option value="UT">UTair</option>
 				<option value="U6">Уральские ав.</option>
+				<option value="WZ">Red Wings</option>
 				<option value="7R">РусЛайн</option>
 				<option value="GH">Глобус</option>
 				<option value="5N">Нордавиа</option>
 				<option value="6W">Саратовские авиал.</option>
 				<option value="N4">Северный ветер</option>
 				<option value="D2">Северсталь</option>
+				<option value="ZF">АЗУР Эйр</option>
 				<option value="B2">Белавиа</option>
 				<option value="NN">Вим-Авиа</option>
 				<option value="I8">Ижавиа</option>
@@ -117,8 +119,10 @@ include ("header.php");
 				<option value="OS">Austrian</option>
 				<option value="BA">British Airways</option>
 				<option value="SN">Brussel Airlines</option>
+				<option value="MU">CHINA EASTERN</option>
 				<option value="OK">Czech Airlines</option>
-				<option value="CY">CHARLIE</option>,
+				<option value="CY">CHARLIE</option>
+				<option value="EK">Emirates</option>
 				<option value="AY">Finnair</option>
 				<option value="KL">K L M</option>
 				<option value="LO">L O T</option>

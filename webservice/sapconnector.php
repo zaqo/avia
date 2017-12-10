@@ -310,7 +310,7 @@ function SAP_export_pair($rec_id)
 	//include_once ("parking_time.php");	
 		
 		// PRICE SETTINGS FOR PARKING
-		$parking_price_rus=361.3*0.05; // 361.3 RUR per TON per HOUR
+		$parking_price_rus=36.13*0.05; // 361.3 RUR per TON per HOUR
 		$parking_price_ROSSIJA=35.989*0.05; // FAULTY! MUST BE 359.89 RUR per TON per HOUR
 		$parking_price_int=1.47; // 1.47 EUR per TON per DAY
 		
@@ -506,9 +506,11 @@ function SAP_export_pair($rec_id)
 			$aport_out= mysqli_fetch_row($answsql);
 			if(isset($aport_out[0])) 
 			{	
+				if ($aport_out[1]) $airport_location=1;//ABROAD
+				else $airport_location=0; //HOME
 				$flight_out->airport=$aport_out[0];
-				$destination_zone=$aport_out[1];  // <-- TAKEN BY THE DEPARTURE AIRPORT
-				$flight_out->airport_class=$aport_out[1];
+				$destination_zone=$airport_location;  // <-- TAKEN BY THE DEPARTURE AIRPORT
+				$flight_out->airport_class=$airport_location;
 			}
 			else 
 				echo "ERROR: Airport CODE COULD NOT BE LOCATED!!! <br/>";
@@ -1053,7 +1055,10 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 						$sqlservices='SELECT discount_id,discounts_group.discount_val 
 									FROM discounts_grp_reg 
 									LEFT JOIN discounts_group on discounts_group.id = discounts_grp_reg.discount_id 
-									WHERE service_id="'.$sid.'" AND discounts_group.isValid=1 AND discounts_group.valid_from<="'.$flight_date.'" AND discounts_group.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
+									LEFT JOIN clients ON clients.id="'.$client_id.'"
+									WHERE service_id="'.$sid.'" AND discounts_group.isValid=1 
+									AND ((clients.isRusCarrier=0 AND discounts_group.group_id=2) OR discounts_group.group_id=0 OR (clients.isRusCarrier=1 AND discounts_group.group_id=1) )
+									AND discounts_group.valid_from<="'.$flight_date.'" AND discounts_group.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
 				
 						//echo '1. '.$sqlservices.'group <br/>';
 						$answsql2=mysqli_query($db_server,$sqlservices);
@@ -1377,6 +1382,8 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 						}
 						//end of company discounts
 	mysqli_close($db_server);
-	return $result_discount[$sid];
+	if (isset($result_discount[$sid]))
+		return $result_discount[$sid];
+	else return 0;
 }
 ?>

@@ -20,8 +20,12 @@ include ("login_avia.php");
 		$db_server->set_charset("utf8");
 		If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 		mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
+	//1.First clean old	
+	$textsql_clear='UPDATE '.$disc_table.' SET isValid=0 WHERE discount_id='.$disc_id; 
+				$answsql=mysqli_query($db_server,$textsql_clear);
+				if(!$answsql) die("UPDATE '.$disc_table.' table failed: ".mysqli_error($db_server));
 		
-// 1. Fix conditions into discount
+	// 2. Fix conditions into discount
 	foreach($cond_array as $key)
 	{
 		$textsql='INSERT INTO '.$disc_table.'

@@ -17,6 +17,7 @@ include ("login_avia.php");
 	if(isset($_REQUEST['to'])) $date_to= $_REQUEST['to'];
 	if(isset($_REQUEST['priority'])) $prio	= $_REQUEST['priority'];
 	if(isset($_REQUEST['isGroup'])) $isGroup	= $_REQUEST['isGroup'];
+	else $isGroup=0;
 	if(isset($_REQUEST['group_id'])) $group	= $_REQUEST['group_id'];
 	
 		$db_server = mysqli_connect($db_hostname, $db_username,$db_password);

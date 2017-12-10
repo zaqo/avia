@@ -19,7 +19,8 @@ include ("header.php");
 						discount_grp_content.id, discounts_group.name 
 						FROM discount_conditions 
 						LEFT JOIN discount_grp_content 
-						ON (discount_conditions.id=discount_grp_content.condition_id AND discount_grp_content.discount_id='.$disc_id.')			
+						ON (discount_conditions.id=discount_grp_content.condition_id AND discount_grp_content.isValid=1
+						AND discount_grp_content.discount_id='.$disc_id.')			
 						LEFT JOIN discounts_group ON discounts_group.id='.$disc_id.'
 						WHERE discount_conditions.isValid=1 ORDER BY discount_conditions.id';
 		else
@@ -27,7 +28,8 @@ include ("header.php");
 						discount_ind_content.id, discounts_individual.name 
 						FROM discount_conditions 
 						LEFT JOIN discount_ind_content 
-						ON (discount_conditions.id=discount_ind_content.condition_id AND discount_ind_content.discount_id='.$disc_id.')			
+						ON (discount_conditions.id=discount_ind_content.condition_id AND discount_ind_content.isValid=1
+						AND discount_ind_content.discount_id='.$disc_id.')			
 						LEFT JOIN discounts_individual ON discounts_individual.id='.$disc_id.'
 						WHERE discount_conditions.isValid=1 ORDER BY discount_conditions.id';
 					

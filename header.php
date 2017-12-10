@@ -78,8 +78,8 @@
 				
 				<a href=\"show_contracts.php\">Контракты</a>
 				<a href=\"create_contract.php\">Создать Контракт</a>
-				<a href=\"show_contracts.php\">Клиенты</a>
-				<a href=\"create_contract.php\">Создать Клиента</a>
+				<a href=\"show_clients.php\">Клиенты</a>
+				<a href=\"create_client.php\">Создать Клиента</a>
 				</div>
 			</div>
 			";

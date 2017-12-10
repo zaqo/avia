@@ -130,7 +130,7 @@ function ApplyPackage($rec_id)
 			}
 			$client_id=mysqli_fetch_row($answsql0);
 			//PICKING UP PACKAGE BY CLIENT ID
-			$textsql='SELECT package_id FROM package_reg WHERE client_id="'.$client_id[0].'"';
+			$textsql='SELECT package_id FROM package_reg WHERE client_id="'.$client_id[0].'" AND isValid=1';
 			//echo $textsql.'<br/>';	
 			$answsql=mysqli_query($db_server,$textsql);
 			$num_rows=$answsql->num_rows;	

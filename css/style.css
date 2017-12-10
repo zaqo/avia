@@ -242,3 +242,11 @@ caption:before, caption:after {
 .search_result li:hover{
     background: #F9FF00;
 }
+/* DISCOUNTS*/
+span.discount {
+	color: red;
+	
+	font-family: currier, cursive;
+	font-size: 1em;
+	text-shadow: 1px 1px 0 rgba(0,0,0,.3);
+}
