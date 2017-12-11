@@ -535,7 +535,10 @@ function SAP_export_pair($rec_id)
 		// Currently the contract is selected by the payer (bill-to)
 			$client_id=$flight_out->bill_to;  	
 	
-			$contractsql='SELECT id_SAP,isBased FROM contracts WHERE id_NAV="'.$client_id.'" AND isValid=1';
+			$contractsql='SELECT contracts.id_SAP,isBased 
+							FROM contracts 
+							LEFT JOIN clients ON contracts.client_id = clients.id AND clients.isValid
+							WHERE clients.id_NAV="'.$client_id.'" AND contracts.isValid';
 				
 			$answsql=mysqli_query($db_server,$contractsql);
 				
@@ -638,13 +641,17 @@ function SAP_export_pair($rec_id)
 							FROM discounts_grp_reg 
 							LEFT JOIN discounts_group on discounts_group.id = discounts_grp_reg.discount_id 
 									WHERE (discounts_group.group_id=1 OR discounts_group.group_id=0) 
-									AND discounts_group.isValid=1 AND discounts_group.valid_from<="'.$flight_date.'" AND discounts_group.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
+									AND discounts_group.isValid=1 
+									AND discounts_grp_reg.isValid=1 
+									AND discounts_group.valid_from<="'.$flight_date.'" AND discounts_group.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
 		else 
 			$get_services='SELECT DISTINCT service_id
 							FROM discounts_grp_reg 
 							LEFT JOIN discounts_group on discounts_group.id = discounts_grp_reg.discount_id 
 									WHERE (discounts_group.group_id=2 OR discounts_group.group_id=0) 
-									AND discounts_group.isValid=1 AND discounts_group.valid_from<="'.$flight_date.'" AND discounts_group.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
+									AND discounts_group.isValid=1 
+									AND discounts_grp_reg.isValid=1 
+									AND discounts_group.valid_from<="'.$flight_date.'" AND discounts_group.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
 
 		
 		//echo 'STARTING WITh discounts: 1. '.$get_services.'group <br/>';
@@ -667,8 +674,9 @@ function SAP_export_pair($rec_id)
 							FROM discounts_ind_reg 
 							LEFT JOIN discounts_individual on discounts_individual.id = discounts_ind_reg.discount_id 
 									WHERE discounts_individual.client_id="'.$client_my_id.'"
-										AND discounts_individual.isValid=1  
-									 AND discounts_individual.valid_from<="'.$flight_date.'" AND discounts_individual.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
+									AND discounts_individual.isValid=1  
+									AND discounts_ind_reg.isValid=1 
+									AND discounts_individual.valid_from<="'.$flight_date.'" AND discounts_individual.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
 
 		//echo 'INDIVIDUAL DISCOUNTS 2. '.$get_services_ind.' INDIVIDUAL <br/>';
 		$answsql_ind=mysqli_query($db_server,$get_services_ind);
@@ -1056,7 +1064,7 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 									FROM discounts_grp_reg 
 									LEFT JOIN discounts_group on discounts_group.id = discounts_grp_reg.discount_id 
 									LEFT JOIN clients ON clients.id="'.$client_id.'"
-									WHERE service_id="'.$sid.'" AND discounts_group.isValid=1 
+									WHERE service_id="'.$sid.'" AND discounts_group.isValid=1 AND discounts_grp_reg.isValid=1
 									AND ((clients.isRusCarrier=0 AND discounts_group.group_id=2) OR discounts_group.group_id=0 OR (clients.isRusCarrier=1 AND discounts_group.group_id=1) )
 									AND discounts_group.valid_from<="'.$flight_date.'" AND discounts_group.valid_to>="'.$flight_date.'"';//If we need zero as unlimited in valid_to, add it after additional OR here
 				
@@ -1074,7 +1082,7 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 								$flag=0;
 								//echo "2. Discounts are: $disc_id, $disc_val <br/>";
 								$sqlgetconditions="SELECT condition_id,composition FROM discount_grp_content 
-												WHERE discount_id=$disc_id ORDER BY sequence";
+												WHERE discount_id=$disc_id AND isValid=1 ORDER BY sequence";
 								//echo '3. '.$sqlgetconditions.' group conditions<br/>';
 								$answsql3=mysqli_query($db_server,$sqlgetconditions);
 								if($answsql3->num_rows) 
@@ -1223,6 +1231,7 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 									WHERE service_id="'.$sid.'" 
 										AND discounts_individual.client_id="'.$client_id.'"
 										AND discounts_individual.isValid=1 
+										AND discounts_ind_reg.isValid=1
 										AND discounts_individual.valid_from<="'.$flight_date.'" 
 										AND (discounts_individual.valid_to>="'.$flight_date.'" OR discounts_individual.valid_to="0000-00-00")';//If we need zero as unlimited in valid_to, add it after additional OR here
 				
@@ -1242,7 +1251,7 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 								//echo "ENTERED PROCESSING INDIVIDUAL DISCOUNT $disc_id , $disc_val % <br/>";
 								//echo "2 ind. Discounts are: $disc_id, $disc_val <br/>";
 								$sqlgetconditions="SELECT condition_id,composition FROM discount_ind_content 
-												WHERE discount_id=$disc_id ORDER BY sequence";
+												WHERE discount_id=$disc_id AND isValid=1 ORDER BY sequence";
 								//echo "3 ind. ".$sqlgetconditions.' individual<br/>';
 								$answsql3=mysqli_query($db_server,$sqlgetconditions);
 								if($answsql3->num_rows) 

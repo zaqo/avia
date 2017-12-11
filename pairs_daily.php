@@ -120,6 +120,7 @@ include ("header.php");
 				<option value="BA">British Airways</option>
 				<option value="SN">Brussel Airlines</option>
 				<option value="MU">CHINA EASTERN</option>
+				<option value="CZ">CHINA Southern</option>
 				<option value="OK">Czech Airlines</option>
 				<option value="CY">CHARLIE</option>
 				<option value="EK">Emirates</option>

@@ -17,13 +17,13 @@ include ("header.php");
 			if($isGroup) $check_svs='SELECT services.id,services.id_NAV,services.description,units.description_rus,discounts_grp_reg.id 
 								FROM services 
 								LEFT JOIN units ON services.id_mu=units.id
-								LEFT JOIN discounts_grp_reg ON ( services.id=discounts_grp_reg.service_id AND discounts_grp_reg.discount_id='.$disc_id.' )
-								WHERE isValid=1 ORDER BY services.id_NAV';
+								LEFT JOIN discounts_grp_reg ON ( services.id=discounts_grp_reg.service_id AND discounts_grp_reg.discount_id='.$disc_id.'  AND discounts_grp_reg.isValid)
+								WHERE services.isValid ORDER BY services.id_NAV';
 			else $check_svs='SELECT services.id,services.id_NAV,services.description,units.description_rus,discounts_ind_reg.id
 								FROM services 
 								LEFT JOIN units ON services.id_mu=units.id
-								LEFT JOIN discounts_ind_reg ON ( services.id=discounts_ind_reg.service_id AND discounts_ind_reg.discount_id='.$disc_id.' )
-								WHERE isValid=1 ORDER BY services.id_NAV';	
+								LEFT JOIN discounts_ind_reg ON ( services.id=discounts_ind_reg.service_id AND discounts_ind_reg.discount_id='.$disc_id.' AND discounts_ind_reg.isValid)
+								WHERE services.isValid ORDER BY services.id_NAV';	
 			$answsqlcheck=mysqli_query($db_server,$check_svs);
 			if(!$answsqlcheck) die("LOOKUP into services TABLE failed: ".mysqli_error($db_server));
 		

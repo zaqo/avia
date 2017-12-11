@@ -12,12 +12,13 @@ include ("header.php");
 		
 			$check_in_mysql="SELECT clients.id,clients.id_NAV,clients.name,clients.id_SAP,isRusCarrier,contracts.id_SAP,service_nick.nick,packages.name 
 							FROM clients 
-							LEFT JOIN contracts ON clients.id=contracts.client_id 
+							LEFT JOIN contracts ON clients.id=contracts.client_id AND contracts.isValid
 							LEFT JOIN bundle_reg ON clients.id=bundle_reg.client_id AND bundle_reg.isValid=1
 							LEFT JOIN package_reg ON clients.id=package_reg.client_id AND package_reg.isValid=1
-							LEFT JOIN packages ON packages.id=package_reg.package_id
+							LEFT JOIN packages ON packages.id=package_reg.package_id AND packages.isValid
 							LEFT JOIN service_nick ON bundle_reg.bundle_id=service_nick.service_id 
-							WHERE 1 ORDER by clients.id ";
+							WHERE 1
+							ORDER by clients.id ";
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into services TABLE failed: ".mysqli_error($db_server));

@@ -43,7 +43,8 @@ function ApplyPackage($rec_id)
 		//  LOCATE IN flight data
 			$textsql='SELECT id,id_NAV,date,flight,direction,plane_num,plane_type,
 						plane_mow,airport,passengers_adults,passengers_kids,customer_id,
-						bill_to_id,owner,time_fact,package_applied FROM  flights WHERE id="'.$in_.'"';
+						bill_to_id,owner,time_fact,package_applied 
+						FROM  flights WHERE id="'.$in_.'"';
 				
 			$answsql=mysqli_query($db_server,$textsql);
 				
@@ -117,7 +118,7 @@ function ApplyPackage($rec_id)
 				$flight_out->time_fact=$flight_data_out[14];
 			
 		//  1. LOCATE all packages relevant to the flight
-			$clientsql='SELECT id FROM clients WHERE id_NAV="'.$flight->bill_to.'"';
+			$clientsql='SELECT id FROM clients WHERE id_NAV="'.$flight->bill_to.'" AND isValid=1';
 			//echo $textsql.'<br/>';	
 			$answsql0=mysqli_query($db_server,$clientsql);
 				
