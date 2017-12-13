@@ -22,7 +22,7 @@ include ("header.php");
 		$services.='</select>';	
 
 		// Constructs clients dropdown
-		$check_clients='SELECT id,name FROM clients WHERE name!="" AND isValid';
+		$check_clients='SELECT id,name FROM clients WHERE name!="" AND isValid ORDER BY name' ;
 					
 					$answsqlcheck=mysqli_query($db_server,$check_clients);
 					if(!$answsqlcheck) die("SELECT into clients TABLE failed: ".mysqli_error($db_server));

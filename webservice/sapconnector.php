@@ -786,7 +786,7 @@ function SAP_export_pair($rec_id)
 						$disc_value=0;
 					}
 					$qty=$flight_in->services[$it][1];
-					if($sap_service_id[2]==3) $qty=round($qty/1000);//HERE WE FIX KILOS TO TONS NAVISION ISSUE
+					if($sap_service_id[2]==3) $qty=ceil($qty/1000);//HERE WE FIX KILOS TO TONS NAVISION ISSUE; USE round for precision
 					$item1->MATERIAL=$sap_service_id[0];
 					$item1->TARGET_QTY=$qty;
 					$item1->COND_TYPE=$disc_type;
@@ -843,7 +843,7 @@ function SAP_export_pair($rec_id)
 					}
 					
 				$qty_out=$flight_out->services[$k][1];
-					if($sap_service_id[2]==3) $qty_out=round($qty_out/1000);     //ALSO FIXING NAVISION KILOS
+					if($sap_service_id[2]==3) $qty_out=ceil($qty_out/1000);     //ALSO FIXING NAVISION KILOS
 				$price_out=$flight_out->services[$k][2];
 				//PARKING SECTION	
 				if(($service_id==61)||($service_id==52))//PARKING FOR RUS & INTERNATIONAL

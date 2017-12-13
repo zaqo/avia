@@ -113,6 +113,7 @@ include ("header.php");
 				<option value="ЛП">Псков Авиа</option>
 				<option value="R3">Якутия</option>
 				<option value="YC">Ямал</option>
+				<option value="A3">Aegean</option>
 				<option value="BT">Air Baltic</option>
 				<option value="AF">Air France</option>
 				<option value="AZ">Alitalia</option>

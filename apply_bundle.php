@@ -85,7 +85,7 @@ function ApplyBundle($rec_id)
 			$b_sql='SELECT bundle_id,services.id_NAV, class, airports 
 						FROM bundle_reg 
 						LEFT JOIN services ON bundle_reg.bundle_id=services.id 
-						WHERE client_id="'.$customer.'" AND (class="'.$airplane_cl_out.'" OR class IS NULL) AND (airports LIKE "%'.$airport_out.'%" OR airports IS NULL) ';
+						WHERE client_id="'.$customer.'" AND (class="'.$airplane_cl_out.'" OR class IS NULL) AND (airports LIKE "%'.$airport_out.'%" OR airports IS NULL) AND bundle_reg.isValid';
 			//echo $textsql.'<br/>';	
 			$answsql0=mysqli_query($db_server,$b_sql);
 				
@@ -163,7 +163,7 @@ function ApplyBundle($rec_id)
 							// b. CHECK IF THE SERVICE IN CONDITION WAS TAKEN FOR THE FLIGHT
 								$row_cond= mysqli_fetch_row($answsql3);
 								$checkservices='SELECT id,quantity FROM service_reg 
-								WHERE (flight='.$flight_id_in.' OR flight='.$flight_id_out.') AND service="'.$row_cond[0].'"';
+								WHERE (flight='.$flight_id_in.' OR flight='.$flight_id_out.') AND service="'.$row_cond[0].'" AND isValid';
 				
 								$answsql4=mysqli_query($db_server,$checkservices);
 								if(!$answsql4) die("Database SELECT in service_reg table failed: ".mysqli_error($db_server));
@@ -174,7 +174,7 @@ function ApplyBundle($rec_id)
 							
 					}
 					$sqlservices='SELECT id,quantity FROM service_reg 
-								WHERE (flight='.$flight_id_in.' OR flight='.$flight_id_out.' ) AND service="'.$service_id_NAV.'"';
+								WHERE (flight='.$flight_id_in.' OR flight='.$flight_id_out.' ) AND service="'.$service_id_NAV.'" AND isValid';
 			
 					$answsql1=mysqli_query($db_server,$sqlservices);
 					$num_svs=$answsql1->num_rows;	
