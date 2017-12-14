@@ -1214,7 +1214,15 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 									if(!$answsql6) die("Insert INTO discounts_journal table failed: ".mysqli_error($db_server));
 									
 									// DISCOUNTS MULTIPLIED
-									if(isset($result_discount[$sid])) $result_discount[$sid]*=$disc_val;
+									if(isset($result_discount[$sid])) 
+									{
+										 $prev_disc=100+$result_discount[$sid];
+										
+										 $disc_val+=100;
+										
+										 $disc_val*=$prev_disc/10000;
+										$result_discount[$sid]=($disc_val-1)*100;
+									}
 									else $result_discount[$sid]=$disc_val;
 								}
 								else
@@ -1381,7 +1389,15 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 							 	 $answsql6=mysqli_query($db_server,$textsql);
 								 if(!$answsql6) die("Insert INTO discounts_journal table failed: ".mysqli_error($db_server));
 								 // DISCOUNTS MULTIPLIED
-									if(isset($result_discount[$sid])) $result_discount[$sid]*=$disc_val;
+									if(isset($result_discount[$sid]))
+									{
+										 $prev_disc=100+$result_discount[$sid];
+										
+										 $disc_val+=100;
+										
+										 $disc_val*=$prev_disc/10000;
+										$result_discount[$sid]=($disc_val-1)*100;
+									}
 									else $result_discount[$sid]=$disc_val;
 								}
 								else
