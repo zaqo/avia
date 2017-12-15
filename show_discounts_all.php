@@ -21,7 +21,7 @@ include ("header.php");
 					if(!$answsqlcheck) die("LOOKUP into discounts_individual TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
 		$content.= "<table><caption><b>Скидки для авиакомпаний</b></caption><br>";
-		$content.= '<tr><th>№ </th><th>Название</th><th>Клиент</th><th>Скидка,%</th><th>Условие</th><th>С:</th><th>ПО:</th><th></th><th></th></tr>';
+		$content.= '<tr><th>№ </th><th>Название</th><th>Клиент</th><th>Скидка,%</th><th>Условие</th><th>С:</th><th>ПО:</th><th></th><th></th><th></th></tr>';
 		// Iterating through the array
 		$counter=1;
 		
@@ -46,7 +46,8 @@ include ("header.php");
 				$content.= "<td>$cond</td>";
 				$content.= "<td>$date_fr_show</td><td>$date_to_show</td>";
 				$content.= '<td><a href="add_condition.php?id='.$rec_id.'&isGroup=0">Изменить условия</a></td>';
-				$content.= '<td><a href="add_service.php?id='.$rec_id.'&isGroup=0">Привязать к услуге</a></td></tr>';
+				$content.= '<td><a href="add_service.php?id='.$rec_id.'&isGroup=0">Привязать к услуге</a></td>';
+				$content.= '<td><a href="edit_discount_ind.php?id='.$rec_id.'&isGroup=0">Редактировать</a></td></tr>';
 			$counter+=1;
 			
 		}
@@ -65,7 +66,7 @@ include ("header.php");
 					if(!$answsqlcheck) die("LOOKUP into discounts_group TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
 		$content.= "<table><caption><b>Групповые Скидки</b></caption><br>";
-		$content.= '<tr><th>№ </th><th>Название</th><th>Группа</th><th>Скидка,%</th><th>Условие</th><th>С:</th><th>ПО:</th><th>Порядок</th><th></th><th></th></tr>';
+		$content.= '<tr><th>№ </th><th>Название</th><th>Группа</th><th>Скидка,%</th><th>Условие</th><th>С:</th><th>ПО:</th><th>Порядок</th><th></th><th></th><th></th></tr>';
 		// Iterating through the array
 		$counter=1;
 		
@@ -104,6 +105,7 @@ include ("header.php");
 				$content.= "<td>$date_fr_show</td><td>$date_to_show</td><td>$priority</td>";
 				$content.= '<td><a href="add_condition.php?id='.$rec_id.'&isGroup=1">Изменить условия</a></td>';
 				$content.= '<td><a href="add_service.php?id='.$rec_id.'&isGroup=1">Привязать к услуге</a></td></tr>';
+				
 			$counter+=1;
 			
 		}
