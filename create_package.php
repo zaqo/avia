@@ -35,8 +35,8 @@ include ("header.php");
 		$clients.='</select>';
 		// Form begins
 		$content.= '<form id="form" method=post action=update_package.php autocomplete="off">
-					<div id="add_field_area"><table id="myTab"><caption><b>Создаем пакет</b></caption>
-					<tr><td colspan="2"><b>НАЗВАНИЕ:</b></td><td colspan="2"><input type="text" value="" name="pack_name" placeholder="Название пакета" required/></td></tr>
+					<div id="add_field_area"><table id="myTab"><caption><b>Создаем ШАБЛОН</b></caption>
+					<tr><td colspan="2"><b>НАЗВАНИЕ:</b></td><td colspan="2"><input type="text" value="" name="pack_name" placeholder="Название " required/></td></tr>
 					<tr><th>Услуга</th><th>Везде</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th></tr>
 					
 					
