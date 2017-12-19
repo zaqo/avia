@@ -27,7 +27,7 @@ function addMyField () {
 			
 			//and draw a new row
 			$("#myTab").append('<tr><div id="add'+telnum+'"><td><input type="text" name="val[]" class="livesearch_input" id="who'+telnum+'" size="10" value="" onkeyup="showResult(this.value,'+telnum+')"><ul id="livesearch'+telnum+'" class="search_result"></ul></td>'
-			+'<td><select name="to_all[]" id="all" class="services" ><option value=1>Да</option><option value=0>Нет</option></select></td><td><input type="text" value="" name="including[]" placeholder="1,2,3"/></td><td><input type="text" value="" name="excluding[]" placeholder="1,2,3"/></td></div></tr>');
+			+'<td><select name="to_all[]" id="all" class="services" ><option value=1>Да</option><option value=0>Нет</option></select></td><td><input type="text" value="" name="including[]" placeholder="1,2,3"/></td><td><input type="text" value="" name="excluding[]" placeholder="1,2,3"/></td><td><input type="checkbox" name="direction[]" value="'+telnum+'"></div></tr>');
 		}
 		function addRow () {
 			//var telnum = parseInt($("#add_field_area").find("div.add:last").attr("id").slice(3))+1;//увеличиваем значение счетчика

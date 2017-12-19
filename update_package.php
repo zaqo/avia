@@ -11,7 +11,7 @@ include ("login_avia.php");
  echo "</pre>";
 	
 	if(isset($_REQUEST['pack_name'])) $name	= $_REQUEST['pack_name'];
-	//if(isset($_REQUEST['client'])) $client_id= $_REQUEST['client'];
+	if(isset($_REQUEST['direction'])) $dir= $_REQUEST['direction'];
 	if(isset($_REQUEST['val'])) $services	= $_REQUEST['val'];
 	if(isset($_REQUEST['to_all'])) $everybody= $_REQUEST['to_all'];
 	else $everybody=1; // IF NO ONE OF CHECKBOXES WAS CLICKED
@@ -24,7 +24,7 @@ include ("login_avia.php");
 		$db_server->set_charset("utf8");
 		If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 		mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
-		
+		$direction=0;
 // 1.create package		
 		$textsql='INSERT INTO packages
 						(name,isValid)
@@ -35,11 +35,16 @@ include ("login_avia.php");
 
 		// 2.Fill in package content
 		$pack_id=$db_server->insert_id;
+		
 		//echo "Package ID: ".$pack_id.'<br/>';
 		$input=count($services);
 		for($i=0; $i<$input; $i++)
 		{
 			$id_NAV=$services[$i];
+			$pos=$i+1;
+			
+			if(in_array($pos,$dir)) $direction=1;
+			else $direction=0;
 			if($id_NAV)
 			{
 				//a. get the service's  id
@@ -55,8 +60,8 @@ include ("login_avia.php");
 					if($everybody[$i]) $scope=0;// Applies to all airports
 					else $scope=1;
 					$textsql="INSERT INTO package_content
-						(package_id,service_id,scope,isValid)
-						VALUES( $pack_id,$service_id,$scope,1)";
+						(package_id,service_id,scope,direction,isValid)
+						VALUES( $pack_id,$service_id,$scope,$direction,1)";
 					//echo $textsql.'<br/>';				
 					$answsql=mysqli_query($db_server,$textsql);
 					if(!$answsql) die("Insert INTO package_content table failed: ".mysqli_error($db_server));

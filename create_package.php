@@ -36,8 +36,8 @@ include ("header.php");
 		// Form begins
 		$content.= '<form id="form" method=post action=update_package.php autocomplete="off">
 					<div id="add_field_area"><table id="myTab"><caption><b>Создаем ШАБЛОН</b></caption>
-					<tr><td colspan="2"><b>НАЗВАНИЕ:</b></td><td colspan="2"><input type="text" value="" name="pack_name" placeholder="Название " required/></td></tr>
-					<tr><th>Услуга</th><th>Везде</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th></tr>
+					<tr><td colspan="2"><b>НАЗВАНИЕ:</b></td><td colspan="3"><input type="text" value="" name="pack_name" placeholder="Название " required/></td></tr>
+					<tr><th>Услуга</th><th>Везде</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th><th>Вылет</th></tr>
 					
 					
 						<tr><div id="add1" class="add">
@@ -48,12 +48,13 @@ include ("header.php");
 							</td>
 							<td><input type="text" value="" name="including[]" placeholder="1,2,3"/></td>
 							<td><input type="text" value="" name="excluding[]" placeholder="1,2,3"/></td>
+							<td><input type="checkbox" name="direction[]" value="1"> </td>
 					</div>	</tr>
 					
 					<tbody id="tbody">
-					<tr><td onclick="addsomeField();" class="addbutton" colspan="4">Add</td></tr>
+					<tr><td onclick="addsomeField();" class="addbutton" colspan="5">Add</td></tr>
 					</tbody>
-					<tr><td colspan="4"><p>
+					<tr><td colspan="5"><p>
 					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
 					</table></div></form>';
 	

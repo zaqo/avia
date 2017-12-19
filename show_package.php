@@ -26,11 +26,11 @@ include ("header.php");
 			$pack_name=mysqli_fetch_row( $answsqlname );
 			
 				$content.= '<table><caption><b>Шаблон услуг: '.$pack_name[0].'</b></caption><br>';
-				$content.= '<tr><th>№ </th><th>Услуга</th><th>Описание</th><th>Для всех</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th><th>Дата</th></tr>';
+				$content.= '<tr><th>№ </th><th>Услуга</th><th>Описание</th><th>Везде</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th><th>Направление</th><th>Дата</th></tr>';
 			
 			// GO LINE BY LINE
 			
-			$check_in_mysql="SELECT package_content.id,service_id,scope,date,services.description,services.id_NAV
+			$check_in_mysql="SELECT package_content.id,service_id,scope,date,services.description,services.id_NAV,direction
 								FROM package_content
 								LEFT JOIN services ON package_content.service_id=services.id
 								WHERE package_id=$id AND package_content.isValid=1";
@@ -49,6 +49,7 @@ include ("header.php");
 				$date=$row[3];
 				$service_name=$row[4];
 				$service_idNAV=$row[5];
+				$dir=$row[6];
 				$scope_txt='';
 				$scope_incl='';
 				$scope_excl='';
@@ -75,14 +76,18 @@ include ("header.php");
 						$scope_incl=substr($scope_incl,0,-1);
 				if($scope_excl)
 						$scope_excl=substr($scope_excl,0,-1);
+				if($dir)
+					$dir_txt='вылет';
+				else
+					$dir_txt='прилет';
 					
 				$content.= "<tr><td>$counter</td>";
 				$content.= "<td>$service_idNAV</td><td>$service_name</td>";
 				$content.= "<td>$scope_txt</td>";
 				$content.= "<td>$scope_incl</td>";
 				$content.= "<td>$scope_excl</td>";
-				
-		$content.= "<td>$date</td>";
+				$content.= "<td>$dir_txt</td>";
+				$content.= "<td>$date</td>";
 				$content.= '</tr>';
 				
 			$counter+=1;
