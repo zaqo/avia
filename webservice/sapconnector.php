@@ -428,7 +428,7 @@ function SAP_export_pair($rec_id)
 			if(isset($aport[0])) 
 			{
 				$flight_in->airport=$aport[0];
-				
+				if($aport[1]>1) $aport[1]=1; //FIX CIS issue
 				$flight_in->airport_class=$aport[1];
 			}
 			else 
@@ -506,7 +506,7 @@ function SAP_export_pair($rec_id)
 			$aport_out= mysqli_fetch_row($answsql);
 			if(isset($aport_out[0])) 
 			{	
-				if ($aport_out[1]) $airport_location=1;//ABROAD
+				if ($aport_out[1]) $airport_location=1;//ABROAD, FIX CIS ISSUE
 				else $airport_location=0; //HOME
 				$flight_out->airport=$aport_out[0];
 				$destination_zone=$airport_location;  // <-- TAKEN BY THE DEPARTURE AIRPORT
@@ -691,7 +691,7 @@ function SAP_export_pair($rec_id)
 					$result_svs[$index_]=1;
 				}
 			}
-			var_dump($result_svs);
+			//var_dump($result_svs);
 		//--------------------------------------------------------------------------
 		// BUILD A LIST OF SERVICES
 		$list_srv='SELECT DISTINCT services.id FROM service_reg 
@@ -786,7 +786,11 @@ function SAP_export_pair($rec_id)
 						$disc_value=0;
 					}
 					$qty=$flight_in->services[$it][1];
-					if($sap_service_id[2]==3) $qty=ceil($qty/1000);//HERE WE FIX KILOS TO TONS NAVISION ISSUE; USE round for precision
+					if($sap_service_id[2]==3) 
+					{	
+						$qty=$qty/1000;//HERE WE FIX KILOS TO TONS NAVISION ISSUE; USE round for precision
+						if(!$client_geo) $qty=ceil($qty);
+					}
 					$item1->MATERIAL=$sap_service_id[0];
 					$item1->TARGET_QTY=$qty;
 					$item1->COND_TYPE=$disc_type;
@@ -843,7 +847,11 @@ function SAP_export_pair($rec_id)
 					}
 					
 				$qty_out=$flight_out->services[$k][1];
-					if($sap_service_id[2]==3) $qty_out=ceil($qty_out/1000);     //ALSO FIXING NAVISION KILOS
+					if($sap_service_id[2]==3) 
+					{
+						$qty_out=$qty_out/1000;     //ALSO FIXING NAVISION KILOS
+						if(!$client_geo) $qty_out=ceil($qty_out);
+					}
 				$price_out=$flight_out->services[$k][2];
 				//PARKING SECTION	
 				if(($service_id==61)||($service_id==52))//PARKING FOR RUS & INTERNATIONAL
@@ -963,12 +971,18 @@ include 'login_avia.php';
 			$pair= mysqli_fetch_row($answsql);
 			$in_id=$pair[0];
 			$out_id=$pair[1];
-			$textsqlout='SELECT id,time_fact,date FROM flights WHERE id="'.$in_id.'" OR id="'.$out_id.'"';	
+			$textsqlout='SELECT id,time_fact,date,parkedAt FROM flights WHERE id="'.$in_id.'" OR id="'.$out_id.'"';	
 			$answsql2=mysqli_query($db_server,$textsqlout);	
 			if(!$answsql2) die("Database SELECT TO flights table failed: ".mysqli_error($db_server));	
 			
-			$flight_data_in= mysqli_fetch_row($answsql2);
-				
+			$flight_data_in= mysqli_fetch_row($answsql2); 	// ON DEPARTURE
+			$pp=$flight_data_in[3]; 						// PARKING AREA
+			$pp1=substr($pp,0,1);
+			if($pp=="ЗАВ"||$pp=="АНГ"||$pp1=="6")
+			{
+				echo "HANGAR, ZAVOD, 6-th perron: $pp NO CHARGES FOR PARKING!!! <br/>";
+				return 0;//NO PARKING TIME FOR THESE PLACES
+			}	
 				//SETTING UP in and outgoing Flight's Object
 				//IN CASE OUTGOING GOT INTO THE DATABASE EARLIER WE HAVE TO CHECK WHICH ONE WE GOT FIRST
 				if($flight_data_in[0]==$in_id)

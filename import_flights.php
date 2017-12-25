@@ -45,8 +45,9 @@ class Flight
 		$tsql_route='SELECT ID,Income,[Income No_],[Date Fact],[Bort No_],[Airport No_],[Flying Type],[Max Weight],
 							[Passengers Income Grown-Up],[Passengers Income Children],
 							[Passengers Outcome Grown-Up],[Passengers Outcome Children],
-							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Name],Helicopter,Category,No_,[Time Fact],[Type Aircraft],[Outcome No_]
-						FROM dbo.[NCG$Route] 
+							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Aircraft],Helicopter,Category,t1.No_,[Time Fact],[Type Aircraft],[Outcome No_],t2.[No_]
+						FROM dbo.[NCG$Route] AS t1
+						LEFT JOIN [NCG$Route Resource] AS t2 ON t2.[Route No_]=t1.[No_]
 						WHERE MONTH([Date Fact])='.$month.' AND DAY([Date Fact])='.$day.' AND YEAR([Date Fact])='.$year.' AND  Correction=1 ';//Correction = 1 - records blocked for changes
 		
 		$stmt = sqlsrv_query( $conn, $tsql_route);
@@ -71,7 +72,7 @@ class Flight
 						<th>Бортовой номер</th><th>Аэропорт</th><th>Тип полета</th><th>Макс.масса</th>
 						<th>->Пасс.Взр</th><th>->Пасс.Дети</th>
 						<th><-Пасс.Взр</th><th><-Пасс.Дети</th>
-						<th>Связка</th><th>Клиент</th><th>Плательщик</th><th>Владелец</th><th>Вертолет</th><th>Кат.</th><th>Отправл.</th><th>Услуги</th></tr>';
+						<th>Связка</th><th>Клиент</th><th>Плательщик</th><th>Владелец</th><th>Вертолет</th><th>Кат.</th><th>Отправл.</th><th>Стоянка</th><th>Услуги</th></tr>';
 		// Iterating through the array
 		
 		$counter=1;
@@ -92,6 +93,7 @@ class Flight
 				$plane_type=$row[20];
 				$flight_num_in=iconv('windows-1251','utf-8',$row[2]);
 				$flight_num_out=iconv('windows-1251','utf-8',$row[21]);
+				$parked_at=iconv('windows-1251','utf-8',$row[22]);
 				
 				if((int)$flightid<100000000)  //cut padding Rossija flights
 				{
@@ -130,12 +132,13 @@ class Flight
 						$transfer_mysql='REPLACE INTO flights
 								(id_NAV,date,flight,direction,linked_to,isHelicopter,plane_num,flight_type,
 								plane_mow,airport,passengers_adults,passengers_kids,customer_id,bill_to_id,
-								owner,category,time_fact,plane_type) 
+								owner,category,time_fact,plane_type,parkedAt) 
 								VALUES
 								("'.$flightid_NAV.'","'.$row[3].'","'.$flight_number.'","'.$dir.'","'.$row[12].'",
 								 "'.$row[16].'","'.$row[4].'","'.$row[6].'","'.$row[7].'",
 								 "'.$row[5].'","'.$pass_a.'","'.$pass_k.'",
-								 "'.$row[13].'","'.$row[14].'","'.$owner.'","'.$category.'","'.$time_fact->format('H:i:s').'","'.$plane_type.'")';
+								 "'.$row[13].'","'.$row[14].'","'.$owner.'","'.$category.'","'.$time_fact->format('H:i:s').'",
+								 "'.$plane_type.'","'.$parked_at.'")';
 						
 						$answsql=mysqli_query($db_server,$transfer_mysql);
 						if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));

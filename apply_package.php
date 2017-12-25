@@ -196,6 +196,9 @@ function ApplyPackage($rec_id)
 							case 3:  // based on plane max weight HERE COMES 1/1000
 								$quantity=$plane_mow;
 							break;
+							case 5: // pieces, ZEROED
+								$quantity=0;
+								break;
 							case 6:  // WATER - NOW IT"S ZEROED
 								$quantity=0;
 							case 7:  // TIME FOR PARKING OVERDRAFT IN HOURS - NOW IT"S ZEROED

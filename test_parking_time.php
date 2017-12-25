@@ -23,12 +23,18 @@ include ("header.php");
 			$pair= mysqli_fetch_row($answsql);
 			$in_id=$pair[0];
 			$out_id=$pair[1];
-			$textsqlout='SELECT id,time_fact FROM flights WHERE id="'.$in_id.'" OR id="'.$out_id.'"';	
+			$textsqlout='SELECT id,time_fact,parkedAt FROM flights WHERE id="'.$in_id.'" OR id="'.$out_id.'"';	
 			$answsql2=mysqli_query($db_server,$textsqlout);	
 			if(!$answsql2) die("Database SELECT TO flights table failed: ".mysqli_error($db_server));	
 			
 			$flight_data_in= mysqli_fetch_row($answsql2);
-				
+				$pp=$flight_data_in[2]; //PARKING AREA
+			$pp1=substr($pp,0,1);
+			if($pp=="ЗАВ"||$pp=="АНГ"||$pp1=="6")
+			{
+				echo "HANGAR, ZAVOD, 6-th perron !!! <br/>";
+				return 0;//NO PARKING TIME FOR THESE PLACES
+			}
 				//SETTING UP outgoing Flight's Object
 				
 				if($flight_data_in[0]==$in_id)
