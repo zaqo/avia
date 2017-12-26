@@ -30,7 +30,7 @@ class Flight
 		$day   = $_POST['day'];
 		$month = $_POST['month'];
 		$year  = $_POST['year'];
-				
+		//$route_key="МАРШРУТ_КЛИЕНТЫ";	//THIS KEY ON t3.[Link Code]='МАРШРУТ_КЛИЕНТЫ' IS NOT USED NOW!	
 		$date_=mktime(0,0,0,$month,$day,$year);
 	
 		$datestr = date("d/m/Y", $date_);
@@ -45,9 +45,11 @@ class Flight
 		$tsql_route='SELECT ID,Income,[Income No_],[Date Fact],[Bort No_],[Airport No_],[Flying Type],[Max Weight],
 							[Passengers Income Grown-Up],[Passengers Income Children],
 							[Passengers Outcome Grown-Up],[Passengers Outcome Children],
-							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Aircraft],Helicopter,Category,t1.No_,[Time Fact],[Type Aircraft],[Outcome No_],t2.[No_]
+							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Aircraft],Helicopter,Category,t1.No_,[Time Fact],[Type Aircraft],[Outcome No_],
+							t2.[No_],t3.[No_]
 						FROM dbo.[NCG$Route] AS t1
 						LEFT JOIN [NCG$Route Resource] AS t2 ON t2.[Route No_]=t1.[No_]
+						LEFT JOIN [NCG$Integration - Link Line] AS t3 ON t3.[External No_]=t1.[Owner Aircraft]
 						WHERE MONTH([Date Fact])='.$month.' AND DAY([Date Fact])='.$day.' AND YEAR([Date Fact])='.$year.' AND  Correction=1 ';//Correction = 1 - records blocked for changes
 		
 		$stmt = sqlsrv_query( $conn, $tsql_route);
@@ -94,12 +96,14 @@ class Flight
 				$flight_num_in=iconv('windows-1251','utf-8',$row[2]);
 				$flight_num_out=iconv('windows-1251','utf-8',$row[21]);
 				$parked_at=iconv('windows-1251','utf-8',$row[22]);
+				$owner_id=iconv('windows-1251','utf-8',$row[23]);
 				
 				if((int)$flightid<100000000)  //cut padding Rossija flights
 				{
 					unset($row[18]); //it will not show up on the web page
 					unset($row[19]); //it will not show up on the web page
 					unset($row[20]);
+					unset($row[23]);
 				// 1. Page preparation
 				
 					$content.= "<tr><td><a href=\"check_services_mysql.php?id=$row[0]\" > $counter</a></td>";
@@ -132,13 +136,13 @@ class Flight
 						$transfer_mysql='REPLACE INTO flights
 								(id_NAV,date,flight,direction,linked_to,isHelicopter,plane_num,flight_type,
 								plane_mow,airport,passengers_adults,passengers_kids,customer_id,bill_to_id,
-								owner,category,time_fact,plane_type,parkedAt) 
+								owner,category,time_fact,plane_type,parkedAt,owner_id) 
 								VALUES
 								("'.$flightid_NAV.'","'.$row[3].'","'.$flight_number.'","'.$dir.'","'.$row[12].'",
 								 "'.$row[16].'","'.$row[4].'","'.$row[6].'","'.$row[7].'",
 								 "'.$row[5].'","'.$pass_a.'","'.$pass_k.'",
 								 "'.$row[13].'","'.$row[14].'","'.$owner.'","'.$category.'","'.$time_fact->format('H:i:s').'",
-								 "'.$plane_type.'","'.$parked_at.'")';
+								 "'.$plane_type.'","'.$parked_at.'","'.$owner_id.'")';
 						
 						$answsql=mysqli_query($db_server,$transfer_mysql);
 						if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));
