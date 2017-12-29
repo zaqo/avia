@@ -36,6 +36,9 @@ include ("header.php");
 			public $bill_to;
 			public $plane_owner;
 			public $services;
+			public $parked_at;
+			public $terminal;
+			public $is_operator;
 	}
 	class Item
 	{

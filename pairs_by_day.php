@@ -84,8 +84,8 @@
 		$content.= "<b>  Пары рейсов за:</b> $date <hr>";
 		$content.= '<table class="myTab"><caption><b>Данные о рейсах</b></caption><br>
 					<form id="form" method=post action=update_erp_pairs.php >
-					<col class="col1"><col class="col1"><col class="col2"><col class="col2"><col class="col3">
-					<tr><td><input type="checkbox" id="flights" onclick="checkIt();" checked/></td><th>№</th><th>FLIGHT->|</th><th>FLIGHT|-></th><th>КЛИЕНТ</th>
+					<col class="col1"><col class="col1"><col class="col2"><col class="col2"><col class="col2"><col class="col2"><col class="col3">
+					<tr><td><input type="checkbox" id="flights" onclick="checkIt();" checked/></td><th>№</th><th>FLIGHT->|</th><th>TIME</th><th>FLIGHT|-></th><th>TIME</th><th>КЛИЕНТ</th>
 					</tr>';
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
@@ -96,11 +96,11 @@
 		
 		// 1. Check if there is a pair and make a record 
 		if($carrier)
-			$textsql='SELECT id,id_NAV,linked_to,flight FROM  flights WHERE date="'.$date.'" 
+			$textsql='SELECT id,id_NAV,linked_to,flight,time_fact FROM  flights WHERE date="'.$date.'" 
 						AND direction=0 AND sent_to_SAP IS NULL 
 						AND flight LIKE "'.$carrier.'%"';
 		else
-		 $textsql='SELECT id,id_NAV,linked_to,flight
+		 $textsql='SELECT id,id_NAV,linked_to,flight,time_fact
 						FROM  flights WHERE date="'.$date.'" AND direction=0 AND sent_to_SAP IS NULL';
 				
 		$answsql=mysqli_query($db_server,$textsql);
@@ -113,11 +113,12 @@
 			$nav_id=$row[1];
 			$nav_pair_id=substr($row[2],-7);
 			$flight_num=$row[3];
+			$time_fact=$row[4];
 			if(!$nav_pair_id) echo "WARNING: FLIHT ID of linked flight is shorter than expected! - $nav_pair_id <br/>";
 			if(strlen($nav_pair_id)==7)
 			{
 			//b. Look for the pair
-				$sqlfindpair='SELECT id,flight,owner
+				$sqlfindpair='SELECT id,flight,owner,time_fact
 							FROM  flights 
 							WHERE id_NAV="'.$nav_pair_id.'" 
 							AND sent_to_SAP IS NULL';
@@ -131,6 +132,7 @@
 					$out_id=$row_pair[0];
 					$flight_num_pair=$row_pair[1];
 					$customer=$row_pair[2];
+					$time_fact_pair=$row_pair[3];
 				//c. Check if we have a record on it already	
 					$sqlfindrec="SELECT id,sent_to_SAP
 								FROM  flight_pairs 
@@ -146,8 +148,8 @@
 						$content.="<tr>";
 						$content.= "<td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$position\" checked/></td>";//
 						$content.= "<td>$num</td>";
-						$content.= "<td><a href=\"show_flight.php?id=$in_id\">$flight_num</a></td>";
-						$content.= "<td><a href=\"show_flight.php?id=$out_id\">$flight_num_pair</a></td>";
+						$content.= "<td><a href=\"show_flight.php?id=$in_id\">$flight_num</a></td><td>$time_fact</td>";
+						$content.= "<td><a href=\"show_flight.php?id=$out_id\">$flight_num_pair</a></td><td>$time_fact_pair</td>";
 						$content.="<td>$customer</td></tr>";
 					}
 					elseif(!$answsql2->num_rows) 
@@ -167,8 +169,8 @@
 						$content.="<tr>";
 						$content.= "<td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$position\" checked/></td>";//
 						$content.= "<td>$num</td>";
-						$content.= "<td><a href=\"show_flight.php?id=$in_id\">$flight_num</a></td>";
-						$content.= "<td><a href=\"show_flight.php?id=$out_id\">$flight_num_pair</a></td>";
+						$content.= "<td><a href=\"show_flight.php?id=$in_id\">$flight_num</a></td><td>$time_fact</td>";
+						$content.= "<td><a href=\"show_flight.php?id=$out_id\">$flight_num_pair</a></td><td>$time_fact_pair</td>";
 						$content.="<td>$customer</td></tr>";
 					
 					}

@@ -46,7 +46,7 @@ class Flight
 							[Passengers Income Grown-Up],[Passengers Income Children],
 							[Passengers Outcome Grown-Up],[Passengers Outcome Children],
 							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Aircraft],Helicopter,Category,t1.No_,[Time Fact],[Type Aircraft],[Outcome No_],
-							t2.[No_],t3.[No_]
+							t2.[No_],t3.[No_],[Service Terminal],[Operator]
 						FROM dbo.[NCG$Route] AS t1
 						LEFT JOIN [NCG$Route Resource] AS t2 ON t2.[Route No_]=t1.[No_]
 						LEFT JOIN [NCG$Integration - Link Line] AS t3 ON t3.[External No_]=t1.[Owner Aircraft]
@@ -95,8 +95,12 @@ class Flight
 				$plane_type=$row[20];
 				$flight_num_in=iconv('windows-1251','utf-8',$row[2]);
 				$flight_num_out=iconv('windows-1251','utf-8',$row[21]);
-				$parked_at=iconv('windows-1251','utf-8',$row[22]);
+				$parked_at=sanitizestring($row[22]);
+				$parked_at=iconv('windows-1251','utf-8',$parked_at);
 				$owner_id=iconv('windows-1251','utf-8',$row[23]);
+				$terminal_id=$row[24];
+				$isOperator=0;
+				if($row[25]) $isOperator=1;
 				
 				if((int)$flightid<100000000)  //cut padding Rossija flights
 				{
@@ -104,6 +108,8 @@ class Flight
 					unset($row[19]); //it will not show up on the web page
 					unset($row[20]);
 					unset($row[23]);
+					unset($row[24]);
+					unset($row[25]);
 				// 1. Page preparation
 				
 					$content.= "<tr><td><a href=\"check_services_mysql.php?id=$row[0]\" > $counter</a></td>";
@@ -136,13 +142,13 @@ class Flight
 						$transfer_mysql='REPLACE INTO flights
 								(id_NAV,date,flight,direction,linked_to,isHelicopter,plane_num,flight_type,
 								plane_mow,airport,passengers_adults,passengers_kids,customer_id,bill_to_id,
-								owner,category,time_fact,plane_type,parkedAt,owner_id) 
+								owner,category,time_fact,plane_type,parkedAt,owner_id,terminal,isOperator) 
 								VALUES
 								("'.$flightid_NAV.'","'.$row[3].'","'.$flight_number.'","'.$dir.'","'.$row[12].'",
 								 "'.$row[16].'","'.$row[4].'","'.$row[6].'","'.$row[7].'",
 								 "'.$row[5].'","'.$pass_a.'","'.$pass_k.'",
 								 "'.$row[13].'","'.$row[14].'","'.$owner.'","'.$category.'","'.$time_fact->format('H:i:s').'",
-								 "'.$plane_type.'","'.$parked_at.'","'.$owner_id.'")';
+								 "'.$plane_type.'","'.$parked_at.'","'.$owner_id.'","'.$terminal_id.'","'.$isOperator.'")';
 						
 						$answsql=mysqli_query($db_server,$transfer_mysql);
 						if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));

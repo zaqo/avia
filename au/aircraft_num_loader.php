@@ -12,7 +12,7 @@ include ("header.php");
 					}
 		
 		$tsql_route='SELECT [Registration No_],[Aircraft Type],Name,MTOW,[Seat Capacity],
-					[Aircraft Class Code],[Customer Name] FROM dbo.[Bort Number] WHERE 1=1;';
+					[Aircraft Class Code],[Customer Name] FROM dbo.[Bort Number] WHERE 1;';
 		
 		$stmt = sqlsrv_query( $conn, $tsql_route);
 		
@@ -86,7 +86,7 @@ include ("header.php");
 				// 2. Fill in 
 					
 					
-						$transfer_mysql='INSERT INTO aircrafts
+						$transfer_mysql='REPLACE INTO aircrafts
 								(reg_num,name,type,seats,mtow,air_class,air_group,customer) 
 								VALUES
 								("'.$id.'","'.$name.'","'.$type.'",'.$seats.','.$mtow.',
