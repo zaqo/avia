@@ -10,7 +10,7 @@ include ("header.php");
 			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
-			$check_in_mysql="SELECT services.id,id_NAV,id_SAP,bundle_reg.class,date_booked,description,bundle_reg.airports
+			$check_in_mysql="SELECT DISTINCT services.id,id_NAV,id_SAP,bundle_reg.class,date_booked,description,bundle_reg.airports
 								FROM services
 								LEFT JOIN bundle_reg ON services.id=bundle_reg.bundle_id
 								WHERE isBundle AND services.isValid ORDER BY id_NAV";

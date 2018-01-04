@@ -44,7 +44,7 @@ function ApplyBundle($rec_id)
 			}
 		
 		//  LOCATE CUSTOMER in the IN flight data
-			$textsql='SELECT flights.id_NAV, clients.id,airport,aircrafts.air_class 
+			$textsql='SELECT flights.id_NAV, clients.id,airport,aircrafts.air_class,clients.isOperator
 						FROM  flights
 						LEFT JOIN clients ON flights.bill_to_id=clients.id_NAV 
 						LEFT JOIN aircrafts ON flights.plane_num=aircrafts.reg_num
@@ -59,13 +59,14 @@ function ApplyBundle($rec_id)
 				$customer=$flight_data[1];
 				$airport=$flight_data[2];
 				$airplane_cl=$flight_data[3];
+				$isOperator=$flight_data[4];
 				//echo "CUSTOMER ID: $customer <br/>";
 				
 			
 		//  LOCATE OUT flight data
-			$textsql='SELECT flights.id_NAV, clients.id,airport,aircrafts.air_class 
+			$textsql='SELECT flights.id_NAV, clients.id,airport,aircrafts.air_class,clients.isRusCarrier,flights.flight_type
 						FROM  flights
-						LEFT JOIN clients ON flights.bill_to_id=clients.id_NAV 
+						LEFT JOIN clients ON flights.owner_id=clients.id_NAV 
 						LEFT JOIN aircrafts ON flights.plane_num=aircrafts.reg_num
 						 WHERE flights.id="'.$out_.'"';
 				
@@ -75,11 +76,33 @@ function ApplyBundle($rec_id)
 			
 				$flight_data_out= mysqli_fetch_row($answsql_out);
 				$flight_id_out=$flight_data_out[0];
-				$customer_out=$flight_data_out[1];
+				$owner_id=$flight_data_out[1];
 				$airport_out=$flight_data_out[2];
 				$airplane_cl_out=$flight_data_out[3];
-				if($airplane_cl_out!=$airplane_cl) echo "WARNING: DIFFERENT CLASSES OF AIRVESSEL ON THE ROUTE^ $flight_id_out <br/>";
+				$isRus=$flight_data_out[4];
+				$fl_type=$flight_data_out[5];
+				if($airplane_cl_out!=$airplane_cl) echo "WARNING: DIFFERENT CLASSES OF AIRCRAFT IN THE SAME ROUTE: $flight_id_out <br/>";
 			
+		//  0. IF IT IS AN OPERATOR's FLIGHT
+		
+		if($isOperator)
+		{
+				if(!$isRus)
+				{
+					if($fl_type==1)
+					{
+						
+					}
+					else
+					{
+						
+					}
+				}
+		}
+		else
+		{
+			
+		}
 		//  1. LOCATE all relevant BUNDLES  
 		
 			$b_sql='SELECT bundle_id,services.id_NAV, class, airports 

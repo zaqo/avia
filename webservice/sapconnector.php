@@ -490,7 +490,7 @@ function SAP_export_pair($rec_id)
 		
 			// LOCATE CLASS OF AIRCRAFT
 			// KEEP IN MIND aircrats TABLE NEEDS to be UPDATED regularly
-			$aircratsql='SELECT air_class,made_in_rus FROM aircrafts WHERE reg_num="'.$flight_out->plane_id.'"';	
+			$aircraftsql='SELECT air_class,made_in_rus FROM aircrafts WHERE reg_num="'.$flight_out->plane_id.'"';	
 			$answsql_air=mysqli_query($db_server,$aircraftsql);
 				
 			if(!$answsql_air) die("Database SELECT in aircrafts table failed: ".mysqli_error($db_server));	
@@ -1477,18 +1477,23 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 	
-	// GOING DOWN BY TECHNICAL CARD FOR AIRPORT Process
+	// GOING DOWN BY STANDARD SEQUENCE FOR AIRPORT Process
 	// 1. TAKE-OFF AND LANDING
+	// 6-th perron has special takeoff
+	if($fl->direction)
+	{
 		$parking=substr($fl->parked_at,0,1);
-		if ((int)$parking==6)
+		if ((int)$parking==6) 
 		
 			$find_takeoff=' SELECT service_id,services.id_NAV FROM process  
 						LEFT JOIN services ON process.service_id=services.id
 						WHERE sequence=1 AND parking LIKE "'.$parking.'%"';
+		
+	//KEEP parking NULL for regular
 		else
 			$find_takeoff=' SELECT service_id,services.id_NAV FROM process  
 						LEFT JOIN services ON process.service_id=services.id
-						WHERE sequence=1 AND parking IS NULL';  //KEEP parking NULL for it to work
+						WHERE sequence=1 AND parking IS NULL';  
 		
 		
 		$answsql=mysqli_query($db_server,$find_takeoff);
@@ -1498,25 +1503,212 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 			return 0;
 		}
 		$takeoff= mysqli_fetch_row($answsql);
+		$service_nav=$takeoff[1];
+		$quantity=$fl->plane_mow;
 		$fix_takeoff='INSERT INTO service_reg 
 									(flight,service,quantity) 
 									VALUES
 									("'.$fl->id_NAV.'","'.$service_nav.'","'.$quantity.'")';
 							
-							$answsql=mysqli_query($db_server,$transfer_mysql);
-							if(!$answsql) die("INSERT into TABLE failed: #1".mysqli_error($db_server));
-						}	
+		$answsql=mysqli_query($db_server,$fix_takeoff);
+		if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
+		else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";					
+	}
 	// 2. AIRPORT CHARGES
-	
+	if(((int)$fl->terminal!=4)&&((int)$fl->terminal!=5))
+	{
+		if(!$fl->direction)
+		{
+			$ap_chrg_in_adult=' SELECT service_id,services.id_NAV FROM process  
+						LEFT JOIN services ON process.service_id=services.id
+						WHERE sequence=2 AND direction=0 AND isAdult=1';
+			$answsql=mysqli_query($db_server,$ap_chrg_in_adult);
+			if(!$answsql->num_rows)
+			{
+				echo "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS ADULTS: process aborted <br/>";
+				return 0;
+			}
+			$chrg_in_adult= mysqli_fetch_row($answsql);
+			$service_nav=$chrg_in_adult[1];
+			$quantity=$fl->passengers_adults;
+			if($quantity>0)
+			{
+				$fix_apchrg='INSERT INTO service_reg 
+									(flight,service,quantity) 
+									VALUES
+									("'.$fl->id_NAV.'","'.$service_nav.'","'.$quantity.'")';
+							
+				$answsql=mysqli_query($db_server,$fix_apchrg);
+				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
+				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+			}
+			$ap_chrg_in_kids=' SELECT service_id,services.id_NAV FROM process  
+						LEFT JOIN services ON process.service_id=services.id
+						WHERE sequence=2 AND direction=0 AND isAdult=0';
+			$answsql=mysqli_query($db_server,$ap_chrg_in_kids);
+			if(!$answsql->num_rows)
+			{
+				echo "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS KIDS: process aborted <br/>";
+				return 0;
+			}
+			$chrg_in_kids= mysqli_fetch_row($answsql);
+			$service_nav=$chrg_in_kids[1];
+			$quantity=$fl->passengers_kids;
+			if($quantity>0)
+			{
+				$fix_apchrg='INSERT INTO service_reg 
+									(flight,service,quantity) 
+									VALUES
+									("'.$fl->id_NAV.'","'.$service_nav.'","'.$quantity.'")';
+							
+				$answsql=mysqli_query($db_server,$fix_apchrg);
+				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
+				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+			}
+		}
+		else
+		{
+			$ap_chrg_out_adult=' SELECT service_id,services.id_NAV FROM process  
+						LEFT JOIN services ON process.service_id=services.id
+						WHERE sequence=2 AND direction=1 AND isAdult=1';
+			$answsql=mysqli_query($db_server,$ap_chrg_out_adult);
+			if(!$answsql->num_rows)
+			{
+				echo "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS ADULTS: process aborted <br/>";
+				return 0;
+			}
+			$chrg_out_adult= mysqli_fetch_row($answsql);
+			$service_nav=$chrg_out_adult[1];
+			$quantity=$fl->passengers_adults;
+			if($quantity>0)
+			{
+				$fix_apchrg='INSERT INTO service_reg 
+									(flight,service,quantity) 
+									VALUES
+									("'.$fl->id_NAV.'","'.$service_nav.'","'.$quantity.'")';
+							
+				$answsql=mysqli_query($db_server,$fix_apchrg);
+				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
+				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+			}
+			$ap_chrg_out_kids=' SELECT service_id,services.id_NAV FROM process  
+						LEFT JOIN services ON process.service_id=services.id
+						WHERE sequence=2 AND direction=1 AND isAdult=0';
+			$answsql=mysqli_query($db_server,$ap_chrg_out_kids);
+			if(!$answsql->num_rows)
+			{
+				echo "PLEASE SET UP AIRPORT CHARGES SERVICE FOR OUTGOING PASSENGERS KIDS: process aborted <br/>";
+				return 0;
+			}
+			$chrg_out_kids= mysqli_fetch_row($answsql);
+			$service_nav=$chrg_out_kids[1];
+			$quantity=$fl->passengers_kids;
+			if($quantity>0)
+			{
+				$fix_apchrg='INSERT INTO service_reg 
+									(flight,service,quantity) 
+									VALUES
+									("'.$fl->id_NAV.'","'.$service_nav.'","'.$quantity.'")';
+							
+				$answsql=mysqli_query($db_server,$fix_apchrg);
+				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
+				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";
+			}
+		}
+	}
 	// 3. AVIATION SECURITY
 	
-	// 4. AVIATION SECURITY
-	
+	if($fl->direction) // ONLY FOR TAKE OFF
+	{
+		$havePAX=0;
+		$isCargo=0;
+		if($fl->passengers_adults||$fl->passengers_kids)
+			$havePAX=1;
+		if($fl->flight_type==1)
+			$isCargo=1;
+			$aviation_security='SELECT service_id,services.id_NAV,param FROM process  
+						LEFT JOIN services ON process.service_id=services.id
+						WHERE sequence=3 AND havePAX="'.$havePAX.'" AND isRus="'.$client_geo.'" AND isCargo="'.$isCargo.'"';
+			$answsql=mysqli_query($db_server,$aviation_security);
+			if(!$answsql->num_rows)
+			{
+				echo "PLEASE SET UP AVIATION SECURITY SERVICE for the flight: process aborted <br/>";
+				return 0;
+			}
+			$avia_sec= mysqli_fetch_row($answsql);
+			$service_nav=$avia_sec[1];
+			$param=$avia_sec[2];
+			if ($param)
+				$quantity=$fl->plane_mow;
+			else
+				$quantity=$fl->passengers_adults+$fl->passengers_kids;
+			if($quantity>0)
+			{
+				$fix_apchrg='INSERT INTO service_reg 
+									(flight,service,quantity) 
+									VALUES
+									("'.$fl->id_NAV.'","'.$service_nav.'","'.$quantity.'")';
+							
+				$answsql=mysqli_query($db_server,$fix_apchrg);
+				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
+				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+			}
+	}
+	// 4. GROUND HANDLING
+	if(!$client_geo)  //NO GH charges for Russian airlines
+	{
+		$gh_adult_sql=' SELECT service_id,services.id_NAV FROM process  
+						LEFT JOIN services ON process.service_id=services.id
+						WHERE sequence=4 AND isAdult=1';
+			$answsql=mysqli_query($db_server,$gh_adult_sql);
+			if(!$answsql->num_rows)
+			{
+				echo "PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR ADULT PASSENGERS: process aborted <br/>";
+				return 0;
+			}
+			$gh_adult= mysqli_fetch_row($answsql);
+			$service_nav=$gh_adult[1];
+			$quantity=$fl->passengers_adults;
+			if($quantity>0)
+			{
+				$fix_gh='INSERT INTO service_reg 
+									(flight,service,quantity) 
+									VALUES
+									("'.$fl->id_NAV.'","'.$service_nav.'","'.$quantity.'")';
+							
+				$answsql=mysqli_query($db_server,$fix_gh);
+				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
+				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+			}
+			$gh_kids_sql=' SELECT service_id,services.id_NAV FROM process  
+						LEFT JOIN services ON process.service_id=services.id
+						WHERE sequence=4 AND isAdult=0';
+			$answsql=mysqli_query($db_server,$gh_kids_sql);
+			if(!$answsql->num_rows)
+			{
+				echo "PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR PASSENGERS KIDS: process aborted <br/>";
+				return 0;
+			}
+			$gh_kids= mysqli_fetch_row($answsql);
+			$service_nav=$gh_kids[1];
+			$quantity=$fl->passengers_kids;
+			if($quantity>0)
+			{
+				$fix_gh_kids='INSERT INTO service_reg 
+									(flight,service,quantity) 
+									VALUES
+									("'.$fl->id_NAV.'","'.$service_nav.'","'.$quantity.'")';
+							
+				$answsql=mysqli_query($db_server,$fix_gh_kids);
+				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
+				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+			}
+	}
 	// 5. CUTE DCS
 	
 	
 	
-	return 0;
+	return 1;
 }
 
 ?>
