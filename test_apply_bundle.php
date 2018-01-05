@@ -12,18 +12,26 @@
 			public $id;						
 			public $id_NAV;
 			public $flight_date;
+			public $time_fact;
 			public $flight_num;
+			public $flight_type;
+			public $flight_cat;
 			public $direction;
 			public $plane_id;
 			public $plane_type;
+			public $plane_class;
 			public $plane_mow;
 			public $airport;
+			public $airport_class;
 			public $passengers_adults;
 			public $passengers_kids;
 			public $customer;
 			public $bill_to;
 			public $plane_owner;
 			public $services;
+			public $parked_at;
+			public $terminal;
+			public $is_operator;
 	}
 	class Item
 	{
@@ -63,7 +71,7 @@
 	
 	//$result=SAP_connector($req);
 	//for ($i=0;$i<20;$i++)
-	$res=ApplyBundle(614);
+	$res=ApplyBundle(6936);
 	if ($res) echo "Bundle applied successfully! <br/>";
 	else echo "ERROR: BUNDLE application aborted! <br/>";
 	//Show_page($content);

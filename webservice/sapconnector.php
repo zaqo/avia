@@ -365,7 +365,7 @@ function SAP_export_pair($rec_id)
 			
 			$textsql='SELECT flights.id_NAV,date,flight,direction,plane_num,flight_type,plane_type,plane_mow,
 						passengers_adults,passengers_kids,customer_id, bill_to_id,owner_id,category,time_fact,airport,
-							clients.isRusCarrier,clients.id,terminal,parkedAt,isOperator
+							clients.isRusCarrier,clients.id,terminal,parkedAt,clients.isOperator
 						FROM flights 
 						LEFT JOIN clients ON flights.bill_to_id=clients.id_NAV
 						WHERE flights.id='.$in_id;
@@ -393,7 +393,7 @@ function SAP_export_pair($rec_id)
 				$flight_in->flight_cat=$flight_data[13];
 				$flight_in->time_fact=$flight_data[14];
 				$airport_in=$flight_data[15];
-				$client_geo=$flight_data[16];
+				//$client_geo=$flight_data[16];
 				$client_my_id=$flight_data[17]; // INTERNAL ID, NOT NAVISION
 				$flight_in->terminal=$flight_data[18];
 				$flight_in->parked_at=$flight_data[19];
@@ -438,9 +438,11 @@ function SAP_export_pair($rec_id)
 			//  LOCATE outgoing flight's data
 			
 			$textsqlout="SELECT flights.id_NAV,flights.date,flight,direction,plane_num,flight_type,plane_type,plane_mow,
-						passengers_adults,passengers_kids,customer_id,bill_to_id,owner,category,time_fact,airport,
-						isHelicopter,terminal,parkedAt,isOperator
-							FROM flights WHERE id=$out_id";	
+						passengers_adults,passengers_kids,customer_id,bill_to_id,owner_id,category,time_fact,airport,
+						isHelicopter,terminal,parkedAt,clients.isRusCarrier
+							FROM flights 
+							LEFT JOIN clients ON flights.owner_id=clients.id_NAV
+							WHERE flights.id=$out_id";	
 			$answsql2=mysqli_query($db_server,$textsqlout);	
 			if(!$answsql2) die("Database SELECT TO flights table failed: ".mysqli_error($db_server));	
 			$flight_data_out= mysqli_fetch_row($answsql2);
@@ -466,7 +468,12 @@ function SAP_export_pair($rec_id)
 				$heli_flag=$flight_data_out[16];
 				$flight_out->terminal=$flight_data_out[17];
 				$flight_out->parked_at=$flight_data_out[18];
-				$flight_out->is_operator=$flight_data_out[19];
+				$client_geo=$flight_data_out[19];
+				if (!isset($client_geo)) 
+				{	
+					echo "NO RECORD FOR PLANE OWNER! USED FOREIGN <br/>";
+					$client_geo=0;
+				}
 				//echo "MOW: ".$flight_data_out[7]."HELI: $heli_flag || IS OPERATOR FLAG:".$flight_out->is_operator."<br/>";
 				// SZV EXCLUDE SECTION
 				if ($flight_out->passengers_adults||$flight_out->passengers_kids) $SZV_out_flag=1;
@@ -507,11 +514,12 @@ function SAP_export_pair($rec_id)
 			
 			//a. APPLY PACKAGE 
 			// ALL SERVICES GO TO INCOMING FLIGHT
-			if($flight_out->is_operator) // IF FLIGHT IS SERVICED BY AN OPERATOR
+			if($flight_in->is_operator) // IF FLIGHT IS SERVICED BY AN OPERATOR
 			{
 				$havePAX=0;
-				if(($flight_out->passengers_adults+$flight_out->passengers_kids)>0) $havePAX=1;
-				OperatorFlight($flight_out->id,$flight_out->terminal,$flight_out->parked_at,$client_geo,$made_in_rus,$havePAX,$flight_out->flight_cat);
+				if(($flight_in->passengers_adults+$flight_in->passengers_kids+$flight_out->passengers_adults+$flight_out->passengers_kids)>0) $havePAX=1;
+				OperatorFlight($flight_in,$client_geo,$made_in_rus);
+				OperatorFlight($flight_out,$client_geo,$made_in_rus);
 			}
 			else // FOR ALL OTHER FLIGHTS
 			{
@@ -520,13 +528,13 @@ function SAP_export_pair($rec_id)
 				else
 							echo "SUCCESS: APPLIED TEMPLATE TO THE FLIGHTS: $in_id, $out_id  ! <br/>";
 		
-			
-				// b. AND BUNDLE
+			}
+				// b. BUNDLE FOR ALL FLIGHTS including operators
 				if(!ApplyBundle($rec_id))
 							echo "WARNING: COULD NOT APPLY BUNDLE TO THE PAIR of FLIGHTS: $rec_id - FAILED! <br/>";
 				else
 							echo "SUCCESS: APPLIED BUNDLE TO THE FLIGHTS: $in_id, $out_id  ! <br/>";
-			}
+			
 			// c. DEFINE ARRAYS FOR DISCOUNT
 				
 				$discounts=array();
@@ -911,23 +919,22 @@ function SAP_export_pair($rec_id)
 	//5.
 		// GENERAL SECTION (HEADER)
 		
-		// Locate Customer ID for SAP ERP
-		// it is going to be used as Owner
+		// Locate OWNER ID for SAP ERP
 			
-			$clientsql='SELECT id_SAP FROM clients WHERE id_NAV="'.$client_id.'" AND isValid=1';	
+			$clientsql='SELECT id_SAP FROM clients WHERE id_NAV="'.$flight_out->plane_owner.'" AND isValid=1';	
 			$answsql=mysqli_query($db_server,$clientsql);
 			if(!$answsql) die("Database SELECT in contracts table failed: ".mysqli_error($db_server));	
 			
 			$client_rec= mysqli_fetch_row($answsql);
-			$client_id_SAP=$client_rec[0];
-			if (isset($client_rec[0]))
+			$owner_id_SAP=$client_rec[0];
+			if (isset($owner_id_SAP))
 			{	
-				$req->ID_PLANEOWNER = $client_id_SAP;
+				$req->ID_PLANEOWNER = $owner_id_SAP;
 			}
 			else 
 			{
-				echo "WARNING: NO SAP ERP ID defined for Client ID: $client_id  => FLIGHT $flightid CANCELLED<br/>";
-				return 0;
+				echo "WARNING: NO SAP ERP ID defined for Client ID: ".$flight_out->plane_owner."  => DUMMIE OWNER USED FOR FLIGHT".$flight_out->id_NAV." <br/>";
+				$req->ID_PLANEOWNER = "15000010";;
 			}
 				// General request section
 				
@@ -1629,6 +1636,7 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 			$aviation_security='SELECT service_id,services.id_NAV,param FROM process  
 						LEFT JOIN services ON process.service_id=services.id
 						WHERE sequence=3 AND havePAX="'.$havePAX.'" AND isRus="'.$client_geo.'" AND isCargo="'.$isCargo.'"';
+			echo $aviation_security."<br/>";
 			$answsql=mysqli_query($db_server,$aviation_security);
 			if(!$answsql->num_rows)
 			{
@@ -1638,7 +1646,7 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 			$avia_sec= mysqli_fetch_row($answsql);
 			$service_nav=$avia_sec[1];
 			$param=$avia_sec[2];
-			if ($param)
+			if (!$param)
 				$quantity=$fl->plane_mow;
 			else
 				$quantity=$fl->passengers_adults+$fl->passengers_kids;
