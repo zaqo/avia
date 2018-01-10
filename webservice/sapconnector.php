@@ -769,7 +769,7 @@ function SAP_export_pair($rec_id)
 			$req = new Request();
 			
 			// Set up params
-			$terminal='T1'; // AIRPORT's terminal of departure
+			$terminal=$flight_out->terminal; // AIRPORT's terminal of departure
 			$disc_type='ZK01'; //  Type of discount
 			$disc_value=1;		// and it's value 
 			$currency='';	// Currency in invoice
