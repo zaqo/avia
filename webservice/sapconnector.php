@@ -769,8 +769,8 @@ function SAP_export_pair($rec_id)
 			$req = new Request();
 			
 			// Set up params
-			$terminal=$flight_out->terminal; // AIRPORT's terminal of departure
-			$disc_type='ZK01'; //  Type of discount
+			
+			$disc_type='ZK01'; //  Type of discount IS FIXED!
 			$disc_value=1;		// and it's value 
 			$currency='';	// Currency in invoice
 			
@@ -831,7 +831,7 @@ function SAP_export_pair($rec_id)
 					$item1->COND_VALUE=$disc_value;
 					$item1->CURRENCY=$currency;
 					$item1->ID_AODB=$flight_in->id_NAV;
-					$item1->ID_TERMINAL=$flight_out->terminal;
+					$item1->ID_TERMINAL=$flight_in->terminal;
 					$item1->ID_AIRPORT=$flight_in->airport;
 					$item1->ID_AIRPORTCLASS=$flight_in->airport_class;
 					$item1->ID_AIRCRAFTCLASS=$flight_in->plane_class;
@@ -901,7 +901,7 @@ function SAP_export_pair($rec_id)
 				$item2->COND_VALUE=$disc_value;//HERE WE FIX DECIMAL SEPARATOR ISSUE (".",",")
 				$item2->CURRENCY=$currency;
 				$item2->ID_AODB=$flight_out->id_NAV;
-				$item2->ID_TERMINAL=$terminal;
+				$item2->ID_TERMINAL=$flight_out->terminal;
 				$item2->ID_AIRPORT=$flight_out->airport;
 				$item2->ID_AIRPORTCLASS=$flight_out->airport_class;
 				$item2->ID_AIRCRAFTCLASS=$flight_out->plane_class;

@@ -79,6 +79,7 @@ include ("header.php");
 			</div>
 			</td><td> <select name="year" id="year" class="date" >
 				<option value="2017">2017</option>
+				<option value="2018">2018</option>
 				</select>
 			</td></tr>
 			<tr><td colspan="3"><p><input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
