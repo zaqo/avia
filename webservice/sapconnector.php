@@ -566,10 +566,10 @@ function SAP_export_pair($rec_id)
 		// Currently the contract is selected by the payer (bill-to)
 			$client_id=$flight_out->bill_to;  	
 	
-			$contractsql='SELECT contracts.id_SAP,isBased 
-							FROM contracts 
-							LEFT JOIN clients ON contracts.client_id = clients.id AND clients.isValid
-							WHERE clients.id_NAV="'.$client_id.'" AND contracts.isValid';
+			$contractsql='SELECT contracts.id_SAP,contracts.isBased 
+							FROM  clients
+							LEFT JOIN contracts ON (contracts.client_id = clients.id AND contracts.isValid)
+							WHERE (clients.id_NAV="'.$client_id.'" AND clients.isValid ) ';
 				
 			$answsql=mysqli_query($db_server,$contractsql);
 				

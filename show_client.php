@@ -13,7 +13,7 @@ include ("header.php");
 			$check_in_mysql="SELECT clients.id,clients.id_NAV,name,clients.id_SAP,isRusCarrier,
 									contracts.id_SAP,contracts.isBased
 								FROM clients
-								LEFT JOIN contracts ON clients.id=contracts.client_id
+								LEFT JOIN contracts ON (clients.id=contracts.client_id AND contracts.isValid)
 								WHERE clients.id=$id";
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
