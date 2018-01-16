@@ -493,8 +493,10 @@ function SAP_export_pair($rec_id)
 				$flight_out->airport_class=$airport_location;
 			}
 			else 
-				echo "ERROR: Airport CODE COULD NOT BE LOCATED!!! <br/>";
-		
+			{
+				echo "ERROR: Airport CODE COULD NOT BE LOCATED!!! SET TO RUSSIA _ BY DEFAULT<br/>";
+				$destination_zone=0;
+			}
 			// LOCATE CLASS OF AIRCRAFT
 			// KEEP IN MIND aircrats TABLE NEEDS to be UPDATED regularly
 			$aircraftsql='SELECT air_class,made_in_rus FROM aircrafts WHERE reg_num="'.$flight_out->plane_id.'"';	
@@ -511,6 +513,27 @@ function SAP_export_pair($rec_id)
 			else 
 				echo "ERROR: Aircraft record COULD NOT BE LOCATED!!! <br/>";
 	
+	//===========================================================
+	//	CLIENT SET UP
+	//-----------------------------------------------------------
+	// Locate Sales Contract ID
+		// Currently the contract is selected by the payer (bill-to)
+			$client_id=$flight_out->bill_to;  	
+	
+			$contractsql='SELECT contracts.id_SAP,contracts.isBased,clients.id
+							FROM  clients
+							LEFT JOIN contracts ON (contracts.client_id = clients.id AND contracts.isValid)
+							WHERE (clients.id_NAV="'.$client_id.'" AND clients.isValid ) ';
+				
+			$answsql=mysqli_query($db_server,$contractsql);
+				
+			if(!$answsql) die("Database SELECT in contracts table failed: ".mysqli_error($db_server));	
+			
+			$client_contract= mysqli_fetch_row($answsql);
+			$contract_id=$client_contract[0];
+			$isBased=$client_contract[1];	
+			$client_my_id=$client_contract[2];
+			
 			
 			//a. APPLY PACKAGE 
 			// ALL SERVICES GO TO INCOMING FLIGHT
@@ -523,12 +546,21 @@ function SAP_export_pair($rec_id)
 			}
 			else // FOR ALL OTHER FLIGHTS
 			{
+			/*
 				if(!ApplyPackage($rec_id))
 							echo "WARNING: COULD NOT APPLY TEMPLATE TO THE PAIR of FLIGHTS: $rec_id - FAILED! <br/>";
 				else
 							echo "SUCCESS: APPLIED TEMPLATE TO THE FLIGHTS: $in_id, $out_id  ! <br/>";
-		
-			}
+			*/
+				if(!RegularFlight($flight_in,$client_my_id,$client_geo))
+							echo 'WARNING: COULD NOT APPLY TEMPLATE TO THE FLIGHT: '.$flight_in->flight_num.' - FAILED! <br/>';
+				else
+							echo 'SUCCESS: APPLIED TEMPLATE TO THE FLIGHT:'.$flight_in->flight_num.' ! <br/>';
+				if(!RegularFlight($flight_out,$client_my_id,$client_geo))
+							echo 'WARNING: COULD NOT APPLY TEMPLATE TO THE FLIGHT: '.$flight_out->flight_num.' - FAILED! <br/>';
+				else
+							echo 'SUCCESS: APPLIED TEMPLATE TO THE FLIGHT:'.$flight_out->flight_num.' ! <br/>';
+			} // END OF TEMPLATES
 				// b. BUNDLE FOR ALL FLIGHTS including operators
 				if(!ApplyBundle($rec_id))
 							echo "WARNING: COULD NOT APPLY BUNDLE TO THE PAIR of FLIGHTS: $rec_id - FAILED! <br/>";
@@ -558,26 +590,6 @@ function SAP_export_pair($rec_id)
 				
 			}
 			$services_count_in=count($flight_in->services);
-			
-	//===========================================================
-	//	CLIENT SET UP
-	//-----------------------------------------------------------
-	// Locate Sales Contract ID
-		// Currently the contract is selected by the payer (bill-to)
-			$client_id=$flight_out->bill_to;  	
-	
-			$contractsql='SELECT contracts.id_SAP,contracts.isBased 
-							FROM  clients
-							LEFT JOIN contracts ON (contracts.client_id = clients.id AND contracts.isValid)
-							WHERE (clients.id_NAV="'.$client_id.'" AND clients.isValid ) ';
-				
-			$answsql=mysqli_query($db_server,$contractsql);
-				
-			if(!$answsql) die("Database SELECT in contracts table failed: ".mysqli_error($db_server));	
-			
-			$client_contract= mysqli_fetch_row($answsql);
-			$contract_id=$client_contract[0];
-			$isBased=$client_contract[1];	
 			
 			// BOOK PARKING IF APPLICABLE
 			if($parking_time)
@@ -1110,7 +1122,7 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 		$passengers_kids=$flight_out->passengers_kids;
 		$category=$flight_out->flight_cat;
 		$flight_date=$flight_out->flight_date;
-	echo "AIRPORT is $airport <br/>";
+	//echo "AIRPORT is $airport <br/>";
 		
 		//	1. GROUP discounts
 						$sqlservices='SELECT discount_id,discounts_group.discount_val 
@@ -1489,10 +1501,10 @@ function RegularFlight($fl,$client,$client_geo)
 	// 		1.a CHECK OUT EXCEPTIONS FOR THE STEP (SPECIAL SERVICES) 
 	if($fl->direction)
 	{
-		$find_takeoff='SELECT services.id_NAV FROM process_exceptions  
-							LEFT JOIN services ON process_exceptions.service_id=services.id
+		$find_takeoff='SELECT services.id_NAV FROM exc_process  
+							LEFT JOIN services ON exc_process.service_id=services.id
 							WHERE sequence=1 AND client_id='.$client;
-	
+		
 		$answsql=mysqli_query($db_server,$find_takeoff);
 		if(!$answsql->num_rows) // USE DEFAULT
 		{
@@ -1517,7 +1529,7 @@ function RegularFlight($fl,$client,$client_geo)
 							
 		$answsql=mysqli_query($db_server,$fix_takeoff);
 		if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-		else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";					
+		else echo " TAKE OFF RECORD INSERTED for FLIGHT:".$fl->id."<br/>";					
 	} //END TAKE OFF
 	// 2. AIRPORT CHARGES
 	//	NO EXCEPTIONS HERE CURRENTLY
@@ -1544,7 +1556,7 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else echo "AIRPORT CHARGES RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
 			}
 			$ap_chrg_in_kids=' SELECT services.id_NAV FROM default_svs
 						LEFT JOIN services ON default_svs.service_id=services.id
@@ -1567,7 +1579,7 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else echo "AIRPORT CHARGES RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
 			}
 		}
 		else //
@@ -1593,7 +1605,7 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else echo "AIRPORT CHARGES RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
 			}
 			$ap_chrg_out_kids=' SELECT services.id_NAV FROM default_svs
 						LEFT JOIN services ON default_svs.service_id=services.id
@@ -1616,7 +1628,7 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";
+				else echo "AIRPORT CHARGES RECORD INSERTED for FLIGHT:".$fl->id."<br/>";
 			}
 		}
 	
@@ -1628,7 +1640,7 @@ function RegularFlight($fl,$client,$client_geo)
 			$aviation_security='SELECT services.id_NAV FROM default_svs
 						LEFT JOIN services ON default_svs.service_id=services.id
 						WHERE sequence=3 AND isRus='.$client_geo;
-			//echo $aviation_security."<br/>";
+			
 			$answsql=mysqli_query($db_server,$aviation_security);
 			if(!$answsql->num_rows)
 			{
@@ -1658,14 +1670,15 @@ function RegularFlight($fl,$client,$client_geo)
 	if(($fl->direction)&&($client_geo)) // ONLY FOR TAKEOFF AND RUSSIAN AIRLINES
 	{
 		
-		$find_gh='SELECT process_exceptions.id,hasConditions,service_id,svs_kids_id,exc_svs_id,exc_svs_kids_id  
+		$find_gh='SELECT exc_process.id,hasConditions,service_id,svs_kids_id,exc_svs_id,exc_svs_kids_id  
 							FROM exc_process 
-							LEFT JOIN exc_default ON process_exceptions.id=exc_default.exc_id
+							LEFT JOIN exc_default ON exc_process.id=exc_default.exc_id
 							WHERE sequence=4 AND client_id='.$client;
 	
 		$answsql=mysqli_query($db_server,$find_gh);
 		if(!$answsql->num_rows) // USE DEFAULT: SETTING UP SERVICES
 		{
+			
 			$gh_adult_sql=' SELECT services.id_NAV FROM default_svs
 						LEFT JOIN services ON default_svs.service_id=services.id
 						WHERE sequence=4 AND isAdult=1';
@@ -1678,7 +1691,6 @@ function RegularFlight($fl,$client,$client_geo)
 			$gh_adult= mysqli_fetch_row($answsql);
 			$service_nav=$gh_adult[0];
 			
-			
 			$gh_kids_sql=' SELECT services.id_NAV FROM default_svs
 						LEFT JOIN services ON default_svs.service_id=services.id
 						WHERE sequence=4 AND isAdult=0';
@@ -1690,8 +1702,7 @@ function RegularFlight($fl,$client,$client_geo)
 			}
 			$gh_kids= mysqli_fetch_row($answsql);
 			$service_kids_nav=$gh_kids[0];
-			
-			
+				
 		}
 		else
 		{
@@ -1717,8 +1728,11 @@ function RegularFlight($fl,$client,$client_geo)
 						$exc_svs_kids_id=$gh_excpt[5];
 				
 					$airport=$fl->airport;
-					$check_airport='SELECT id FROM exc_conditions
-								WHERE airport_id="'.$airport.'" AND isValid AND exc_id='.$exc_id;
+					
+					$check_airport='SELECT exc_conditions.id FROM exc_conditions
+								LEFT JOIN airports ON exc_conditions.airport_id=airports.id
+								WHERE airports.code="'.$airport.'" AND isValid AND exc_id='.$exc_id;
+					
 					$answsql=mysqli_query($db_server,$check_airport);
 					if($answsql->num_rows)
 					{
@@ -1726,6 +1740,7 @@ function RegularFlight($fl,$client,$client_geo)
 										WHERE id='.$exc_svs_id;
 						$gh_kids_sql=' SELECT id_NAV FROM services
 										WHERE id='.$exc_svs_kids_id;
+						echo 'EXCEPTIONAL GROUND HANDLING SERVICES FOR AIRPORT:'.$airport.'<br/>';
 					}
 				}
 				$answsql=mysqli_query($db_server,$gh_adult_sql);
@@ -1757,7 +1772,7 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_gh);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else echo "GROUND HANDLING RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
 		}
 		$quantity_kids=$fl->passengers_kids;
 		if($quantity_kids>0)
@@ -1769,7 +1784,7 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_gh_kids);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else echo "GROUND HANDLING RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
 		}
 	}
 	// 5. CUTE DCS and OTHER
@@ -1778,14 +1793,16 @@ function RegularFlight($fl,$client,$client_geo)
 		
 		$add_svs_sql=' SELECT services.id_NAV FROM other_svs
 						LEFT JOIN services ON other_svs.service_id=services.id
-						WHERE client_id='.$client;
+						WHERE other_svs.isValid AND client_id='.$client;
+		
 		$answsql=mysqli_query($db_server,$add_svs_sql);
-		if($answsql->num_rows)
+		
+		$recs=$answsql->num_rows;
+		if($recs)
 		{
-			
-			while($add_svs= mysqli_fetch_row($answsql))
+			for($i=0;$i<$recs;$i++)
 			{
-				
+				$add_svs= mysqli_fetch_row($answsql);
 				$service_id=$add_svs[0];
 				$quantity=1; // BY DEFAULT PER FLIGHT, MAY BE CHANGED HERE
 				$fix_add_svs='INSERT INTO service_reg 
@@ -1795,7 +1812,7 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_add_svs);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else echo "ADDITIONAL SERVICES (DCS etc) RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
 			}
 		}
 	}
@@ -1862,7 +1879,7 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 		$answsql=mysqli_query($db_server,$fix_takeoff);
 		if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-		else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";					
+		else echo "TAKE OFF RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";					
 	}
 	// 2. AIRPORT CHARGES
 	if(((int)$fl->terminal!=4)&&((int)$fl->terminal!=5))
@@ -1890,7 +1907,7 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else echo "AIRPORT CHARGES RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";	
 			}
 			$ap_chrg_in_kids=' SELECT service_id,services.id_NAV FROM process  
 						LEFT JOIN services ON process.service_id=services.id
@@ -1913,7 +1930,7 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else echo "AIRPORT CHARGES RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";	
 			}
 		}
 		else
@@ -1939,7 +1956,7 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else echo "AIRPORT CHARGES RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";	
 			}
 			$ap_chrg_out_kids=' SELECT service_id,services.id_NAV FROM process  
 						LEFT JOIN services ON process.service_id=services.id
@@ -1962,7 +1979,7 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";
+				else echo "AIRPORT CHARGES RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";
 			}
 		}
 	}
@@ -2002,7 +2019,7 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else echo "AVIA.SECURITY RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";	
 			}
 	}
 	// 4. GROUND HANDLING
@@ -2029,7 +2046,7 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_gh);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else echo "GROUND HANDLING RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";	
 			}
 			$gh_kids_sql=' SELECT service_id,services.id_NAV FROM process  
 						LEFT JOIN services ON process.service_id=services.id
@@ -2052,7 +2069,7 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_gh_kids);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else echo "GROUND HANDLING RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";	
 			}
 	}
 	// 5. CUTE DCS
