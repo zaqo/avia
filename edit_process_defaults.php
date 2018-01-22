@@ -36,7 +36,7 @@ include ("header.php");
 		{	
 			$selected='';
 			$svs=$row[0];
-			$desc=mb_strcut($row[2],0,36);
+			$desc=mb_strcut($row[2],0,40);
 			$svs_desc=$row[1].' | '.$desc.'...';
 			if($svs==$svs_now)
 				$selected='selected';
@@ -64,7 +64,7 @@ include ("header.php");
 				$direction=$row_two[2];
 				$gender=$row_two[3];
 		// Constructs services dropdown
-			$check_in_mysql='SELECT id,id_NAV,description FROM services WHERE isValid';
+			//$check_in_mysql='SELECT id,id_NAV,description FROM services WHERE isValid ORDER BY id_NAV';
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("SELECT into services TABLE failed: ".mysqli_error($db_server));
@@ -76,7 +76,7 @@ include ("header.php");
 				
 				$selected='';
 				$svs=$row[0];
-				$desc=mb_strcut($row[2],0,36);
+				$desc=mb_strcut($row[2],0,40);
 				$svs_desc=$row[1].' | '.$desc.'...';
 				if((int)$svs===(int)$svs_now)
 					$selected='selected';
@@ -93,7 +93,7 @@ include ("header.php");
 		$select_avia_sec='SELECT services.id,default_svs.isRus
 					FROM default_svs 
 					LEFT JOIN services ON service_id=services.id
-					WHERE sequence=3 AND default_svs.isValid';
+					WHERE sequence=3 AND default_svs.isValid ';
 					
 					$answsql=mysqli_query($db_server,$select_avia_sec);
 					if(!$answsql) die("SELECT into default_svs TABLE failed: ".mysqli_error($db_server));
@@ -116,7 +116,7 @@ include ("header.php");
 				
 				$selected='';
 				$svs=$row[0];
-				$desc=mb_strcut($row[2],0,36);
+				$desc=mb_strcut($row[2],0,40);
 				$svs_desc=$row[1].' | '.$desc.'...';
 				if((int)$svs===(int)$svs_now)
 					$selected='selected';
@@ -158,7 +158,7 @@ include ("header.php");
 				
 				$selected='';
 				$svs=$row[0];
-				$desc=mb_strcut($row[2],0,36);
+				$desc=mb_strcut($row[2],0,40);
 				$svs_desc=$row[1].' | '.$desc.'...';
 				if((int)$svs===(int)$svs_now)
 					$selected='selected';
