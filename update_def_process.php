@@ -56,10 +56,10 @@ $gh=array();
 						VALUES(1,"'.$takeoff[0].'",1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO default_svs table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE INSERTED <br/>";
+			//echo "NEW RECORD: SERVICE INSERTED <br/>";
 		}
-		else
-		echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
+		//else
+		//echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
 	
 	//2. AIRPORT CHARGES	
 	//a. CHECK if IT IS DIFFERENT
@@ -103,10 +103,10 @@ $gh=array();
 						VALUES(2,"'.$ap_chrg[0].'",0,1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO default_svs table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE INSERTED <br/>";
+			//echo "NEW RECORD: SERVICE INSERTED <br/>";
 		}
-		else
-		echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
+		//else
+		//echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
 		// 2. IN KIDS
 		if(!$answsql_1->num_rows) 
 		{
@@ -129,10 +129,10 @@ $gh=array();
 						VALUES(2,"'.$ap_chrg[1].'",0,0,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO default_svs table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE INSERTED <br/>";
+			//echo "NEW RECORD: SERVICE INSERTED <br/>";
 		}
-		else
-		echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
+		//else
+		//echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
 	// 3. OUT ADULT
 		if(!$answsql_2->num_rows) 
 		{
@@ -155,10 +155,10 @@ $gh=array();
 						VALUES(2,"'.$ap_chrg[2].'",1,1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO default_svs table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE INSERTED <br/>";
+			//echo "NEW RECORD: SERVICE INSERTED <br/>";
 		}
-		else
-		echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
+		//else
+		//echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
 	// 4. OUT KIDS
 		if(!$answsql_0->num_rows) 
 		{
@@ -181,10 +181,10 @@ $gh=array();
 						VALUES(2,"'.$ap_chrg[3].'",1,0,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO default_svs table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE INSERTED <br/>";
+			//echo "NEW RECORD: SERVICE INSERTED <br/>";
 		}
-		else
-		echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
+		//else
+		//echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
 	
 	// 3. AVIATION SEC
 		
@@ -223,10 +223,10 @@ $gh=array();
 						VALUES(3,"'.$av_sec[0].'",1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO default_svs table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE INSERTED <br/>";
+			//echo "NEW RECORD: SERVICE INSERTED <br/>";
 		}
-		else
-		echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
+		//else
+		//echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
 		// 2. AVIATION SECURITY FOREIGN
 		if(!$answsql_11->num_rows) 
 		{
@@ -249,10 +249,10 @@ $gh=array();
 						VALUES(3,"'.$av_sec[1].'",0,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO default_svs table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE INSERTED <br/>";
+			//echo "NEW RECORD: SERVICE INSERTED <br/>";
 		}
-		else
-		echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
+		//else
+		//echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
 	
 	// END OF AVIATION SECURITY
 	// 4. GROUND HANDLING
@@ -293,10 +293,10 @@ $gh=array();
 						VALUES(4,"'.$gh[0].'",1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO default_svs table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE INSERTED <br/>";
+			//echo "NEW RECORD: SERVICE INSERTED <br/>";
 		}
-		else
-		echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
+		//else
+		//echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
 		// 2. GH KIDS
 		if(!$answsql_21->num_rows) 
 		{
@@ -319,10 +319,10 @@ $gh=array();
 						VALUES(4,"'.$gh[1].'",0,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO default_svs table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE INSERTED <br/>";
+			//echo "NEW RECORD: SERVICE INSERTED <br/>";
 		}
-		else
-		echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
+		//else
+		//echo "NO CHANGES: SERVICE STAYS THE SAME <br/>";
 	
 	// END OF GROUND HANDLING
 	//echo $textsql.'<br/>';				

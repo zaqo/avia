@@ -173,11 +173,6 @@ include ("header.php");
 		
 		// END of #4.
 		
-		
-		
-		$content.='<script src="/avia/js/calender.js" type="text/javascript">
-	    </script>';	
-		
 		$content.= '<form id="form" method=post action=update_def_process.php >
 					<div id="add_field_area"><table class="myTab"><caption><b>Настройки процесса расчета цены для рейса</b></caption>
 					<tr><th class="col1"></th><th class="col300"></th><th class="col4"></th><th class="col4"></th></tr>
