@@ -6,7 +6,7 @@ require_once 'login_avia.php';
 include ("header.php"); 	
 		
 		$content="";
-		
+		$steps=array('ВЗЛЕТ/ПОСАДКА','АЭРОПОРТОВЫЕ СБОРЫ','АВИАЦОННАЯ БЕЗОПАСНОСТЬ','НАЗЕМНОЕ ОБСЛУЖИВАНИЕ');
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
 			$db_server->set_charset("utf8");
@@ -15,7 +15,8 @@ include ("header.php");
 		
 		//GET ALL DATA
 	
-			$select_exc='SELECT exc_process.id,clients.name,hasConditions,services.description,t1.description,t2.description,t3.description
+			$select_exc='SELECT exc_process.id,clients.id,clients.name,sequence,hasConditions,services.description,services.id_NAV,
+								t1.description,t1.id_NAV,t2.description,t2.id_NAV,t3.description,t3.id_NAV
 							FROM exc_process 
 							LEFT JOIN services ON service_id=services.id
 							LEFT JOIN clients ON client_id=clients.id
@@ -23,126 +24,73 @@ include ("header.php");
 							LEFT JOIN services AS t1 ON exc_default.svs_kids_id=t1.id
 							LEFT JOIN services AS t2 ON exc_default.exc_svs_id=t2.id
 							LEFT JOIN services AS t3 ON exc_default.exc_svs_kids_id=t3.id
-							WHERE 1
+							WHERE exc_process.isValid
 							ORDER BY clients.id';
 					
 					$answsql=mysqli_query($db_server,$select_exc);
 					if(!$answsql) die("SELECT into default_svs TABLE failed: ".mysqli_error($db_server));
 				
-				
+		$content.= '<table class="myTab"><caption><b>Настройки исключений в расчете цены для рейса</b></caption>
+					<tr><th class="col80"></th><th class="col500"></th><th class="col1"></th></tr>';		
+		$client_last=0;
+		$step_last=0;
 		while ($row = mysqli_fetch_row( $answsql))
 		{	
-			$selected='';
-			$svs=$row[0];
-			$desc=mb_strcut($row[2],0,40);
-			$svs_desc=$row[1].' | '.$desc.'...';
-			if($svs==$svs_now)
-				$selected='selected';
-			$services_t.='<option value="'.$row[0].'" '.$selected.'>'.$svs_desc.'</option>';
+			$exc_id=$row[0];
+			$client_id=$row[1];
+			$client=$row[2];
+			$seq=$row[3];
+			$condFlag=$row[4];
+			$svs_1= $row[5];
+			$svs_1_nav= $row[6];
+			$svs_2= $row[7];
+			$svs_2_nav= $row[8];
+			$svs_3= $row[9];
+			$svs_3_nav= $row[10];
+			$svs_4= $row[11];
+			$svs_4_nav= $row[12];
+			
+			if($client_last!=$client_id)
+			{
+				if($client_last) $content.= '<tr><td colspan="3" ></td></tr>';
+				$content.= '<tr><td colspan="3" class="tab_h2"><b>'.$client.'</b></td></tr>';
+			}
+			if($step_last!=$seq)
+			{
+				if($step_last) $content.= '<tr><td colspan="3" ></td></tr>';
+				$content.= '<tr><td colspan="2" class="tab_h3">'.$steps[$seq-1].'</td><td class="tab_h3"><a href="delete_exc.php?id='.$exc_id.'" ><img src="/avia/css/delete.png" alt="Delete" title="Удалить" ></a></td></tr>';
+				
+			}
+			$content.= '<tr><td>'.$svs_1_nav.'</td><td class="tab_normal">'.$svs_1.'</td><td><a href="edit_exc.php?id='.$exc_id.'&svs=1" ><img src="/avia/src/pencil.png" alt="Edit" title="Изменить" ></a></td></tr>';
+			if($svs_2)
+				$content.= '<tr><td>'.$svs_2_nav.'</td><td class="tab_normal">'.$svs_2.'</td><td><a href="edit_exc.php?id='.$exc_id.'&svs=2" ><img src="/avia/src/pencil.png" alt="Edit" title="Изменить" ></a></td></tr>';
+			if($svs_3&&$condFlag)
+			{
+				$cond_sql='SELECT airports.name_rus FROM exc_conditions
+							LEFT JOIN airports ON airports.id=exc_conditions.airport_id
+							WHERE	exc_conditions.exc_id='.$exc_id;
+				$answsql_airport=mysqli_query($db_server,$cond_sql);
+					if(!$answsql_airport) die("SELECT into exc_conditions TABLE failed: ".mysqli_error($db_server));
+				$airports='';
+				while ($row1 = mysqli_fetch_row( $answsql_airport))
+					$airports.=$row1[0].", ";
+				$airports=substr($airports,0,-2);
+				$content.= '<tr><td colspan="3">ДЛЯ НАПРАВЛЕНИЙ:</td></tr>';
+				$content.= '<tr><td colspan="2">'.$airports.'</td><td><a href="edit_exc.php?id='.$exc_id.'&svs=0" ><img src="/avia/src/pencil.png" alt="Edit" title="Изменить" ></a></td></tr>';
+				$content.= '<tr><td>'.$svs_3_nav.'</td><td class="tab_normal">'.$svs_3.'</td><td><a href="edit_exc.php?id='.$exc_id.'&svs=3" ><img src="/avia/src/pencil.png" alt="Edit" title="Изменить" ></a></td></tr>';
+				$content.= '<tr><td>'.$svs_4_nav.'</td><td class="tab_normal">'.$svs_4.'</td><td><a href="edit_exc.php?id='.$exc_id.'&svs=4" ><img src="/avia/src/pencil.png" alt="Edit" title="Изменить" ></a></td></tr>';
+			}
+			$client_last=$client_id;
+			$step_last=$seq;
 		}
-		$services_t.='</select>';	
-		$services_t='<tr><td><b>1:</b></td><td>'.$services_t.'</td><td></td><td></td></tr>';
 		
 		
-		$content.= '
-					<table class="myTab"><caption><b>Настройки исключений в расчете цены для рейса</b></caption>
-					<tr><th class="col1">№</th><th class="col300">Компания</th><th class="col4">Этап</th><th class="col4"></th></tr>
-					<tr><td colspan="4"><h3> << TAKEOFF / LANDING >> </h3></td></tr>
-					'.$services_t.'
-					<tr><td colspan="4"><h3> << AIRPORT CHARGES >> </h3></td></tr>
-					'.$services_ap_all.'
-					<tr><td colspan="4"><h3> << AVIATION SECURITY >> </h3></td></tr>
-					'.$services_as_all.'
-					<tr><td colspan="4"><h3> << GROUND HANDLING >> </h3></td></tr>
-					'.$services_gh_all.'
-					<tr><td colspan="4">
-					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
-					</table></div></form>';
 		
+		$content.= '</table>';
 		
 	Show_page($content);
 	
 	mysqli_close($db_server);
 
-function toggle_gen($number,$key,$chk)
-{
-	/* GENETRATES TOGGLE SWITCHES FOR THE PAGE
-	INPUT:
-			$number		-		integer, position on the page
-			$key		-		type of selector, 0 - gender, 1 - direction, 2 - RUS/FOREIGN
-			$chk		-		current value,  0 - first, 1 - second
-	OUTPUT:
-			html of radiobutton
-	
-	
-			$toggle_gen=' <div class="switch-field">
-							<input type="radio" id="left" name="gender" value="yes" />
-							<label for="left">ВЗР</label>
-							<input type="radio" id="right" name="gender" value="no" />
-							<label for="right">ДЕТ</label>
-					</div>';
-			$toggle_dir=' <div class="switch-field">
-							<input type="radio" id="switch_left" name="dir" value="yes" />
-							<label for="switch_left">ПРИБ</label>
-							<input type="radio" id="switch_right" name="dir" value="no" />
-							<label for="switch_right">ОТПР</label>
-					</div>';
-			$radio_gen='<div class="custom-check">
-						<input id="q1" name="gender[]" type="radio" />
-						<label for="q1">ВЗР</label>
-					</div>
-					<div class="custom-check">
-						<input id="q2" name="gender[]" type="radio" />
-						<label for="q2">ДЕТ</label>
-					</div>';
-			$radio_dir='<div class="custom-check">
-						<input id="d1" name="direction[]" type="radio" />
-						<label for="d1">ПРИБ</label>
-					</div>
-					<div class="custom-check">
-						<input id="d2" name="direction[]" type="radio" />
-						<label for="d2">ОТПР</label>
-					</div>';
-			$radio_old='<div class="dark"><input type="radio" name="gender" value="adult" >ВЗР</div>
-			</td><td><input type="radio" name="gender" value="child">ДЕТ';		
-	*/
-	$checked='checked';
-	
-	if($key==1)
-	{
-		$legend_0='ПРИБ';
-		$legend_1='ОТПР';
-		$name='dir'.$number;
-	}
-	elseif($key==2)
-	{
-		$legend_0='ЗАР';
-		$legend_1='РОС';
-		$name='dom'.$number;
-	}
-	else
-	{
-		$legend_0='ДЕТ';
-		$legend_1='ВЗР';
-		$name='gender'.$number;
-	}
-	if(!$chk)
-	{
-		$first=$checked;
-		$second='';
-	}
-	else
-	{
-		$second=$checked;
-		$first='';
-	}
-		
-return ' <div class="switch-field">
-							<input type="radio" id="left'.$key.$number.'" name="'.$name.'" value="yes" '.$first.' disabled/>
-							<label for="left'.$key.$number.'">'.$legend_0.'</label>
-							<input type="radio" id="right'.$key.$number.'" name="'.$name.'" value="no" '.$second.' disabled/>
-							<label for="right'.$key.$number.'">'.$legend_1.'</label>
-					</div>';
-}
 ?>
 	

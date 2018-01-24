@@ -28,6 +28,7 @@ table.myTab {
 	.col3 { width: 290px; }
 	.col4 { width: 270px; }
 	.col300 { width: 300px; }
+	.col500 { width: 500px; }
 	.col50 { width: 50px; }
 	.col80 { width: 80px; }
 table.aviaTab_pack {
@@ -66,13 +67,24 @@ td input[type="checkbox"] {
     margin: 0 auto;
     width: 100%;
 }
-tr:nth-child(even) {
+tr:nth-child(even).fullTab {
     background-color: #dddddd;
 }
-
+.tab_h2 {
+	color: blue;
+    background-color: #dddddd;
+}
+.tab_h3 {
+	color: blue;
+    background-color: #ddddd0;
+}
+.tab_normal
+{
+	text-align: left;
+}
 form {
     font-family: arial, sans-serif;
-    border-collapse: collapse;
+    border-collapse: #000000;
 	margin:0px auto;
     width: 50%;
 }
