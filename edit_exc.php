@@ -1,0 +1,126 @@
+﻿ <?php 
+/*
+
+	EDIT EXCEPTION SERVICES FORM
+		INPUT:
+			id - # of exception
+			svs - 1,2 - default services for the step; 3,4 - auxiliary services
+		RESULT:
+			UPDATE to the tables
+*/
+ 
+require_once 'login_avia.php';
+
+include ("header.php"); 
+	
+		if(isset($_REQUEST['id']))$id= $_REQUEST['id'];
+		if(isset($_REQUEST['svs']))$svs_num= $_REQUEST['svs'];
+		if(isset($_REQUEST['svs_id']))$svs_id= $_REQUEST['svs_id'];
+		$content="";
+		//Set up mySQL connection
+			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
+			$db_server->set_charset("utf8");
+			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
+			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
+		
+			$select_exc='SELECT clients.name,exc_process.sequence,services.description,services.id_NAV,
+								t1.description,t1.id_NAV,t2.description,t2.id_NAV,t3.description,t3.id_NAV,
+								services.id,t1.id,t2.id,t3.id
+							FROM exc_process 
+							LEFT JOIN services ON service_id=services.id
+							LEFT JOIN clients ON client_id=clients.id
+							LEFT JOIN exc_default ON exc_default.exc_id=exc_process.id
+							LEFT JOIN services AS t1 ON exc_default.svs_kids_id=t1.id
+							LEFT JOIN services AS t2 ON exc_default.exc_svs_id=t2.id
+							LEFT JOIN services AS t3 ON exc_default.exc_svs_kids_id=t3.id
+							WHERE exc_process.id='.$id.'
+							ORDER BY clients.id';
+					
+					$answsql=mysqli_query($db_server,$select_exc);
+					if(!$answsql) die("SELECT into default_svs TABLE failed: ".mysqli_error($db_server));
+					
+		$row = mysqli_fetch_row( $answsql );
+		
+				$client=$row[0];
+				$step=$row[1];
+				$svs_1=$row[3].' | '.$row[2];
+				$svs_2=$row[5].' | '.$row[4];
+				$svs_3=$row[7].' | '.$row[6];
+				$svs_4=$row[9].' | '.$row[8];
+				$svs_2_flag=$row[11];
+				$svs_3_flag=$row[12];
+				$svs_4_flag=$row[13];
+				
+			  //------------------------------------------------//
+			 //			PREPARE LIST OF SERVICES			   //
+			//------------------------------------------------//
+				$check_in_mysql='SELECT id,id_NAV,description FROM services WHERE isValid ORDER BY id_NAV';
+					
+					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
+					if(!$answsqlcheck) die("SELECT into services TABLE failed: ".mysqli_error($db_server));
+		
+			$services='';
+			$services='<select name="val" required>';
+			
+				
+			while ($row = mysqli_fetch_row( $answsqlcheck ))
+			{	
+				
+				$selected='';
+				$svs=$row[0];
+				$desc=mb_strcut($row[2],0,40);
+				$svs_desc=$row[1].' | '.$desc.'...';
+				if((int)$svs===(int)$svs_id)
+					$selected='selected';
+				$services.='<option value="'.$row[0].'" '.$selected.'>'.$svs_desc.'</option>';
+			}
+			$services.='</select>';
+			// DONE WITH SERVICES
+			switch ($svs_num)
+				{
+					case 1:
+							$svs_1=$services;
+							break;
+					case 2:
+							$svs_2=$services;
+							break;
+					case 3:
+							$svs_3=$services;
+							break;
+					case 4:
+							$svs_4=$services;
+							break;
+					default:
+						echo "ERROR: WRONG SERVICE SUGGESTED IN THE INPUT LINE <br/>";
+						
+				}
+		// Top of the table
+				
+		$content.= '<form id="form" method=post action=update_exc_svs.php >
+					<table class="fullTab"><caption><b>Выбор услуги</b></caption><br>
+					<tr><th>Клиент:</th><th>'.$client.'</th></tr>
+					<tr><td>Этап:</td><td>'.$steps[$step-1].'</td></tr>';
+		
+		$content.= '<tr><td>Услуга #1:</td><td>'.$svs_1.'</td></tr>';	
+		if($svs_2_flag)
+		{
+			$content.= '<tr><td>Услуга #2:</td><td>'.$svs_2.'</td></tr>';	
+			if($svs_3_flag)
+			{
+				$content.= '<tr><td colspan="2">ДЛЯ ОСОБЫХ НАПРАВЛЕНИЙ</td></tr>';
+				$content.= '<tr><td>Услуга #3:</td><td>'.$svs_3.'</td></tr>';	
+				$content.= '<tr><td>Услуга #4:</td><td>'.$svs_4.'</td></tr>';	
+			}
+		}
+		$content.= '
+					<tr><td colspan="2"><p><input type="hidden" value="'.$id.'" name="id">
+					<input type="hidden" value="'.$svs_num.'" name="num">
+					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
+					</table></form>';
+		
+		
+	Show_page($content);
+	mysqli_close($db_server);
+	
+?>
+	

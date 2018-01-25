@@ -25,7 +25,8 @@
     //EP $wsdlurl='http://srvr-186.local.newpulkovo.ru:8002/sap/bc/srt/wsdl/flv_10002A101AD1/bndg_url/sap/bc/srt/rfc/sap/zsd_order_avi_crud2/001/zsd_order_avi_crud2/zsd_order_avi_crud2?sap-client=001';
 	$wsdlurl='http://srvr-185.local.newpulkovo.ru:8000/sap/bc/srt/wsdl/flv_10002A101AD1/bndg_url/sap/bc/srt/rfc/sap/zsd_order_zavi_crud/110/zsd_order_zavi_crud/zsd_order_zavi_crud?sap-client=110';
 	
-	
+	//MAJOR STEPS IN FLIGHT BILLING PROCESS
+	$steps=array('ВЗЛЕТ/ПОСАДКА','АЭРОПОРТОВЫЕ СБОРЫ','АВИАЦОННАЯ БЕЗОПАСНОСТЬ','НАЗЕМНОЕ ОБСЛУЖИВАНИЕ');
 		//Services Navision to SAP mapping section
 		$services_map=array (
 								'A0200191'=>'900000114',
