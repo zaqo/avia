@@ -73,7 +73,7 @@ include ("header.php");
 			{
 				$cond_sql='SELECT airports.name_rus FROM exc_conditions
 							LEFT JOIN airports ON airports.id=exc_conditions.airport_id
-							WHERE	exc_conditions.exc_id='.$exc_id;
+							WHERE	exc_conditions.isValid AND exc_conditions.exc_id='.$exc_id;
 				$answsql_airport=mysqli_query($db_server,$cond_sql);
 					if(!$answsql_airport) die("SELECT into exc_conditions TABLE failed: ".mysqli_error($db_server));
 				$airports='';

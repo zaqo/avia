@@ -2,6 +2,10 @@
 /* 
 
 		UPDATE SERVICE ID IN EXCEPTIONS
+		INPUTS:
+			id	-	identificator of exception
+			num - 	number of service ( we have four)
+			val - 	id of service, for setting the default
 
 */
 include ("login_avia.php"); 
@@ -24,15 +28,25 @@ include ("login_avia.php");
 		  //=================================================//
 		 //					 UPDATE SECTION					//
 		//-------------------------------------------------//
-		if($num==1)
+		
+		switch($num)
+		{
+				case 1:
 					$textsql='UPDATE exc_process SET service_id='.$svs.' WHERE id='.$id; 
-		if($num==2)
+					break;
+				case 2:
 					$textsql='UPDATE exc_default SET svs_kids_id='.$svs.' WHERE exc_id='.$id; 
-		if($num==3)
+					break;
+				case 3:
 					$textsql='UPDATE exc_default SET exc_svs_id='.$svs.' WHERE exc_id='.$id;
-		if($num==4)
+					break;
+				case 4:
 					$textsql='UPDATE exc_default SET exc_svs_kids_id='.$svs.' WHERE exc_id='.$id;
-						
+					break;
+				default:
+					echo "ERROR: WRONG SERVICE POSITION ID IN THE INPUT! <br/>"
+					break;
+		}
 					$answsql=mysqli_query($db_server,$textsql);
 					if(!$answsql) die("UPDATE package_reg table failed: ".mysqli_error($db_server));
 					//echo $textsql_clear_tmp." :CLEAR FOR NEW TEMPLATE<br/>";
