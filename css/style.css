@@ -31,6 +31,8 @@ table.myTab {
 	.col500 { width: 500px; }
 	.col50 { width: 50px; }
 	.col80 { width: 80px; }
+	.col90 { width: 90px; }
+	.col120 { width: 120px; }
 table.aviaTab_pack {
     font-family: arial, sans-serif;
     border-collapse: collapse;
@@ -494,3 +496,5 @@ span.discount {
 .switch-field label:last-of-type {
   border-radius: 0 4px 4px 0;
 }
+/* My div */
+.center {text-align:center;}

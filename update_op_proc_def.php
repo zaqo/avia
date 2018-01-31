@@ -391,7 +391,7 @@ $takeoff=array();
 			$check_sql='SELECT id FROM process
 						WHERE sequence=4 AND isValid AND isAdult';
 			$answsql1=mysqli_query($db_server,$check_sql);
-			if(!$answsql1) die("SELECT FROM default_svs table failed: ".mysqli_error($db_server));	
+			if(!$answsql1) die("SELECT FROM process table failed: ".mysqli_error($db_server));	
 			if($answsql1->num_rows)
 			{
 				while($row=mysqli_fetch_row($answsql1))
@@ -402,7 +402,7 @@ $takeoff=array();
 					if(!$answsql2) die("UPDATE OF process table failed: ".mysqli_error($db_server));
 				}
 			}
-			$insert_sql='INSERT INTO default_svs
+			$insert_sql='INSERT INTO process
 						(sequence,service_id,isAdult,isValid)
 						VALUES(4,"'.$takeoff[11].'",1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
