@@ -20,7 +20,7 @@ include ("login_avia.php");
 // FIX  package		
 		$textsql='UPDATE exc_process SET
 						isValid=0
-						WHERE id='.$id;
+						WHERE client_id='.$id;
 						
 		$answsql=mysqli_query($db_server,$textsql);
 		if(!$answsql) die("UPDATE of exc_process table failed: ".mysqli_error($db_server));

@@ -1,8 +1,8 @@
 ﻿<?php
 /* 
 
-		UPDATE OF OTHER_SVS TABLE^: ADD RECORD
-
+		UPDATE OF OTHER_SVS TABLE: ADD RECORD
+		CALLED BY add_osvs.php
 */
 		include ("login_avia.php"); 
 
@@ -35,7 +35,7 @@
 		$answsql=mysqli_query($db_server,$textsql);
 		if(!$answsql) die("Database UPDATE failed: ".mysqli_error($db_server));
 		
-	echo '<script>history.go(-1);</script>';	
+	echo '<script>history.go(-2);</script>';	
 	
 mysqli_close($db_server);
 ?>

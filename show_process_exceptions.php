@@ -29,7 +29,7 @@ include ("header.php");
 							ORDER BY clients.id, sequence';
 					
 					$answsql=mysqli_query($db_server,$select_exc);
-					if(!$answsql) die("SELECT into default_svs TABLE failed: ".mysqli_error($db_server));
+					if(!$answsql) die("SELECT into exc_process TABLE failed: ".mysqli_error($db_server));
 				
 		$content.= '<table class="myTab"><caption><b>Настройки исключений в расчете цены для рейса</b></caption>
 					<tr><th class="col80"></th><th class="col500"></th><th class="col1"></th></tr>';		
@@ -55,18 +55,19 @@ include ("header.php");
 			$svs_3_id= $row[15];
 			$svs_4_id= $row[16];
 			
-			if($client_last!=$client_id)
+			if($client_last!=$client_id) //CLIENTS TOP
 			{
 				if($client_last) $content.= '<tr><td colspan="3" ></td></tr>';
-				$content.= '<tr><td colspan="3" class="tab_h2"><b>'.$client.'</b></td></tr>';
+				$content.= '<tr><td colspan="2" class="tab_h2"><b>'.$client.'</b></td><td class="tab_h3"><a href="delete_exc_cl.php?id='.$client_id.'" ><img src="/avia/css/delete.png" alt="Delete" title="Удалить" ></a></td></tr>';
 			}
-			if($step_last!=$seq)
+			if(($step_last!=$seq)||($client_last!=$client_id))	// STEP TOP
 			{
 				if($step_last) $content.= '<tr><td colspan="3" ></td></tr>';
 				$content.= '<tr><td colspan="2" class="tab_h3">'.$steps[$seq-1].'</td><td class="tab_h3"><a href="delete_exc.php?id='.$exc_id.'" ><img src="/avia/css/delete.png" alt="Delete" title="Удалить" ></a></td></tr>';
 				
 			}
-			$content.= '<tr><td>'.$svs_1_nav.'</td><td class="tab_normal">'.$svs_1.'</td><td><a href="edit_exc.php?id='.$exc_id.'&svs=1&svs_id='.$svs_1_id.'" ><img src="/avia/src/pencil.png" alt="Edit" title="Изменить" ></a></td></tr>';
+			if($svs_1)
+				$content.= '<tr><td>'.$svs_1_nav.'</td><td class="tab_normal">'.$svs_1.'</td><td><a href="edit_exc.php?id='.$exc_id.'&svs=1&svs_id='.$svs_1_id.'" ><img src="/avia/src/pencil.png" alt="Edit" title="Изменить" ></a></td></tr>';
 			if($svs_2)
 				$content.= '<tr><td>'.$svs_2_nav.'</td><td class="tab_normal">'.$svs_2.'</td><td><a href="edit_exc.php?id='.$exc_id.'&svs=2&svs_id='.$svs_2_id.'" ><img src="/avia/src/pencil.png" alt="Edit" title="Изменить" ></a></td></tr>';
 			if($svs_3&&$condFlag)
@@ -92,6 +93,7 @@ include ("header.php");
 		
 		
 		$content.= '</table>';
+		$content.= '<div class="center"><a href=add_exception.php><img src="/avia/src/red_plus_small.png" alt="ADD" title="Добавить" ></a></div>';
 		
 	Show_page($content);
 	

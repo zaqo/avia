@@ -10,6 +10,9 @@ include ("header.php");
 	
 		
 		$content="";
+		echo '<script> function AutoRefresh( t ) {
+               setTimeout("location.reload(true);", t);
+            };</script>';
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
 			$db_server->set_charset("utf8");
@@ -25,7 +28,7 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into other_svs TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
-		$content.= '<table class="myTab"><caption><b>Дополнительные услуги в рейсе</b></caption><br>';
+		$content.= '<table class="myTab" onload="JavaScript:AutoRefresh(5000)"><caption><b>Дополнительные услуги в рейсе</b></caption><br>';
 		$content.= '<tr><th class="col1">№ </th><th class="col120">Компания</th><th class="col300">Название услуги</th><th class="col90">Дата</th><th class="col1"></th></tr>';
 		
 		// Iterating through the array
@@ -48,7 +51,7 @@ include ("header.php");
 			
 		}
 		$content.= '</table>';
-		$content.= '<div class="center"><a href="add_osvs.php><img src="/avia/src/red_plus_small.png" alt="ADD" title="Добавить" ></a></div>';
+		$content.= '<div class="center"><a href=add_osvs.php><img src="/avia/src/red_plus_small.png" alt="ADD" title="Добавить" ></a></div>';
 	Show_page($content);
 	mysqli_close($db_server);
 	

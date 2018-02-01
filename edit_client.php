@@ -1,5 +1,10 @@
 ﻿ <?php require_once 'login_avia.php';
+/*
 
+	EDIT CLIENT RECORD FORM
+	FOR AVIATION CLIENTS
+
+*/
 include ("header.php"); 
 	
 		$id= $_REQUEST['id'];

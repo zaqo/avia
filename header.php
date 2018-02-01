@@ -84,8 +84,18 @@
 			</div>
 			";
 			echo "<div class='dropdown'>
-				<button onclick='myFunction5()' class='dropbtn'>Прочее</button>
+				<button onclick='myFunction5()' class='dropbtn'>Настройки</button>
 				<div id=\"myDropdown5\" class=\"dropdown-content\">
+				<a href=\"show_process_defaults.php\">Регулярные</a>
+				<a href=\"show_process_exceptions.php\">Исключения</a>
+				<a href=\"show_operator_proc_def.php\">Операторы</a>
+				<a href=\"show_other_svs.php\">Прочие</a>
+				</div>
+			</div>
+			";
+			echo "<div class='dropdown'>
+				<button onclick='myFunction6()' class='dropbtn'>Прочее</button>
+				<div id=\"myDropdown6\" class=\"dropdown-content\">
 				<a href=\"list_flights.php\">Мед.осмотр экипажа</a>
 				<a href=\"show_mus.php\">Единицы измерения</a>
 				<a href=\"create_mu.php\">Добавить ед.изм.</a>
