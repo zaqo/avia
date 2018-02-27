@@ -7,6 +7,7 @@ h1 {
     color: navy;
     margin-left: 20px;
 }
+/* THESE ARE OLDSTYLE COMPONENTS
 table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
@@ -14,6 +15,27 @@ table {
 	align: left;
 	width: 20%;
 }
+td, th {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 8px;
+	width: 20%;
+}
+
+td input[type="checkbox"] {
+    float: left;
+    margin: 0 auto;
+    width: 100%;
+}
+tr:nth-child(even).fullTab {
+    background-color: #dddddd;
+}
+input {
+	height: 20px;
+	margin: 5px;
+	width:200px;
+}
+*/
 table.myTab {
     font-family: arial, sans-serif;
     border-collapse: collapse;
@@ -57,21 +79,7 @@ table.Full {
 	text-align: center;
 	width: 100%;
 }
-td, th {
-    border: 1px solid #dddddd;
-    text-align: center;
-    padding: 8px;
-	width: 20%;
-}
 
-td input[type="checkbox"] {
-    float: left;
-    margin: 0 auto;
-    width: 100%;
-}
-tr:nth-child(even).fullTab {
-    background-color: #dddddd;
-}
 .tab_h2 {
 	color: blue;
     background-color: #dddddd;
@@ -147,11 +155,7 @@ color: red;
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
 .show {display:block;}
 
-input {
-	height: 20px;
-	margin: 5px;
-	width:200px;
-}
+
 #livesearch_input{
 	width:100px;
 }

@@ -18,10 +18,13 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into services TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
-		$content.= "<table><caption><b>Коды услуг</b></caption><br>";
+		$content.= '<h2>Коды услуг</h2>';
+		$content.= '<div class="table-responsive">';
+		$content.= '<table class="table table-striped table-sm">';
+		$content.= "<thead>";
 		$content.= '<tr><th>№ </th><th>Услуга</th><th>Код NAV</th><th>Код SAP</th><th>Ед.изм</th>
-					<th>Для детей</th><th>Действует</th></tr>';
-		
+					<th>Для детей</th><th>Действует</th></tr></thead>';
+		$content.= "<tbody>";
 		// Iterating through the array
 		$counter=1;
 		
@@ -58,7 +61,9 @@ include ("header.php");
 			$counter+=1;
 			
 		}
+		$content.= '</tbody>';
 		$content.= '</table>';
+		$content.= '</div>';
 	Show_page($content);
 	mysqli_close($db_server);
 	

@@ -36,7 +36,7 @@ include ("login_avia.php");
 		else
 			$textsql='INSERT INTO services
 						(id_mu,id_NAV,id_SAP,isforKids,isValid,description)
-						VALUES( '.$mu.',"'.$nav_id.'",'.$sap_id.','.$isKid.','.$isValid.',"'.$desc.'")';
+						VALUES( '.$mu.',"'.$nav_id.'",'.$sap_id.','.$isKid.',1,"'.$desc.'")';
 		//echo $textsql;				
 		$answsql=mysqli_query($db_server,$textsql);
 		if(!$answsql) die("Database UPDATE failed: ".mysqli_error($db_server));

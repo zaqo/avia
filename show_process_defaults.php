@@ -6,7 +6,7 @@ require_once 'login_avia.php';
 include ("header.php"); 	
 		
 		$content="";
-		
+		//echo mb_internal_encoding();
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
 			$db_server->set_charset("utf8");
