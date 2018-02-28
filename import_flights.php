@@ -27,9 +27,13 @@ class Flight
 			public $services;
 	}
 	
-		$day   = $_POST['day'];
-		$month = $_POST['month'];
-		$year  = $_POST['year'];
+		//var_dump( $_POST);
+		$input_date=$_POST['from'];
+		$day   = substr($input_date,0,2);
+		$month = substr($input_date,3,2);
+		$year  = substr($input_date,6,4);
+		//echo $day.'/'.$month.'/'.$year;
+		
 		//$route_key="МАРШРУТ_КЛИЕНТЫ";	//THIS KEY ON t3.[Link Code]='МАРШРУТ_КЛИЕНТЫ' IS NOT USED NOW!	
 		$date_=mktime(0,0,0,$month,$day,$year);
 	
@@ -42,7 +46,7 @@ class Flight
 					die(print_r(sqlsrv_errors(),true));
 					}
 		
-		$tsql_route='SELECT ID,Income,[Income No_],[Date Fact],[Bort No_],[Airport No_],[Flying Type],[Max Weight],
+		$tsql_route='SELECT DISTINCT [ID],Income,[Income No_],[Date Fact],[Bort No_],[Airport No_],[Flying Type],[Max Weight],
 							[Passengers Income Grown-Up],[Passengers Income Children],
 							[Passengers Outcome Grown-Up],[Passengers Outcome Children],
 							[Link No_],[Customer No_],[Bill-Cust No_],[Owner Aircraft],Helicopter,Category,t1.No_,[Time Fact],[Type Aircraft],[Outcome No_],
@@ -50,7 +54,7 @@ class Flight
 						FROM dbo.[NCG$Route] AS t1
 						LEFT JOIN [NCG$Route Resource] AS t2 ON t2.[Route No_]=t1.[No_]
 						LEFT JOIN [NCG$Integration - Link Line] AS t3 ON t3.[External No_]=t1.[Owner Aircraft]
-						WHERE MONTH([Date Fact])='.$month.' AND DAY([Date Fact])='.$day.' AND YEAR([Date Fact])='.$year.' AND  Correction=1 ';//Correction = 1 - records blocked for changes
+						WHERE MONTH([Date Fact])='.$month.' AND DAY([Date Fact])='.$day.' AND YEAR([Date Fact])='.$year.' AND  Correction=1 ORDER BY ID ';//Correction = 1 - records blocked for changes
 		
 		$stmt = sqlsrv_query( $conn, $tsql_route);
 		
@@ -69,19 +73,27 @@ class Flight
 		
 		
 		// Top of the table
-		$content.= "<b>  Данные за:</b> $datestr <hr><table><caption><b>Суточный график </b></caption><br>";
-		$content.= '<tr><th>№ </th><th>ID</th><th>Напр.</th><th>Рейс</th><th>Дата</th>
-						<th>Бортовой номер</th><th>Аэропорт</th><th>Тип полета</th><th>Макс.масса</th>
-						<th>->Пасс.Взр</th><th>->Пасс.Дети</th>
-						<th><-Пасс.Взр</th><th><-Пасс.Дети</th>
-						<th>Связка</th><th>Клиент</th><th>Плательщик</th><th>Владелец</th><th>Вертолет</th><th>Кат.</th><th>Отправл.</th><th>Стоянка</th><th>Услуги</th></tr>';
+		$content.= '<div class="container ml-5">';
+		$content.= '<b>  Данные за:</b> '.$datestr.' <hr>';
+		$content.= "<h1>  Суточный график </h1>";
+		$content.= "<small>  (загружено) </small>";
+		$content.='<table class ="table table-sm table-hover table-striped"><caption><b> </b></caption><br>';
+		$content.= ' <thead class="thead-dark"><tr><th>№ </th><th>ID</th><th>Напр</th><th>Рейс</th><th>Время</th>
+						<th>Борт номер</th><th>Аэропорт</th><th>Тип полета</th><th>Макс масса</th>
+						<th>Взр ->|</th><th>Дети ->|</th>
+						<th>Взр |-></th><th>Дети |-></th>
+						<th>Клиент</th><th>Плат.</th><th>Владелец</th><th>Кат.</th>
+						<th>Обр рейс</th><th>Стоянка</th><th>Верт.</th></tr></thead>';
 		// Iterating through the array
 		
 		$counter=1;
-		
+		$content.= "<tbody>";
+		$flightid_NAV=0; // SCREENING MUPTIPLE PERKING PLACES ISSUE
 		while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_NUMERIC) )  
 		{ 
 			
+			if ($flightid_NAV!=$row[0])
+			{
 				$flightid_NAV=$row[0];
 				
 				$row[3]=$row[3]->format('Y-m-d');
@@ -90,7 +102,7 @@ class Flight
 				$row[15]=iconv('windows-1251','utf-8',$row[15]);
 				$owner=sanitizestring($row[15]);
 				$category=$row[17];
-				$flightid=$row[18];
+				$flightid=iconv('windows-1251','utf-8',$row[18]);
 				$time_fact=$row[19];
 				$plane_type=$row[20];
 				$flight_num_in=iconv('windows-1251','utf-8',$row[2]);
@@ -112,12 +124,49 @@ class Flight
 					unset($row[25]);
 				// 1. Page preparation
 				
-					$content.= "<tr><td><a href=\"check_services_mysql.php?id=$row[0]\" > $counter</a></td>";
-				
-					foreach ($row as $key=>$value)
-						$content.= "<td>$value</td>";
-				
-				
+					$content.= "<tr><td>$counter</td>";
+					//$content.= "<tr><td><a href=\"check_services_mysql.php?id=$row[0]\" > $counter</a></td>";
+					
+					
+					$content.= "<td>$flightid_NAV</td>";
+					if($row[1])
+						$content.= "<td>|-></td>";
+					else 
+						$content.= "<td>->|</td>";	
+					$content.= "<td>$flight_num_in</td>";
+					
+					$content.= '<td>'.$time_fact->format('H:i:s').'</td>';
+					$content.= '<td>'.$row[4].'</td>';
+					$content.= '<td>'.$row[5].'</td>';
+					$content.= '<td>'.$row[6].'</td>';
+					$content.= '<td>'.$row[7].'</td>';
+					if (!$row[8]) 			
+						$content.= "<td> - </td>";
+					else
+						$content.='<td>'.$row[8].'</td>';
+					if (!$row[9]) 			
+						$content.= "<td> - </td>";
+					else
+						$content.='<td>'.$row[9].'</td>';
+					if (!$row[10]) 			
+						$content.= "<td> - </td>";
+					else
+						$content.='<td>'.$row[10].'</td>';
+					if (!$row[11]) 			
+						$content.= "<td> - </td>";
+					else
+						$content.='<td>'.$row[11].'</td>';
+					$content.= '<td>'.$row[13].'</td>';
+					$content.= '<td>'.$row[14].'</td>';
+					$content.= '<td>'.$owner.'</td>';
+					
+					$content.= '<td>'.$category.'</td>';	
+					$content.= '<td>'.$flight_num_out.'</td>';
+					$content.= '<td>'.$parked_at.'</td>';
+					if (!$row[16]) 			
+						$content.= "<td> - </td>";
+					else
+						$content.='<td> Да </td>';	
 					//Transfer to MySQL section
 				
 				// 2. Fill in passengers
@@ -154,15 +203,15 @@ class Flight
 						if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));
 					
 					// CLIENTS FILLIN (TEMPORARY)
-					/*
-					$transfer_clients='INSERT INTO clients
-								(id_NAV,name) 
-								VALUES
-								("'.$row[13].'","'.$owner.'")';
+					
+					//$transfer_clients='INSERT INTO clients
+					//			(id_NAV,name) 
+					//			VALUES
+					//			("'.$row[13].'","'.$owner.'")';
 						
-						$answsql=mysqli_query($db_server,$transfer_clients);
-						if(!$answsql) die("REPLACE into clients TABLE failed: ".mysqli_error($db_server));
-					*/
+					//	$answsql=mysqli_query($db_server,$transfer_clients);
+					//	if(!$answsql) die("REPLACE into clients TABLE failed: ".mysqli_error($db_server));
+					
 						// Services registry update
 						
 						$tsql_route_detail="SELECT [Resource No_],[Quantity (Fact)],[AODB Service Code] FROM dbo.[NCG\$AODB Route Detail] WHERE [Resource No_] <> '' AND [Route No_]=$flightid";
@@ -185,13 +234,13 @@ class Flight
 								
 						if(!$answsqlnext) die("DELETE in service_reg TABLE failed: ".mysqli_error($db_server));
 						
-						$content.= '<td><ul>';
+						//$content.= '<td><ul>';
 						while( $rownew = sqlsrv_fetch_array( $stmtnext, SQLSRV_FETCH_NUMERIC) )  
 						{ 
 
 							$rownew[0]=iconv('windows-1251','utf-8',$rownew[0]);
 				
-							$content.= '<li>'.$rownew[0].'</li>';						
+							//$content.= '<li>'.$rownew[0].'</li>';						
 							// 2. INSERT new
 							$transfer_mysql='INSERT INTO service_reg
 									(flight,service,quantity,aodb_msg) 
@@ -203,16 +252,18 @@ class Flight
 								if(!$answsqlnext) die("INSERT into TABLE failed: ".mysqli_error($db_server));
 			
 						}
-					$content.= '</ul></td>';
+					//$content.= '</ul></td>';
 					$content.= '</tr>';
 					$counter+=1;
 				}
+			}
 		}
-		$content.= '</table>';
+		$content.= '</tbody></table></div>';
 		//$content.='<footer><a href="localhost/avia/export_daily.php" > <img src="/avia/src/sap_small.png" alt="Export orders" title="Go" width="64" height="64"></a></footer>';
 	Show_page($content);
 	sqlsrv_free_stmt( $stmt);  
 	mysqli_close($db_server);
 sqlsrv_close($conn);
-	?>
+
+?>
 	

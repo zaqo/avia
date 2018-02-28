@@ -50,10 +50,12 @@ include ("header.php");
 								</div>
 					</div>
 					<div class="mb-3">
-						<label for="id_mu">Для детей</label>
-							<input type="checkbox" name="Servicedata[]" class="form-control" value="kid" '.$status.'/>
+						<div class="form-check">
+							<input  type="checkbox" id="Kids" name="Servicedata[]" class="form-check-input" value="kid" '.$status.'/>
+							<label class="form-check-label" for="Kids">Для детей</label>
+						</div>
 					</div>
-					<input type="hidden" name="Servicedata[]" value="valid" />
+					
 					
 					 <hr class="mb-4">
 						<button class="btn btn-primary btn-lg btn-block" type="submit">ВВОД</button>
