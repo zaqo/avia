@@ -19,32 +19,41 @@ include ("header.php");
 					if(!$answsqlcheck) die("LOOKUP into flights TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
 		$row = mysqli_fetch_row( $answsqlcheck );
-		$content.= '<table class="fullTab"><caption><b>Данные по рейсу № '.$row[3].'</b></caption><br>';
-		$content.= '<tr><th>Поле</th><th>Значение</th></tr>';
+		$content.= '<div class="container"><div class="card" style="width: 18rem;">
+						<div class="card-header">
+							Данные по рейсу # '.$row[3].'
+						</div>';
+		$content.= '<ul class="list-group list-group-flush">';
+		
 		// Iterating through the array
 		
-				
-				$content.= '<tr><td>ID:</td><td>'.$row[1].'</td></tr>';
-				$content.= '<tr><td>Дата:</td><td>'.$row[2].'</td></tr>';
-				$content.= '<tr><td>Номер рейса:</td><td>'.$row[3].'</td></tr>';
+				if ($row[11]) $pass_adults=$row[11];
+				else $pass_adults='-';
+				if ($row[12]) $pass_kids=$row[12];
+				else $pass_kids='-';
+				$content.= '<li class="list-group-item">ID: '.$row[1].'</li>';
+				$content.= '<li class="list-group-item">Дата: '.$row[2].'</li>';
+				$content.= '<li class="list-group-item">Номер рейса: '.$row[3].'</li>';
 				if($row[4]) $dir='ВЫЛЕТ';
 				else $dir='ПРИЛЕТ';
-				$content.= '<tr><td>Направление:</td><td>'.$dir.'</td></tr>';
-				$content.= '<tr><td>Бортовой Номер:</td><td>'.$row[7].'</td></tr>';
-				$content.= '<tr><td>Тип ВС:</td><td>'.$row[21].'</td></tr>';
+				$content.= '<li class="list-group-item">Направление: '.$dir.'</li>';
+				$content.= '<li class="list-group-item">Бортовой Номер: '.$row[7].'</li>';
+				$content.= '<li class="list-group-item">Тип ВС: '.$row[21].'</li>';
 				
-				$content.= '<tr><td>Макс.Взл.Масса:</td><td>'.$row[9].'</td></tr>';
+				$content.= '<li class="list-group-item">Макс.Взл.Масса: '.number_format($row[9], 0, ',', ' ').' кг.</li>';
 				if($row[6]) $heli='ДА';
 				else $heli='НЕТ';
-				$content.= '<tr><td>Вертолет:</td><td>'.$heli.'</td></tr>';
-				$content.= '<tr><td>Аэропорт:</td><td>'.$row[10].'</td></tr>';
-				$content.= '<tr><td>Пассажиры ВЗР:</td><td>'.$row[11].'</td></tr>';
-				$content.= '<tr><td>Пассажиры ДЕТИ:</td><td>'.$row[12].'</td></tr>';
-				$content.= '<tr><td>Владелец ВС:</td><td>'.$row[15].'</td></tr>';
-				$content.= '<tr><td>Категория полета:</td><td>'.$row[19].'</td></tr>';
-				$content.= '<tr><td>Время факт.:</td><td>'.$row[20].'</td></tr>';
-				$content.= '<tr><td>Импортировано:</td><td>'.$row[22].'</td></tr>';
-			$content.= '</table>';
+				$content.= '<li class="list-group-item">Вертолет: '.$heli.'</li>';
+				$content.= '<li class="list-group-item">Аэропорт: '.$row[10].'</li>';
+				$content.= '<li class="list-group-item">Пассажиры ВЗР: <span class="badge badge-primary badge-pill">'.$pass_adults.'</span></li>';
+				$content.= '<li class="list-group-item">Пассажиры ДЕТИ:<span class="badge badge-primary badge-pill"> '.$pass_kids.'</span></li>';
+				$content.= '<li class="list-group-item">Владелец ВС: '.$row[15].'</li>';
+				$content.= '<li class="list-group-item">Категория полета: '.$row[19].'</li>';
+				$content.= '<li class="list-group-item">Время факт.: '.$row[20].'</li>';
+				$content.= '<li class="list-group-item">Импортировано: <small>'.$row[22].'</small></li>';
+			$content.= '</li>';
+			$content.= '</ul>';
+			$content.= '</div></div>';
 			Show_page($content);
 		mysqli_close($db_server);
 		}

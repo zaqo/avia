@@ -67,9 +67,11 @@
 			
 	}
 	
-		$day  	 = $_POST['day'];
-		$month 	 = $_POST['month'];
-		$year  	 = $_POST['year'];
+		$input_date=$_POST['from'];
+		$day   = substr($input_date,0,2);
+		$month = substr($input_date,3,2);
+		$year  = substr($input_date,6,4);
+		
 		$carrier = $_POST['carrier'];	
 		
 		$input_d=array($year,$month,$day);
@@ -82,11 +84,16 @@
 		//----------------------------------------
 		// Top of the table
 		$content.= "<b>  Пары рейсов за:</b> $date <hr>";
-		$content.= '<table class="myTab"><caption><b>Данные о рейсах</b></caption><br>
-					<form id="form" method=post action=update_erp_pairs.php >
-					<col class="col1"><col class="col1"><col class="col2"><col class="col2"><col class="col2"><col class="col2"><col class="col3">
-					<tr><td><input type="checkbox" id="flights" onclick="checkIt();" checked/></td><th>№</th><th>FLIGHT->|</th><th>TIME</th><th>FLIGHT|-></th><th>TIME</th><th>КЛИЕНТ</th>
-					</tr>';
+		$content.= '<div class="container ml-5">';
+		$content.= '<form id="form" method=post action="update_erp_pairs.php"  >';
+		$content.= '<ul class="list-group">';
+		//$content.= '';
+		$content.='<li class="list-group-item flex-column align-items-start active" >
+						<div class="d-flex w-100 justify-content-between">
+							<h5 class="mb-1">Перечень</h5>
+							<small><input type="checkbox" id="flights" onclick="checkIt();" checked/></small>
+						</div>
+					</li>';
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
 			$db_server->set_charset("utf8");
@@ -118,9 +125,10 @@
 			if(strlen($nav_pair_id)==7)
 			{
 			//b. Look for the pair
-				$sqlfindpair='SELECT id,flight,owner,time_fact
+				$sqlfindpair='SELECT flights.id,flights.flight,flights.owner,flights.time_fact,clients.id,clients.hasLogo
 							FROM  flights 
-							WHERE id_NAV="'.$nav_pair_id.'" 
+							LEFT JOIN clients ON flights.owner_id=clients.id_NAV
+							WHERE flights.id_NAV="'.$nav_pair_id.'" 
 							AND sent_to_SAP IS NULL';
 				
 				$answsql1=mysqli_query($db_server,$sqlfindpair);
@@ -133,6 +141,13 @@
 					$flight_num_pair=$row_pair[1];
 					$customer=$row_pair[2];
 					$time_fact_pair=$row_pair[3];
+					//LOGO PREPARATION SECTION
+					$client_id=$row_pair[4];
+					$hasLogo=$row_pair[5];
+					if($hasLogo)
+						$logo_filename=$client_id.'.png';
+					else
+						$logo_filename='default_logo.png';
 				//c. Check if we have a record on it already	
 					$sqlfindrec="SELECT id,sent_to_SAP
 								FROM  flight_pairs 
@@ -145,12 +160,22 @@
 					{
 						$position=$rec_id[0];
 						//HERE CHECKBOXES FOR FLIGHTS
-						$content.="<tr>";
-						$content.= "<td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$position\" checked/></td>";//
-						$content.= "<td>$num</td>";
-						$content.= "<td><a href=\"show_flight.php?id=$in_id\">$flight_num</a></td><td>$time_fact</td>";
-						$content.= "<td><a href=\"show_flight.php?id=$out_id\">$flight_num_pair</a></td><td>$time_fact_pair</td>";
-						$content.="<td>$customer</td></tr>";
+						//$content.='<li class="list-group-item">';
+						//$content.= "<input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$position\" checked/>";//
+						//$content.= "$num";
+						//$content.= "<a href=\"show_flight.php?id=$in_id\">$flight_num</a>$time_fact";
+						//$content.= "<a href=\"show_flight.php?id=$out_id\">$flight_num_pair</a>$time_fact_pair";
+						//$content.="$customer</li>";
+						$content.='<li class="list-group-item flex-column align-items-start" >
+									<div class="d-flex w-100 justify-content-between">
+										<h5 class="mb-1">
+										<a href="show_flight.php?id='.$in_id.'">'.$flight_num.'</a> <small>'.$time_fact.'</small>
+											&#x21E2 <a href="show_flight.php?id='.$out_id.'">'.$flight_num_pair.'</a> <small>'.$time_fact_pair.' </small> 
+											<img src="/avia/src/'.$logo_filename.'" alt="Company Logo">
+											</h5>
+										<small><input type="checkbox" name="to_export[]" class="flights" value="$position" checked/></small>
+									</div>
+									</li>';
 					}
 					elseif(!$answsql2->num_rows) 
 					{	
@@ -166,12 +191,17 @@
 					
 						if(!$answsql3) die("Database INSERT TO flight_pairs table failed: ".mysqli_error($db_server));
 					//HERE CHECKBOXES FOR FLIGHTS
-						$content.="<tr>";
-						$content.= "<td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$position\" checked/></td>";//
-						$content.= "<td>$num</td>";
-						$content.= "<td><a href=\"show_flight.php?id=$in_id\">$flight_num</a></td><td>$time_fact</td>";
-						$content.= "<td><a href=\"show_flight.php?id=$out_id\">$flight_num_pair</a></td><td>$time_fact_pair</td>";
-						$content.="<td>$customer</td></tr>";
+						
+						$content.='<li class="list-group-item flex-column align-items-start" >
+									<div class="d-flex w-100 justify-content-between">
+										<h5 class="mb-1">
+										<a href="show_flight.php?id='.$in_id.'">'.$flight_num.'</a> <small>'.$time_fact.'</small>
+											&#x21E2 <a href="show_flight.php?id='.$out_id.'">'.$flight_num_pair.'</a> <small>'.$time_fact_pair.' </small> 
+											<img src="/avia/src/'.$logo_filename.'" alt="Company Logo">
+											</h5>
+										<small><input type="checkbox" name="to_export[]" class="flights" value="$position" checked/></small>
+									</div>
+									</li>';
 					
 					}
 					else 
@@ -197,7 +227,8 @@
 		}
 		
 		
-		$content.= '<tr><td colspan="17"><input type="submit" name="send" class="send" value="ВВОД"></td></tr></form></table>';
+		$content.= '<button type="submit" class="btn btn-primary mb-2">ВВОД</button></form>';
+		$content.= '</div>';
 	Show_page($content);
 	mysqli_close($db_server);
 ?>
