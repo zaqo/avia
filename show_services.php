@@ -18,9 +18,9 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into services TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
-		$content.= '<h2>Коды услуг</h2>';
+		$content.= '<h2>Перечень услуг</h2>';
 		$content.= '<div class="table-responsive">';
-		$content.= '<table class="table table-striped table-sm">';
+		$content.= '<table class="table table-striped table-sm ml-1">';
 		$content.= "<thead>";
 		$content.= '<tr><th>№ </th><th>Услуга</th><th>Код NAV</th><th>Код SAP</th><th>Ед.изм</th>
 					<th>Для детей</th><th>Действует</th></tr></thead>';

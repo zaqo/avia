@@ -94,8 +94,8 @@
 									<div class="dropdown-menu dropdown-menu-right" aria-labelledby="clients">
 										<a class="dropdown-item active" href="show_clients.php">Перечень</a>
 										<a class="dropdown-item" href="create_client.php">Новый клиент</a>
-										<a class="dropdown-item" href="show_conditions.php">Контракты</a>
-										<a class="dropdown-item" href="create_condition.php">Создать контракт</a>
+										<a class="dropdown-item" href="show_contracts.php">Контракты</a>
+										<a class="dropdown-item" href="create_contract.php">Создать контракт</a>
 									</div>
 								</li>
 								<li class="nav-item dropdown">

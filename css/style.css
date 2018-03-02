@@ -502,3 +502,10 @@ span.discount {
 }
 /* My div */
 .center {text-align:center;}
+/*My arrow in Export*/
+.my_arrow {
+	color: blue;
+	font-size: 30px;
+    font-family: 'Open Sans', sans-serif, Arial;
+	
+}

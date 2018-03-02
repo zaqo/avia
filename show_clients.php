@@ -23,10 +23,15 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into services TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
-		$content.= "<table><caption><b>Клиенты</b></caption><br>";
+		
+		$content.= '<h2>Перечень авиакомпаний</h2>';
+		$content.= '<div class="table-responsive">';
+		$content.= '<table class="table table-striped table-hover table-sm ml-3 mr-1 mt-1">';
+		$content.= '<thead>';
 		$content.= '<tr><th>ID</th><th>Название компании</th><th>Код NAV</th><th>Код SAP</th>
 					<th>Контракт</th><th>Пакеты услуг</th><th>Шаблоны услуг</th><th></th>
 					</tr>';
+		$content.= '<tbody>';
 		// Iterating through the array
 		$counter=1;
 		$rec_prev=0;
@@ -76,7 +81,9 @@ include ("header.php");
 		$content.='<td>'.$content_pack.'</td>';
 		$content.='<td>'.$content_templ.'</td>';
 		$content.= "<td><a href=\"edit_client.php?id=$rec_prev\">Редактировать</a></td></tr>";
+		$content.= '</tbody>';
 		$content.= '</table>';
+		$content.= '</div>';
 	Show_page($content);
 	mysqli_close($db_server);
 	

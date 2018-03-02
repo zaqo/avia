@@ -1,10 +1,12 @@
 ﻿<?php require_once 'login_avia.php';
 // SHOWS CONTENT OF THE FLIGHT
 include ("header.php"); 
-	
+	//var_dump($_REQUEST);
 		if(isset($_REQUEST['id']))
 		{
 			$id		= $_REQUEST['id'];
+			$date	= $_REQUEST['from'];
+			$carrier=$_REQUEST['carrier'];
 			$content="";
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
@@ -51,7 +53,7 @@ include ("header.php");
 				$content.= '<li class="list-group-item">Категория полета: '.$row[19].'</li>';
 				$content.= '<li class="list-group-item">Время факт.: '.$row[20].'</li>';
 				$content.= '<li class="list-group-item">Импортировано: <small>'.$row[22].'</small></li>';
-			$content.= '</li>';
+			$content.= '<li class="list-group-item active"><a class="nav-link text-white" href="/avia/pairs_by_day.php?from='.$date.'&carrier='.$carrier.'">Назад</a></li>';
 			$content.= '</ul>';
 			$content.= '</div></div>';
 			Show_page($content);

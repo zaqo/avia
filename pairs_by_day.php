@@ -67,12 +67,13 @@
 			
 	}
 	
-		$input_date=$_POST['from'];
+		$input_date=$_REQUEST['from'];
 		$day   = substr($input_date,0,2);
 		$month = substr($input_date,3,2);
 		$year  = substr($input_date,6,4);
 		
-		$carrier = $_POST['carrier'];	
+		if (isset($_REQUEST['carrier'])) $carrier = $_REQUEST['carrier'];	
+		else $carrier=0;
 		
 		$input_d=array($year,$month,$day);
 	
@@ -107,8 +108,10 @@
 						AND direction=0 AND sent_to_SAP IS NULL 
 						AND flight LIKE "'.$carrier.'%"';
 		else
-		 $textsql='SELECT id,id_NAV,linked_to,flight,time_fact
-						FROM  flights WHERE date="'.$date.'" AND direction=0 AND sent_to_SAP IS NULL';
+		 $textsql='SELECT flights.id,id_NAV,linked_to,flight,time_fact,airports.name_rus
+					FROM  flights
+					LEFT JOIN airports ON flights.airport=airports.id
+					WHERE date="'.$date.'" AND direction=0 AND sent_to_SAP IS NULL';
 				
 		$answsql=mysqli_query($db_server,$textsql);
 		if(!$answsql) die("Database SELECT TO flights table failed: ".mysqli_error($db_server));	
@@ -120,14 +123,16 @@
 			$nav_id=$row[1];
 			$nav_pair_id=substr($row[2],-7);
 			$flight_num=$row[3];
-			$time_fact=$row[4];
+			$time_fact=substr($row[4],0,5);
+			$airport_in=$row[5];
 			if(!$nav_pair_id) echo "WARNING: FLIHT ID of linked flight is shorter than expected! - $nav_pair_id <br/>";
 			if(strlen($nav_pair_id)==7)
 			{
 			//b. Look for the pair
-				$sqlfindpair='SELECT flights.id,flights.flight,flights.owner,flights.time_fact,clients.id,clients.hasLogo
+				$sqlfindpair='SELECT flights.id,flights.flight,flights.owner,flights.time_fact,clients.id,clients.hasLogo,airports.name_rus
 							FROM  flights 
 							LEFT JOIN clients ON flights.owner_id=clients.id_NAV
+							LEFT JOIN airports ON flights.airport=airports.id
 							WHERE flights.id_NAV="'.$nav_pair_id.'" 
 							AND sent_to_SAP IS NULL';
 				
@@ -140,10 +145,11 @@
 					$out_id=$row_pair[0];
 					$flight_num_pair=$row_pair[1];
 					$customer=$row_pair[2];
-					$time_fact_pair=$row_pair[3];
+					$time_fact_pair=substr($row_pair[3],0,5);
 					//LOGO PREPARATION SECTION
 					$client_id=$row_pair[4];
 					$hasLogo=$row_pair[5];
+					$airport_out=$row_pair[6];
 					if($hasLogo)
 						$logo_filename=$client_id.'.png';
 					else
@@ -168,12 +174,25 @@
 						//$content.="$customer</li>";
 						$content.='<li class="list-group-item flex-column align-items-start" >
 									<div class="d-flex w-100 justify-content-between">
+									<div class="collapse" id="Toggle'.$num.'">
+										<div class="bg-light p-2">
+											<span class="text-muted"><small> приб.: '.$time_fact.'</small></span>
+						
+											<span class="text-muted"><small>отпр.: '.$time_fact_pair.'</small></span>
+										</div>
+									</div>
+									 <nav class="navbar navbar-light bg-light">
+										<button class="btn btn-outline-success" type="button" data-toggle="collapse" data-target="#Toggle'.$num.'" aria-controls="Toggle'.$num.'" aria-expanded="false" aria-label="Info">t</button>
+									</nav>
+									
 										<h5 class="mb-1">
-										<a href="show_flight.php?id='.$in_id.'">'.$flight_num.'</a> <small>'.$time_fact.'</small>
-											&#x21E2 <a href="show_flight.php?id='.$out_id.'">'.$flight_num_pair.'</a> <small>'.$time_fact_pair.' </small> 
-											<img src="/avia/src/'.$logo_filename.'" alt="Company Logo">
-											</h5>
+										<a href="show_flight.php?id='.$in_id.'&from='.$input_date.'&carrier='.$carrier.'">'.$flight_num.'</a> <span class="text-muted"><small>'.$airport_in.'</small></span>
+											</h5><span  class="my_arrow">&#x21E2</span>
+										<h5 class="mb-1"> <a href="show_flight.php?id='.$out_id.'&from='.$input_date.'&carrier='.$carrier.'">'.$flight_num_pair.'</a> <span class="text-muted"><small>'.$airport_out.'</small></span></h5> 
+										<span class="mb-1">	<img src="/avia/src/'.$logo_filename.'" alt="Company Logo"></span>
+											
 										<small><input type="checkbox" name="to_export[]" class="flights" value="$position" checked/></small>
+									
 									</div>
 									</li>';
 					}
@@ -195,8 +214,8 @@
 						$content.='<li class="list-group-item flex-column align-items-start" >
 									<div class="d-flex w-100 justify-content-between">
 										<h5 class="mb-1">
-										<a href="show_flight.php?id='.$in_id.'">'.$flight_num.'</a> <small>'.$time_fact.'</small>
-											&#x21E2 <a href="show_flight.php?id='.$out_id.'">'.$flight_num_pair.'</a> <small>'.$time_fact_pair.' </small> 
+										<a href="show_flight.php?id='.$in_id.'&from='.$input_date.'&carrier='.$carrier.'">'.$flight_num.'</a> <small>'.$time_fact.'</small>
+											&#x21E2 <a href="show_flight.php?id='.$out_id.'&from='.$input_date.'&carrier='.$carrier.'">'.$flight_num_pair.'</a> <small>'.$time_fact_pair.' </small> 
 											<img src="/avia/src/'.$logo_filename.'" alt="Company Logo">
 											</h5>
 										<small><input type="checkbox" name="to_export[]" class="flights" value="$position" checked/></small>
