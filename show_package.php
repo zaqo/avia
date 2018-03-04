@@ -24,10 +24,15 @@ include ("header.php");
 			$answsqlname=mysqli_query($db_server,$check_name);
 			if(!$answsqlname) die("LOOKUP into packages TABLE failed: ".mysqli_error($db_server));
 			$pack_name=mysqli_fetch_row( $answsqlname );
-			
-				$content.= '<table><caption><b>Шаблон услуг: '.$pack_name[0].'</b></caption><br>';
-				$content.= '<tr><th>№ </th><th>Услуга</th><th>Описание</th><th>Везде</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th><th>Направление</th><th>Дата</th></tr>';
-			
+			$content.= '<div class="container  ml-3">';
+				$content.= '<h2>Шаблон услуг: '.$pack_name[0].'</h2>';
+		
+		$content.= '<table class="table table-striped table-sm ml-1 mr-3">';
+		$content.= "<thead>";
+		$content.= '<tr><th rowspan="2">№ </th><th rowspan="2">ID</th><th rowspan="2">Услуга</th><th rowspan="2">Напр-e</th><th colspan="3" style="text-align:center">Применимость</th><th rowspan="2" style="text-align:center">Дата</th> </tr>';
+		$content.= '<tr><th>Везде</th><th style="text-align:center">Вкл Аэропорты</th><th style="text-align:center">Искл Аэропорты</th></tr></thead>';
+		$content.= "<tbody>";
+				
 			// GO LINE BY LINE
 			
 			$check_in_mysql="SELECT package_content.id,service_id,scope,date,services.description,services.id_NAV,direction
@@ -83,17 +88,21 @@ include ("header.php");
 					
 				$content.= "<tr><td>$counter</td>";
 				$content.= "<td>$service_idNAV</td><td>$service_name</td>";
+				$content.= "<td>$dir_txt</td>";
 				$content.= "<td>$scope_txt</td>";
 				$content.= "<td>$scope_incl</td>";
 				$content.= "<td>$scope_excl</td>";
-				$content.= "<td>$dir_txt</td>";
+				
 				$content.= "<td>$date</td>";
 				$content.= '</tr>';
 				
 			$counter+=1;
 			
 		}
-			$content.= '</table>';
+		$content.= '</tbody>';
+		$content.= '</table>';
+		
+		$content.= '</div>';
 			Show_page($content);
 		mysqli_close($db_server);
 		}

@@ -71,7 +71,7 @@
 										<a class="dropdown-item" href="create_service.php">Создать Услугу</a>
 										<a class="dropdown-item" href="show_bundles_all.php">Пакеты</a>
 										<a class="dropdown-item" href="create_bundle.php">Создать пакет</a>
-										<a class="dropdown-item" href="check_packages.php">Шаблоны</a>
+										<a class="dropdown-item" href="show_packages.php">Шаблоны</a>
 										<a class="dropdown-item" href="create_package.php">Создать шаблон</a>
 									</div>
 								</li>

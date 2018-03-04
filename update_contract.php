@@ -8,16 +8,18 @@ include ("login_avia.php");
  
 	
 	if(isset($_REQUEST['id'])) $id		= $_REQUEST['id'];
-	if(isset($_REQUEST['nav'])) $nav_id	= $_REQUEST['nav'];
+	
 	if(isset($_REQUEST['sap'])) $sap_id	= $_REQUEST['sap'];
 	
 	$isValid= 0;
+	$isBase	= 0;
 	if (isset($_REQUEST['Servicedata']))
 	{
 		$s_dat	= $_REQUEST['Servicedata'];
 		foreach ($s_dat as $value)
 		{
 			if($value=='valid') $isValid	= 1;
+			if($value=='base') $isBase	= 1;
 		}
 	}
 		$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
@@ -25,12 +27,10 @@ include ("login_avia.php");
 		If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 		mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 			
-		if (isset($id))		
-			$textsql='UPDATE contracts SET id_NAV="'.$nav_id.'",id_SAP="'.$sap_id.'",isValid="'.$isValid.'" WHERE id="'.$id.'"';
-		else
+		
 			$textsql='INSERT INTO contracts
-						(id_NAV,id_SAP,isValid)
-						VALUES( "'.$nav_id.'",'.$sap_id.','.$isValid.')';
+						(client_id,id_SAP,isValid,isBased)
+						VALUES("'.$id.'","'.$sap_id.'","'.$isValid.'","'.$isBase.'")';
 		//echo $textsql;				
 		$answsql=mysqli_query($db_server,$textsql);
 		if(!$answsql) die("Database UPDATE failed: ".mysqli_error($db_server));

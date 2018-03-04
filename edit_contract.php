@@ -10,9 +10,10 @@ include ("header.php");
 			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
-			$check_in_mysql="SELECT id,id_NAV,id_SAP,isValid
+			$check_in_mysql="SELECT contracts.id,clients.id_NAV,contracts.id_SAP,contracts.isValid
 								FROM contracts
-								WHERE id=$id";
+								LEFT JOIN clients ON clients.id=contracts.client_id
+								WHERE contracts.id=$id";
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into contracts TABLE failed: ".mysqli_error($db_server));
@@ -29,18 +30,38 @@ include ("header.php");
 					$status_valid.= 'checked';
 		 
 		// Top of the table
-		
-				
-		$content.= '<form id="form" method=post action=update_contract.php >
-					<table><caption><b>Карточка контракта</b></caption><br>
-					<tr><th>Поле</th><th>Значение</th></tr>
-					<tr><td>Код NAV:</td><td><input type="text" value="'.$nav_id.'" name="nav" /></td></tr>
-					<tr><td>Код SAP:</td><td><input type="text" value="'.$sap_id.'" name="sap" /></td></tr>
-					<tr><td>Действует:</td><td><input type="checkbox" name="Servicedata[]" class="name" value="valid" '.$status_valid.'/></td></tr>
-					<tr><td colspan="2"><p><input type="hidden" value="'.$id.'" name="id">
-					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
-					</table></form>';
-		
+		$content.= '<div class="col-md-8 order-md-1">
+						<h4 class="mb-3">Карточка контракта</h4>';
+		$content.= '<form id="form" method="post" action="update_contract.php" class="needs-validation" novalidate>
+					
+					<div class="mb-3">
+						<label for="id_NAV">Код NAV </label>
+							<input type="text" class="form-control" id="nav" name="nav" value="'.$nav_id.'" placeholder="A0000000">
+								<div class="invalid-feedback">
+									Введите правильное значение идентификатора.
+								</div>
+					</div>
+					<div class="mb-3">
+						<label for="id_SAP">Код SAP</label>
+							<input type="text" class="form-control" id="sap" name="sap" value="'.$sap_id.'" placeholder="900000000">
+								<div class="invalid-feedback">
+									Введите правильное значение идентификатора.
+								</div>
+					</div>
+					
+					<div class="mb-3">
+						<div class="form-check">
+							<input  type="checkbox" id="Valid" name="Servicedata[]" class="form-check-input" value="valid" '.$status_valid.'/>
+							<label class="form-check-label" for="Valid">Действует</label>
+						</div>
+					</div>
+					
+					
+					 <hr class="mb-4">
+						<input type="hidden" value="'.$id.'" name="id">
+						<button class="btn btn-primary btn-lg btn-block" type="submit">ВВОД</button>
+					</form>';		
+			$content.= '</div>';
 		
 	Show_page($content);
 	mysqli_close($db_server);

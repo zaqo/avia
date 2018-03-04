@@ -13,6 +13,7 @@ include ("login_avia.php");
 	
 	if(isset($_REQUEST['desc'])) $desc	= $_REQUEST['desc'];
 	if(isset($_REQUEST['val'])) $svs	= $_REQUEST['val'];
+	if(isset($_REQUEST['qt'])) $qty	= $_REQUEST['qt'];
 	echo '<pre>';
 	//var_dump($_REQUEST);
 	//var_dump ($svs);
@@ -37,15 +38,17 @@ include ("login_avia.php");
 		if(!$answsql) die("Database UPDATE failed: ".mysqli_error($db_server));
 		$svs_id=$db_server->insert_id;
 		// RECORD SERVICES
+		$cursor=0;
 		foreach($svs as $value)
 		{
 			if($value)
 			{
-				$reg_bundle="INSERT INTO bundle_content
-						(bundle_id,service_id)
-						VALUES( $svs_id,$value)";
+				$reg_bundle='INSERT INTO bundle_content
+						(bundle_id,service_id,quantity)
+						VALUES( "'.$svs_id.'","'.$value.'","'.$qty[$cursor].'")';
 				$answsql=mysqli_query($db_server,$reg_bundle);
 				if(!$answsql) die("UPDATE of bundle_reg table failed: ".mysqli_error($db_server));
+			$cursor+=1;
 			}	
 		}
 	echo '<script>history.go(-1);</script>';	

@@ -13,14 +13,19 @@ include ("header.php");
 			$check_in_mysql="SELECT contracts.id,clients.name,contracts.id_SAP,contracts.isValid,date_booked,isBased
 								FROM contracts
 								LEFT JOIN clients ON clients.id=contracts.client_id
-								WHERE 1";
+								WHERE 1 ORDER BY clients.name";
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into services TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
-		$content.= "<table><caption><b>Контракты SAP</b></caption><br>";
+		
+		$content.= '<h2>Перечень контрактов</h2>';
+		$content.= '<div class="table-responsive">';
+		$content.= '<table class="table table-striped table-hover table-sm ml-3 mr-9">';
+		$content.= "<thead>";
 		$content.= '<tr><th>№ </th><th>Компания</th><th>Контракт</th>
-					<th>Действует</th><th>Базирование</th><th>Дата ред.</th></tr>';
+					<th>Базирование</th><th>Действует</th><th>Дата ред.</th></tr></thead>';
+		$content.= "<tbody>";
 		// Iterating through the array
 		$counter=1;
 		
@@ -38,11 +43,11 @@ include ("header.php");
 				$content.= "<td>$sap_id</td>";
 				
 				
-				if ($row[3])
+				if ($row[5])
 					$content.= "<td>Да</td>";
 				else
 					$content.= "<td>Нет</td>";
-				if ($row[5])
+				if ($row[3])
 					$content.= "<td>Да</td>";
 				else
 					$content.= "<td>Нет</td>";
@@ -52,7 +57,9 @@ include ("header.php");
 			$counter+=1;
 			
 		}
+		$content.= '</tbody>';
 		$content.= '</table>';
+		$content.= '</div>';
 	Show_page($content);
 	mysqli_close($db_server);
 	

@@ -198,9 +198,7 @@ color: red;
 	background: url(delete.png) repeat;
 	background-position: center left;
 	background-repeat: no-repeat;
-	position:absolute;
-	top: -5px;
-	left: 320px;
+	
 }
 .add {
 	position:relative;

@@ -29,7 +29,7 @@ include ("header.php");
 						$selected='';
 						$bundles.='<option value="'.$cls_in[0].'" '.$selected.'>'.$cls_in[1].'</option>';
 					}
-				$bundles='<select name="bundle"><option value="" > -- нет --- </option>'.$bundles.'</select>';
+				$bundles='<select name="bundle" id="bundle" class="custom-select d-block w-100"><option value="" > -- нет --- </option>'.$bundles.'</select>';
 			  //------------------------------------------------//
 			 //			PREPARE LIST OF TEMPLATES			   //
 			//------------------------------------------------//
@@ -47,24 +47,65 @@ include ("header.php");
 						$selected='';
 						$templates.='<option value="'.$tmp_in[0].'" '.$selected.'>'.$tmp_in[1].'</option>';
 					}
-				$templates='<select name="template"><option value="" > -- нет --- </option>'.$templates.'</select>';	
+				$templates='<select name="template" id="template" class="custom-select d-block w-100"><option value="" > -- нет --- </option>'.$templates.'</select>';	
 		// Top of the table
 				
-		$content.= '<form id="form" method=post action=update_client.php >
-					<table class="fullTab"><caption><b>Карточка клиента</b></caption><br>
-					<tr><th>Поле</th><th>Значение</th></tr>
-					
-					<tr><td>Код NAV:</td><td><input type="text" value="" name="nav_id" placeholder="К00000"/></td></tr>
-					<tr><td>Название:</td><td><input type="text" value="" name="name" placeholder="Авиакомпания" /></td></tr>
-					<tr><td>ID (SAP ERP):</td><td><input type="number" value="" name="cl_id_SAP" min="0" max="99999999" step="1" placeholder="25000000" /></td></tr>
-					<tr><td>CONTRACT ID (SAP ERP):</td><td><input type="number" value="" name="contract_id" min="0" max="99999999" step="1"  placeholder="40000000"/></td></tr>
-					<tr><td>Российская а/к:</td><td><input type="checkbox" name="isRus" class="name" value="1" /></td></tr>
-					<tr><td>Базирование:</td><td><input type="checkbox" name="isBased" class="name" value="1" /></td></tr>
-					<tr><td>Пакет услуг:</td><td>'.$bundles.'</td></tr>
-					<tr><td>Шаблоны:</td><td>'.$templates.'</td></tr>
-					<tr><td colspan="2"><p>
-					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
-					</table></form>';
+		$content.= '<div class="col-md-8 order-md-1">
+						<h4 class="mb-3">Новая авиакомпания</h4>';
+		$content.= '<form id="form" method=post action=update_client.php class="needs-validation" novalidate>';
+		$content.='<div class="mb-3">
+						<label for="id_NAV">Код NAV </label>
+							<input type="text" class="form-control" id="nav" name="nav_id" placeholder="K00000">
+								<div class="invalid-feedback">
+									Введите правильное значение идентификатора.
+								</div>
+					</div>
+					<div class="mb-3">
+						<label for="name">Название</label>
+							<input type="text" class="form-control" id="name" name="name" placeholder="авиакомпания">
+								<div class="invalid-feedback">
+									Введите правильное значение идентификатора.
+								</div>
+					</div>
+					<div class="mb-3">
+						<label for="id_SAP">Идентификатор SAP</label>
+							<input type="number" class="form-control" value="" id="id_SAP" name="cl_id_SAP" min="0" max="99999999" step="1" placeholder="25000000" />
+					</div>
+					<div class="mb-3">
+						<label for="id_contr">ID контракта</label>
+							<input type="number" id="id_contr" value="" class="form-control" name="contract_id" min="0" max="99999999" step="1"  placeholder="40000000"/>
+								<div class="invalid-feedback">
+									Введите правильное значение идентификатора.
+								</div>
+					</div>
+					<div class="mb-3">
+						<div class="form-check">
+							<input type="checkbox" name="isRus" class="name" class="form-check-input" value="1" />
+							<label class="form-check-label" for="isRus">Poccийская а/к</label>
+						</div>
+					</div>
+					<div class="mb-3">
+						<div class="form-check">
+							<input type="checkbox" name="isBased" class="name" class="form-check-input" value="1" />
+							<label class="form-check-label" for="isBased">Базирование</label>
+						</div>
+					</div>
+					<div class="mb-3">
+						<div class="form-check">
+							<label class="form-check-label" for="bundle">Пакет</label>'.$bundles.'
+							
+						</div>
+					</div>
+					<div class="mb-3">
+						<div class="form-check">
+							 <label class="form-check-label" for="template">Шаблон</label> '.$templates.'
+							
+						</div>
+					</div>
+					 <hr class="mb-4">
+						<button class="btn btn-primary btn-lg btn-block" type="submit">ВВОД</button>
+					</form>';
+		$content.= '</div>';
 		
 		
 	Show_page($content);
