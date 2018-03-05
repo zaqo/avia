@@ -15,13 +15,21 @@ include ("header.php");
 								LEFT JOIN clients ON client_id=clients.id 
 								LEFT JOIN discount_ind_content ON discounts_individual.id=discount_ind_content.discount_id AND discount_ind_content.isValid
 								LEFT JOIN discount_conditions ON discount_conditions.id=discount_ind_content.condition_id
-								WHERE discounts_individual.isValid=1';
+								WHERE discounts_individual.isValid=1 ORDER BY clients.name';
 					
 					$answsqlcheck=mysqli_query($db_server,$check_individual);
 					if(!$answsqlcheck) die("LOOKUP into discounts_individual TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
-		$content.= "<table><caption><b>Скидки для авиакомпаний</b></caption><br>";
-		$content.= '<tr><th>№ </th><th>Название</th><th>Клиент</th><th>Скидка,%</th><th>Условие</th><th>С:</th><th>ПО:</th><th></th><th></th><th></th></tr>';
+		$content.= '<div class="container mt-2">';
+		$content.= '<h2>Скидки </h2>';
+		$content.= '<span> (на компанию)</span>';
+		$content.= '<div class="table">';
+		$content.= '<table class="table table-striped table-sm ">';
+		$content.= "<thead>";
+		$content.= '<tr><th>№ </th><th>Клиент</th><th>Название</th><th>Скидка,%</th><th>Условие</th><th>С:</th><th>ПО:</th>
+					<th></th><th></th><th></th></tr>';
+		$content.= "<tbody>";
+		
 		// Iterating through the array
 		$counter=1;
 		
@@ -41,8 +49,9 @@ include ("header.php");
 				$client=$row[6];
 				$cond=$row[7];
 				$content.= "<tr><td>$counter</td>";
+				$content.= "<td>$client</td>";
 				$content.= "<td><a href=\"show_discount.php?id=$rec_id\">$name</a></td>";
-				$content.= "<td>$client</td><td>$disc_val</td>";
+				$content.= "<td>$disc_val</td>";
 				$content.= "<td>$cond</td>";
 				$content.= "<td>$date_fr_show</td><td>$date_to_show</td>";
 				$content.= '<td><a href="add_condition.php?id='.$rec_id.'&isGroup=0">Изменить условия</a></td>';
@@ -51,7 +60,10 @@ include ("header.php");
 			$counter+=1;
 			
 		}
+		$content.= '</tbody>';
 		$content.= '</table>';
+		$content.= '</div>';
+		$content.= '</div>';
 		
 		// GROUP DISCOUNTS
 		$check_group='SELECT discounts_group.id,discounts_group.name,discounts_group.discount_val,
@@ -65,9 +77,16 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_group);
 					if(!$answsqlcheck) die("LOOKUP into discounts_group TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
-		$content.= "<table><caption><b>Групповые Скидки</b></caption><br>";
-		$content.= '<tr><th>№ </th><th>Название</th><th>Группа</th><th>Скидка,%</th><th>Условие</th><th>С:</th><th>ПО:</th><th>Порядок</th><th></th><th></th><th></th></tr>';
-		// Iterating through the array
+		$content.= '<div class="container mt-2">';
+		$content.= '<h2>Скидки </h2>';
+		$content.= '<span> (групповые)</span>';
+		$content.= '<div class="table">';
+		$content.= '<table class="table table-striped table-sm ">';
+		$content.= "<thead>";
+		$content.= '<tr><th>№ </th><th>Название</th><th>Группа</th><th>Скидка,%</th><th>Условие</th><th>С:</th><th>ПО:</th>
+					<th>Порядок</th><th></th><th></th></tr>';
+		$content.= "<tbody>";
+		
 		$counter=1;
 		
 		while( $row = mysqli_fetch_row( $answsqlcheck ))  
@@ -109,7 +128,10 @@ include ("header.php");
 			$counter+=1;
 			
 		}
+		$content.= '</tbody>';
 		$content.= '</table>';
+		$content.= '</div>';
+		$content.= '</div>';
 		
 		
 	Show_page($content);
