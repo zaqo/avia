@@ -6,24 +6,35 @@ include ("header.php");
 		{
 			$id		= $_REQUEST['id'];
 			$content="";
+			$content_list="";
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
 			$db_server->set_charset("utf8");
 			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 		
-			$check_in_mysql="SELECT date_set,composition,name_rus,from_val,to_val,enum_of_values,discount_conditions.condition_id 
+			$check_in_mysql="SELECT date_set,composition,name_rus,from_val,to_val,enum_of_values,discount_conditions.condition_id,discounts_individual.name
 							FROM discount_ind_content 
-							LEFT JOIN discount_conditions 
-							ON discount_ind_content.condition_id=discount_conditions.id 
+							LEFT JOIN discount_conditions ON discount_ind_content.condition_id=discount_conditions.id 
+							LEFT JOIN discounts_individual ON discounts_individual.id=discount_ind_content.discount_id
 							WHERE discount_id=$id AND discount_conditions.isValid=1 AND discount_ind_content.isValid=1
 							ORDER BY sequence";
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into packages TABLE failed: ".mysqli_error($db_server));
 		// Top of the conditions table
-		$content.= '<table class="fullTab"><caption><b>Условия предоставления скидки №'.$id.'</b></caption><br>';
-		$content.= '<tr><th>№ </th><th>Название</th><th>От:</th><th>До:</th><th>Перечисление</th><th>Условие</th><th>Дата</th></tr>';
+		
+		$content.= '<div class="container">';
+		$content.= '<div class="row">';
+			$content.= '<div class="col-sm-6">';
+				$content.= '<div class="card mt-5" style="width: 18rem;">
+						<div class="card-header">
+							Скидка: # '.$id.'
+						</div>';
+					$content.= '<ul class="list-group list-group-flush">';
+		
+		
+		//$content.= '<tr><th>№ </th><th>Название</th><th>От:</th><th>До:</th><th>Перечисление</th><th>Условие</th><th>Дата</th></tr>';
 		// Iterating through the array
 		$counter=1;
 		
@@ -40,6 +51,7 @@ include ("header.php");
 				
 				$enum=$row[5];
 				$cond=$row[6];
+				$disc_name=$row[7];
 				// 
 				$cond_str='';	
 				switch($cond)
@@ -70,24 +82,37 @@ include ("header.php");
 						break;
 				}
 					
-				$content.= '<tr><td>'.$counter.'</td>';
-				$content.= "<td>$name_rus</td>";
-				$content.= "<td>$from</td>";
-				$content.= "<td>$to</td>";
-				$content.= "<td>$enum</td>";
-				
-				$content.= "<td>$cond_str</td>";
-				
-				$content.= "<td>$date_set</td>";
-				$content.= '</tr>';
-				
-				$counter+=1;
-			
+				//$content.= '<li class="list-group-item">';
+					//$content.= '<span>'.$counter.'</span>';
+					$content_list.= '<li class="list-group-item">Условие: '.$name_rus.'</li>';
+					$content_list.= '<li class="list-group-item">Значение: ';
+					if($from) 
+					{	
+						$content_list.=$from;
+						if($to) ' - '.$to;
+					}
+					else if($enum)
+					$content_list.=$enum;
+					$content_list.='</li>';
+	
+					$content_list.= '<li class="list-group-item">Сравнение: '.$cond_str.'</li>';
+					$content_list.= '<li class="list-group-item">Дата: '.$date_set.'</li>';
+					
+					$counter+=1;
 			}
-			$content.= '</table><hr><br/>';
+			$content.= '<li class="list-group-item active"> Название: '.$disc_name.'</li>';
+			$content.= $content_list;
+			$content.= '</ul>';
+			$content.= '</div>';
+			$content.= '</div>';
+			$content.= '<div class="col-sm-6">';
 			// Top of the services table
-		$content.= '<h1><b>Услуги на которые распространяется скидка</b></h1><table class="fullTab"><br>';
-		$content.= '<tr><th>№ </th><th>Название</th><th>ID</th></tr>';
+				$content.= '<div class="card mt-5" style="width: 18rem;">
+						<div class="card-header">
+							Действие Скидки: # '.$id.'
+						</div>';
+				$content.= '<ul class="list-group list-group-flush">';
+		
 		
 		$check_services="SELECT discounts_ind_reg.id,services.id_NAV,services.description 
 							FROM discounts_ind_reg 
@@ -108,16 +133,20 @@ include ("header.php");
 				$name_serv_rus=$row_serv[2];
 				
 					
-				$content.= '<tr><td>'.$counter.'</td>';
-				$content.= "<td>$name_serv_rus</td>";
-				$content.= "<td>$id_NAV</td>";
+				$content.= '<li class="list-group-item">'.$counter.'. ';
+				$content.= "<span>$id_NAV</span> ";
+				$content.= " <span>$name_serv_rus</span>";
 				
-				$content.= '</tr>';
+				
+				$content.= '</li>';
 				
 				$counter+=1;
 			
 			}
-			$content.= '</table>';
+			$content.= '</ul>';
+			$content.= '</div>';
+			$content.= '</div>';
+			$content.= '</div>';
 			//And now SHOW
 			Show_page($content);
 		mysqli_close($db_server);
