@@ -23,6 +23,7 @@
 			<script type="text/javascript" src="/avia/js/bootstrap.min.js"></script>
 			<script type="text/javascript"  src="/avia/js/myFunctions.js"></script>
 			<script type="text/javascript"  src="/avia/js/addfield.js"></script>
+			<script src="/avia/js/calender.js" type="text/javascript"></script>
 <?php
 	include_once 'functions.php';
 	
@@ -82,7 +83,7 @@
 									<div class="dropdown-menu dropdown-menu-right" aria-labelledby="discounts">
 										<a class="dropdown-item active" href="show_discounts_all.php">Перечень</a>
 										<a class="dropdown-item" href="create_discount_grp.php">Создать Скидку | Группа</a>
-										<a class="dropdown-item" href="reate_discount_ind.php">Создать Скидку | Клиент</a>
+										<a class="dropdown-item" href="create_discount_ind.php">Создать Скидку | Клиент</a>
 										<a class="dropdown-item" href="show_conditions.php">Условия</a>
 										<a class="dropdown-item" href="create_condition.php">Создать условие</a>
 									</div>

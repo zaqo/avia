@@ -20,8 +20,16 @@ include ("header.php");
 			if(!$answsqlcheck) die("LOOKUP into discounts_individual TABLE failed: ".mysqli_error($db_server));
 		
 		// Top of the table
-		$content.= "<table><caption><b>Условия предоставления скидки</b></caption><br>";
+		$content.= '<div class="container mt-2">';
+		$content.= '<h2>Условия предоставления скидки </h2>';
+		$content.= '<span> (полный перечень)</span>';
+		$content.= '<div class="table">';
+		$content.= '<table class="table table-striped table-sm ">';
+		$content.= "<thead>";
 		$content.= '<tr><th>№ </th><th>Название</th><th>Параметр</th><th>Значение,от:</th><th>Значение, до:</th><th>Перечисление:</th><th>Сравнение</th></tr>';
+		$content.= "</thead>";
+		$content.= "<tbody>";
+		
 		// Iterating through the array
 		$counter=1;
 		
@@ -88,7 +96,10 @@ include ("header.php");
 			$counter+=1;
 			
 		}
+		$content.= '</tbody>';
 		$content.= '</table>';
+		$content.= '</div>';
+		$content.= '</div>';
 	Show_page($content);
 	mysqli_close($db_server);
 	

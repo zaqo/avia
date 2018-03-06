@@ -28,9 +28,18 @@ include ("header.php");
 			if(!$answsqlcheck) die("LOOKUP into services TABLE failed: ".mysqli_error($db_server));
 		
 		// Top of the table
-		$content.= '<table class="fullTab"><caption><b>Перечень услуг</b></caption><br>';
-		$content.='<form id="form" method=post action=link_service.php >';
-		$content.= '<tr><th>&</th><th>№</th><th>Код</th><th>Название</th><th>Ед.изм.</th></tr>';
+		$content.= '<div class="container mt-2">
+						<h4 class="mb-3">Выбор слуг для скидки</h4>';
+		$content.= '<form id="form" method=post action=link_service.php class="needs-validation" novalidate>';
+		$content.= '<div class="table">';
+			$content.= '<table class="table table-striped table-sm ">';
+				$content.= "<thead>";
+					
+					$content.= '<tr><th>&</th><th>№</th><th>Код</th><th>Название</th><th>Ед.изм.</th></tr>';
+				$content.= "</thead>";
+		$content.= "<tbody>";
+		
+		
 		// Iterating through the array
 		$counter=1;	
 				
@@ -53,8 +62,11 @@ include ("header.php");
 			
 		}
 		$content.='<input type="hidden" name="isGroup" value="'.$isGroup.'"><input type="hidden" name="disc_id" value="'.$disc_id.'">';
-		$content.= '<tr><td colspan="5"><input type="submit" name="send" class="send" value="ВВОД"></td></tr></form>';
+		$content.= '<tr><td colspan="5" class="text-center"><button type="submit" class="btn btn-primary" >ВВОД</button></td></tr></form>';
+		$content.= "</tbody>";
 		$content.= '</table>';
+		$content.= "</div>";
+		$content.= "</div>";
 	Show_page($content);
 	mysqli_close($db_server);
 	

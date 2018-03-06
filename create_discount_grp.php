@@ -21,37 +21,65 @@ include ("header.php");
 		$services.='<option value="'.$row[0].'">'.$row[1].'</option>';
 		$services.='</select>';	
 
-		// Constructs clients dropdown
-		$check_clients='SELECT id,name FROM clients WHERE name!="" AND isValid';
+		// Constructs groups dropdown
+		
+		$groups='<select name="group_id" class="custom-select d-block w-100" id="group" required>';
+		$groups.='<option disabled selected value> -- выберите группу -- </option>';
+		$groups.='<option  value="0"> ВСЕ </option>';
+		$groups.='<option  value="1"> РОССИЙСКИЕ </option>';
+		$groups.='<option  value="2"> ЗАРУБЕЖНЫЕ </option>';
+		$groups.='</select>';		
+		
+		
+		$content.= '<div class="col-md-8 order-md-1 mt-2">
+						<h4 class="mb-3"> Заводим скидку (группа)</h4>';
+		$content.= '<form id="form" method=post action=update_discount.php class="needs-validation" novalidate/>';
+		$content.='
+					<div class="mb-3">
+						<label for="name">Название</label>
+							<textarea value="" name="name" class="form-control" required/></textarea>
+								<div class="invalid-feedback">
+									Введите правильное значение идентификатора.
+								</div>
+					</div>
+					<div class="mb-3">
+						<label for="group_id">Группа</label>
+							'.$groups.'
+					</div>
+					<div class="mb-3">
+						<label for="val">Скидка</label>
+							<input type="number" class="form-control mb-2 mr-sm-2" name="val" value="" min="-100" max="100" step="0.001" required/>
+								<div class="invalid-feedback">
+									Введите правильное значение идентификатора.
+								</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6  mb-3">
+			
+							<label class="form-check-label" for="date_from"> С:</label>
+							<input type="text" class="form-control" value="" name="from" onfocus="this.select();lcs(this)" onclick="event.cancelBubble=true;this.select();lcs(this)" required/>
+
+						</div>
+						<div class="col-md-6 mb-3">
+
+							<label class="form-check-label" for="to">ПО:</label>
+							<input type="text" class="form-control" value="" name="to" onfocus="this.select();lcs(this)" onclick="event.cancelBubble=true;this.select();lcs(this)" required/>
+		
+						</div>	
+					</div>
 					
-					$answsqlcheck=mysqli_query($db_server,$check_clients);
-					if(!$answsqlcheck) die("SELECT into clients TABLE failed: ".mysqli_error($db_server));
-		// Top of the table
-		$clients='<select name="client" id="client" required>';
-		$clients.='<option disabled selected value> -- выберите компанию -- </option>';
-		while ($row = mysqli_fetch_row( $answsqlcheck ))
-		$clients.='<option value="'.$row[0].'">'.$row[1].'</option>';
-		$clients.='</select>';		
-		
-		$content.='<script src="/avia/js/calender.js" type="text/javascript">
-	    </script>';	
-		$content.= '<form id="form" method=post action=update_discount.php >
-					<div id="add_field_area"><table id="myTab"><caption><b>Создаем скидку на клиента</b></caption>
-					<tr><th></th><th></th></tr>
-					<tr><td><b>НАЗВАНИЕ:</b></td><td><input type="text" value="" name="name" required/></td></tr>
-					<tr><td><b>ГРУППА:</b></td><td><select name="group_id" required/>
-						<option value=""> - </option><option value="0"> ВСЕ </option><option value="1"> RUS </option><option value="2"> INT </option>
-					</select></td></tr>
-					<tr><td><b>СКИДКА (%):</b></td><td><input type="number" value="" name="val" value="0" min="-100" max="100" step="0.001" required/></td></tr>
-					<tr><td><b>C:</b></td><td><input type="text" class="date_input" value="" name="from" onfocus="this.select();lcs(this)"
-												onclick="event.cancelBubble=true;this.select();lcs(this)"/></td></tr>
-					<tr><td><b>ПО:</b></td><td><input type="text" class="date_input" value="" name="to" onfocus="this.select();lcs(this)"
-												onclick="event.cancelBubble=true;this.select();lcs(this)"/></td></tr>
-					<tr><td><b>ПРИОРИТЕТ:</b></td><td><input type="number" value="" name="priority" value="0" min="1" max="9" step="1" /></td></tr>
-					<tr><td colspan="2"><input type="hidden" name="isGroup" value="1">
-					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
-					</table></div></form>';
-		
+					<div class="mb-3">
+							<label class="form-check-label" for="priority">ПРИОРИТЕТ</label>
+							<input type="number" class="form-control" value="" name="priority" value="0" min="1" max="9" step="1" />
+
+					</div>
+					
+					 <hr class="mb-4">
+						<input type="hidden" value="" name="isGroup" value="1">
+						<button class="btn btn-primary btn-lg btn-block" type="submit">ВВОД</button>
+					
+					</form>';
+		$content.='</div>';	
 		
 	Show_page($content);
 	

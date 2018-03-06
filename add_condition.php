@@ -38,9 +38,17 @@ include ("header.php");
 
 		
 		// Top of the table
-		//$content_top.= '<table><caption><b>Условия предоставления скидки</b></caption><br>';
-		$content.='<form id="form" method=post action=link_discount.php >';
-		$content.= '<tr><th>&</th><th>№</th><th>Название</th><th>Параметр</th><th>Значение,от:</th><th>Значение, до:</th><th>Перечисление:</th><th>Сравнение</th></tr>';
+		
+		$content.= '<div class="container mt-2">
+						<h4 class="mb-3">Выбор условия для скидки</h4>';
+		$content.= '<form id="form" method=post action=link_discount.php class="needs-validation" novalidate>';
+		$content.= '<div class="table">';
+			$content.= '<table class="table table-striped table-sm ">';
+				$content.= "<thead>";
+					$content.= '<tr><th>&</th><th>№</th><th>Название</th><th>Параметр</th><th>От:</th><th>До:</th><th>Перечисление:</th><th>Операция:</th></tr>';
+		$content.= "</thead>";
+		$content.= "<tbody>";
+		//$content.= '<tr><th>&</th><th>№</th><th>Название</th><th>Параметр</th><th>Значение,от:</th><th>Значение, до:</th><th>Перечисление:</th><th>Сравнение</th></tr>';
 		// Iterating through the array
 		$counter=1;
 		
@@ -99,7 +107,7 @@ include ("header.php");
 				$paramcheck=mysqli_query($db_server,$check_params);
 				if(!$paramcheck) die("LOOKUP into params TABLE failed: ".mysqli_error($db_server));
 				$param_name = mysqli_fetch_row( $paramcheck );
-				$content.="<tr><td><input type=\"checkbox\" name=\"to_export[]\" class=\"flights\" value=\"$rec_id\"  ".$sel."/></td>";
+				$content.='<tr><td><input type="checkbox" name="to_export[]" class="" value="'.$rec_id.'"  '.$sel.'/></td>';
 				$content.= "<td>$counter</td>";
 				$content.= "<td>$name</a></td>";
 				$content.= "<td>".$param_name[0]."</td><td>$val_from</td><td>$val_to</td><td>$val_enum</td>";
@@ -110,9 +118,12 @@ include ("header.php");
 			
 		}
 		$content.='<input type="hidden" name="isGroup" value="'.$isGroup.'"><input type="hidden" name="disc_id" value="'.$disc_id.'">';
-		$content.= '<tr><td colspan="8"><input type="submit" name="send" class="send" value="ВВОД"></td></tr></form>';
+		$content.= '<tr><td colspan="8" class="text-center"><button type="submit" class="btn btn-primary" >ВВОД</button></td></tr></form>';
+		$content.= "</tbody>";
 		$content.= '</table>';
-		$content= '<table><caption><b>Условия предоставления скидки: '.$disc_name.' </b></caption><br>'.$content;
+		$content.= "</div>";
+		$content.= "</div>";
+		
 	Show_page($content);
 	mysqli_close($db_server);
 	

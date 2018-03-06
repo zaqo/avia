@@ -80,13 +80,13 @@ include ("header.php");
 					</div>
 					<div class="mb-3">
 						<div class="form-check">
-							<input type="checkbox" name="isRus" class="name" class="form-check-input" value="1" />
+							<input type="checkbox" name="isRus" class="form-check-input" value="1" />
 							<label class="form-check-label" for="isRus">Poccийская а/к</label>
 						</div>
 					</div>
 					<div class="mb-3">
 						<div class="form-check">
-							<input type="checkbox" name="isBased" class="name" class="form-check-input" value="1" />
+							<input type="checkbox" name="isBased"  class="form-check-input" value="1" />
 							<label class="form-check-label" for="isBased">Базирование</label>
 						</div>
 					</div>

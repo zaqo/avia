@@ -46,7 +46,7 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_clients);
 					if(!$answsqlcheck) die("SELECT into clients TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
-		$clients='<select name="client" id="client" required>';
+		$clients='<select name="client" id="client" class="custom-select d-block w-100" required>';
 		$clients.='<option disabled value> -- выберите компанию -- </option>';
 		while ($row = mysqli_fetch_row( $answsqlcheck ))
 		{
@@ -56,23 +56,55 @@ include ("header.php");
 		}
 		$clients.='</select>';		
 		
-		$content.='<script src="/avia/js/calender.js" type="text/javascript">
-	    </script>';	
-		$content.= '<form id="form" method=post action=update_discount.php >
-					<div id="add_field_area"><table class="fullTab"><caption><b>Редактируем скидку на клиента</b></caption>
-					<tr><th></th><th></th></tr>
-					<tr><td><b>НАЗВАНИЕ:</b></td><td><textarea value="" name="name" required/>'.$name.'</textarea></td></tr>
-					<tr><td><b>КЛИЕНТ:</b></td><td>'.$clients.'</td></tr>
-					<tr><td><b>СКИДКА (%):</b></td><td><input type="number" name="val" value="'.$disc_val.'" min="-100" max="100" step="0.001" required/></td></tr>
-					<tr><td><b>C:</b></td><td><input type="text" class="date_input" value="'.$valid_from.'" name="from" onfocus="this.select();lcs(this)"
-												onclick="event.cancelBubble=true;this.select();lcs(this)"/></td></tr>
-					<tr><td><b>ПО:</b></td><td><input type="text" class="date_input" value="'.$valid_to.'" name="to" onfocus="this.select();lcs(this)"
-												onclick="event.cancelBubble=true;this.select();lcs(this)"/></td></tr>
-					<tr><td><b>ПРИОРИТЕТ:</b></td><td><input type="number" value="" name="priority" value="0" min="1" max="9" step="1" /></td></tr>
-					<tr><td colspan="2"><input type="hidden" name="id" value="'.$id.'">
-					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
-					</table></div></form>';
-		
+		$content.='<script src="/avia/js/calender.js" type="text/javascript"></script>';	
+		$content.= '<div class="col-md-8 order-md-1">
+						<h4 class="mb-3">Редактируем скидку</h4>';
+		$content.= '<form id="form" method=post action=update_discount.php class="needs-validation" novalidate>';
+		$content.='
+					<div class="mb-3">
+						<label for="name">Название</label>
+							<textarea value="" name="name" class="form-control" required/>'.$name.'</textarea>
+								<div class="invalid-feedback">
+									Введите правильное значение идентификатора.
+								</div>
+					</div>
+					<div class="mb-3">
+						<label for="client">Авиакомпания</label>
+							'.$clients.'
+					</div>
+					<div class="mb-3">
+						<label for="val">Скидка</label>
+							<input type="number" name="val" value="'.$disc_val.'" min="-100" max="100" step="0.001" required/>
+								<div class="invalid-feedback">
+									Введите правильное значение идентификатора.
+								</div>
+					</div>
+					<div class="mb-3">
+						<div class="form-check">
+							<label class="form-check-label" for="date_from">Действует С:</label>
+							<input type="text" class="date_input" value="'.$valid_from.'" name="from" onfocus="this.select();lcs(this)"
+												onclick="event.cancelBubble=true;this.select();lcs(this)"/>
+						</div>
+					</div>
+					<div class="mb-3">
+						<div class="form-check">
+							<label class="form-check-label" for="to">ПО:</label>
+							<input type="text" class="date_input" value="'.$valid_to.'" name="to" onfocus="this.select();lcs(this)"
+												onclick="event.cancelBubble=true;this.select();lcs(this)"/>
+						</div>
+					</div>
+					<div class="mb-3">
+						<div class="form-check">
+							<label class="form-check-label" for="priority">ПРИОРИТЕТ</label>
+							<input type="number" value="" name="priority" value="0" min="1" max="9" step="1" />
+						</div>
+					</div>
+					
+					 <hr class="mb-4">
+						<input type="hidden" name="id" value="'.$id.'">
+						<button class="btn btn-primary btn-lg btn-block" type="submit">ВВОД</button>
+					</form>';
+		$clients.='</div>';	
 		
 	Show_page($content);
 	

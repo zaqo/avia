@@ -12,6 +12,7 @@ include ("login_avia.php");
 	
 	if(isset($_REQUEST['name'])) $name	= $_REQUEST['name'];
 	if(isset($_REQUEST['client'])) $client_id= $_REQUEST['client'];
+	else $client_id=0;
 	if(isset($_REQUEST['val'])) $disc_val= $_REQUEST['val'];
 	if(isset($_REQUEST['from'])) $date_fr= $_REQUEST['from'];
 	if(isset($_REQUEST['to'])) $date_to= $_REQUEST['to'];
