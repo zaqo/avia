@@ -26,9 +26,19 @@ include ("header.php");
 		
 		$services_t='';
 		$num=1;
-			$desc=mb_strcut($row_one[1],0,40);
-			$services_t=$row_one[0].' | '.$desc.'...';
-			$services_t='<tr><td><b>'.$num.':</b></td><td>'.$services_t.'</td><td></td><td></td></tr>';
+			$svs=$row_one[0];
+			$desc=$row_one[1];
+			if( strlen($desc)>90)
+				{
+					$desc=mb_strcut($desc,0,90);
+					$svs_desc=$svs.' | '.$desc.'...';
+				}
+				else
+				{
+					$svs_desc=$svs.' | '.str_pad($desc,90);
+				}
+			
+			$services_t='<span><b>'.$num.':</b></span> <p class="ml-5">'.$svs_desc.'</p>';
 		
 		// 2. AIRPORT CHARGES
 		
@@ -43,17 +53,27 @@ include ("header.php");
 		$services_ap_all='';
 		while($row_two = mysqli_fetch_row( $answsql ))
 		{		
+				$services_ap='<li class="list-group-item flex-column align-items-start">
+						<div class="d-flex w-100 ">';
 				$num+=1;
 				$svs=$row_two[0];
+				$desc=$row_two[1];
 				$direction=$row_two[2];
 				$gender=$row_two[3];
-				$desc=mb_strcut($row_two[1],0,40);
-				$svs_desc=$svs.' | '.$desc.'...';
+				if( strlen($desc)>90)
+				{
+					$desc=mb_strcut($desc,0,90);
+					$svs_desc=$svs.' | '.$desc.'...';
+				}
+				else
+				{
+					$svs_desc=$svs.' | '.str_pad($desc,90);
+				}
 
 			$toggle_gen=toggle_gen($num,0,$gender);
 			$toggle_dir=toggle_gen($num,1,$direction);
-			$services_ap='<tr><td><b>'.$num.':</b></td><td>'.$svs_desc.'</td><td >'.$toggle_gen.'</td><td >'.$toggle_dir.'</td></tr>';
-			$services_ap_all.=$services_ap;
+			$services_ap.='<span><b>'.$num.':</b></span><p class="ml-5">'.$svs_desc.'</p><p class="ml-5">'.$toggle_gen.'</p><p class="ml-2">'.$toggle_dir.'</p>';
+			$services_ap_all.=$services_ap.'</div></li>';
 		}
 		
 		// 3. AVIATION SECURITY		
@@ -68,18 +88,28 @@ include ("header.php");
 		while($row_three = mysqli_fetch_row( $answsql ))
 		{		
 				$num+=1;
+				$services_as='<li class="list-group-item flex-column align-items-start">
+						<div class="d-flex w-100 ">';
 				$svs=$row_three[0];
 				$isRus=$row_three[1];
+				$desc=$row_three[2];
 				
-		
-				$desc=mb_strcut($row_three[2],0,40);
-				$svs_desc=$svs.' | '.$desc.'...';
+				if( strlen($desc)>90)
+				{
+					$desc=mb_strcut($desc,0,90);
+					$svs_desc=$svs.' | '.$desc.'...';
+				}
+				else
+				{
+					$svs_desc=$svs.' | '.str_pad($desc,90);
+				}
+				
 				
 		
 			$toggle_dom=toggle_gen($num,2,$isRus);
 			
-			$services_ap='<tr><td><b>'.$num.':</b></td><td>'.$svs_desc.'</td><td >'.$toggle_dom.'</td><td ></td></tr>';
-			$services_as_all.=$services_ap;
+			$services_as.='<span><b>'.$num.':</b></span><p class="ml-5">'.$svs_desc.'</p><p class="ml-5">'.$toggle_dom.'</p>';
+			$services_as_all.=$services_as.'</div></li>';
 		}
 		
 		// END of #3.
@@ -97,19 +127,31 @@ include ("header.php");
 		while($row_four = mysqli_fetch_row( $answsql ))
 		{		
 			$num+=1;
+			$services_gh='<li class="list-group-item flex-column align-items-start">
+						<div class="d-flex w-100 ">';
 			$svs=$row_four[0];	
 			$isAdult=$row_four[1];
-			$desc=mb_strcut($row_four[2],0,40);
-			$svs_desc=$svs.' | '.$desc.'...';	
+			$desc=$row_four[2];
+
+				if( strlen($desc)>90)
+				{
+					$desc=mb_strcut($desc,0,90);
+					$svs_desc=$svs.' | '.$desc.'...';
+				}
+				else
+				{
+					$svs_desc=$svs.' | '.str_pad($desc,90);
+				}
+			
 			$toggle_gen=toggle_gen($num,0,$isAdult);
-			$services_gh='<tr><td><b>'.$num.':</b></td><td>'.$svs_desc.'</td><td >'.$toggle_gen.'</td><td ></td></tr>';
-			$services_gh_all.=$services_gh;
+			$services_gh.='<span><b>'.$num.':</b></span><p class="ml-5">'.$svs_desc.'</p><p class="ml-5">'.$toggle_gen.'</p>';
+			$services_gh_all.=$services_gh.'</div></li>';
 		}
 		
 		// END of #4.
-		
+		/*
 		$content.= '<form id="form" method=post action=edit_process_defaults.php >
-					<div id="add_field_area"><table class="myTab"><caption><b>Настройки процесса расчета цены для рейса</b></caption>
+					<div id="add_field_area"><table class="myTab"><caption><b></b></caption>
 					<tr><th class="col1"></th><th class="col300"></th><th class="col4"></th><th class="col4"></th></tr>
 					<tr><td colspan="4"><h1> << ВЗЛЕТ / ПОСАДКА >> </h1></td></tr>
 					<tr><td>'.$services_t.'</td></tr>
@@ -122,7 +164,58 @@ include ("header.php");
 					<tr><td colspan="4">
 					<input type="submit" name="send" class="send" value="ИЗМЕНИТЬ"></p></td></tr>
 					</table></div></form>';
+		*/
 		
+		$content.= '<div class="container ml-5 mt-3">';
+		$content.= "<h4 >  Настройки процесса расчета цены для рейса</h4>  <hr>";
+		$content.= '<ul class="list-group">';
+		//$content.= '';
+		$content.='<li class="list-group-item flex-column align-items-start active" >
+						<div class="d-flex w-100 justify-content-between">
+							<h5 class="mb-1"> ВЗЛЕТ / ПОСАДКА </h5>
+						</div>
+					</li>';
+		$content.='<li class="list-group-item flex-column align-items-start">
+						<div class="d-flex w-100 ">
+							'.$services_t.'
+						</div>
+					</li>';
+		$content.='</ul>';
+		// AIRPORT CHARGES
+		$content.= '<ul class="list-group">';
+		
+		$content.='<li class="list-group-item flex-column align-items-start active" >
+						<div class="d-flex w-100 justify-content-between">
+							<h5 class="mb-1"> АЭРОПОРТОВЫЕ СБОРЫ </h5>
+						</div>
+					</li>';
+		$content.=$services_ap_all;
+		$content.='</ul>';
+		//AVIATION SECURITY
+		$content.= '<ul class="list-group">';
+		$content.='<li class="list-group-item flex-column align-items-start active" >
+						<div class="d-flex w-100 justify-content-between">
+							<h5 class="mb-1"> АВИАЦИОННАЯ БЕЗОПАСНОСТЬ </h5>
+						</div>
+					</li>';			
+		$content.=$services_as_all;
+		$content.='</ul>';
+		// GROUND HANDLING
+		$content.= '<ul class="list-group">';
+		$content.='<li class="list-group-item flex-column align-items-start active" >
+						<div class="d-flex w-100 justify-content-between">
+							<h5 class="mb-1"> НАЗЕМНОЕ ОБСЛУЖИВАНИЕ </h5>
+						</div>
+					</li>';
+		
+		$content.=$services_gh_all;
+		$content.='</ul>';
+		$content.= '<ul class="list-group">';
+		$content.= '<li class="list-group-item flex-column "><form id="form" method=post action=edit_process_defaults.php >';
+		$content.= '<button type="submit" class="btn btn-primary mb-2">ИЗМЕНИТЬ НАСТРОЙКИ</button></form>';
+		$content.='</li>';
+		$content.='</ul>';
+		$content.='</div>';
 		
 	Show_page($content);
 	
@@ -130,46 +223,7 @@ include ("header.php");
 
 function toggle_gen($number,$key,$chk)
 {
-	/* GENETRATES TOGGLE SWITCHES FOR THE PAGE
-	INPUT:
-			$number		-		integer, position on the page
-			$key		-		type of selector, 0 - gender, 1 - direction, 2 - RUS/FOREIGN
-			$chk		-		current value,  0 - first, 1 - second
-	OUTPUT:
-			html of radiobutton
 	
-	
-			$toggle_gen=' <div class="switch-field">
-							<input type="radio" id="left" name="gender" value="yes" />
-							<label for="left">ВЗР</label>
-							<input type="radio" id="right" name="gender" value="no" />
-							<label for="right">ДЕТ</label>
-					</div>';
-			$toggle_dir=' <div class="switch-field">
-							<input type="radio" id="switch_left" name="dir" value="yes" />
-							<label for="switch_left">ПРИБ</label>
-							<input type="radio" id="switch_right" name="dir" value="no" />
-							<label for="switch_right">ОТПР</label>
-					</div>';
-			$radio_gen='<div class="custom-check">
-						<input id="q1" name="gender[]" type="radio" />
-						<label for="q1">ВЗР</label>
-					</div>
-					<div class="custom-check">
-						<input id="q2" name="gender[]" type="radio" />
-						<label for="q2">ДЕТ</label>
-					</div>';
-			$radio_dir='<div class="custom-check">
-						<input id="d1" name="direction[]" type="radio" />
-						<label for="d1">ПРИБ</label>
-					</div>
-					<div class="custom-check">
-						<input id="d2" name="direction[]" type="radio" />
-						<label for="d2">ОТПР</label>
-					</div>';
-			$radio_old='<div class="dark"><input type="radio" name="gender" value="adult" >ВЗР</div>
-			</td><td><input type="radio" name="gender" value="child">ДЕТ';		
-	*/
 	$checked='checked';
 	
 	if($key==1)

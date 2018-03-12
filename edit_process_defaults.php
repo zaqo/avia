@@ -31,19 +31,31 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("SELECT into services TABLE failed: ".mysqli_error($db_server));
 		
-		$services_t='<select name="val[]"  required>';
+		$services_t='<select name="val[]" class="custom-select d-block w-100" required>';
 		while ($row = mysqli_fetch_row( $answsqlcheck ))
 		{	
 			$selected='';
 			$svs=$row[0];
-			$desc=mb_strcut($row[2],0,40);
-			$svs_desc=$row[1].' | '.$desc.'...';
+			$nav=$row[1];
+			$desc=$row[2];
+			if( strlen($desc)>40)
+				{
+					$desc=mb_strcut($desc,0,40);
+					$svs_desc=$nav.' | '.$desc.'...';
+				}
+				else
+				{
+					$svs_desc=$nav.' | '.str_pad($desc,40);
+				}
+			
+			
 			if($svs==$svs_now)
 				$selected='selected';
-			$services_t.='<option value="'.$row[0].'" '.$selected.'>'.$svs_desc.'</option>';
+			$services_t.='<option value="'.$svs.'" '.$selected.'>'.$svs_desc.'</option>';
 		}
 		$services_t.='</select>';	
-		$services_t='<tr><td><b>1:</b></td><td>'.$services_t.'</td><td></td><td></td></tr>';
+		$num=1;
+		$services_t='<span><b>'.$num.':</b></span> <p class="ml-5">'.$services_t.'</p>';
 		
 		// 2. AIRPORT CHARGES
 		
@@ -54,7 +66,7 @@ include ("header.php");
 					
 					$answsql=mysqli_query($db_server,$select_airport_chrg);
 					if(!$answsql) die("SELECT into default_svs TABLE failed: ".mysqli_error($db_server));
-		$num=1;
+		
 		$services_ap_all='';
 		while($row_two = mysqli_fetch_row( $answsql ))
 		{		
@@ -70,22 +82,33 @@ include ("header.php");
 					if(!$answsqlcheck) die("SELECT into services TABLE failed: ".mysqli_error($db_server));
 		
 			$services_ap='';
-			$services_ap='<select name="val_two[]" required>';
+			$services_ap='<select name="val_two[]" class="custom-select d-block w-100" required>';
 			while ($row = mysqli_fetch_row( $answsqlcheck ))
 			{	
 				
 				$selected='';
 				$svs=$row[0];
-				$desc=mb_strcut($row[2],0,40);
-				$svs_desc=$row[1].' | '.$desc.'...';
+				$nav=$row[1];
+				$desc=$row[2];
+			if( strlen($desc)>40)
+				{
+					$desc=mb_strcut($desc,0,40);
+					$svs_desc=$nav.' | '.$desc.'...';
+				}
+				else
+				{
+					$svs_desc=$nav.' | '.str_pad($desc,40);
+				}
+			
+				
 				if((int)$svs===(int)$svs_now)
 					$selected='selected';
-				$services_ap.='<option value="'.$row[0].'" '.$selected.'>'.$svs_desc.'</option>';
+				$services_ap.='<option value="'.$svs.'" '.$selected.'>'.$svs_desc.'</option>';
 			}
 			$services_ap.='</select>';
 			$toggle_gen=toggle_gen($num,0,$gender);
 			$toggle_dir=toggle_gen($num,1,$direction);
-			$services_ap='<tr><td><b>'.$num.':</b></td><td>'.$services_ap.'</td><td >'.$toggle_gen.'</td><td >'.$toggle_dir.'</td></tr>';
+			$services_ap='<span><b>'.$num.':</b></span> <p class="ml-2">'.$services_ap.'</p> <p class="ml-2">'.$toggle_gen.'</p> <p class="ml-2">'.$toggle_dir.'</p>';
 			$services_ap_all.=$services_ap;
 		}
 		
@@ -172,7 +195,7 @@ include ("header.php");
 		}
 		
 		// END of #4.
-		
+		/*
 		$content.= '<form id="form" method=post action=update_def_process.php >
 					<div id="add_field_area"><table class="myTab"><caption><b>Настройки процесса расчета цены для рейса</b></caption>
 					<tr><th class="col1"></th><th class="col300"></th><th class="col4"></th><th class="col4"></th></tr>
@@ -187,7 +210,60 @@ include ("header.php");
 					<tr><td colspan="4">
 					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
 					</table></div></form>';
+		*/
 		
+		$content.= '<div class="container ml-5 mt-3">';
+		$content.= '<form id="form" method=post action=update_def_process.php >';
+		$content.= "<h4 >  Редактирование настроек расчета цены: Регулярные рейсы</h4>  <hr>";
+		$content.= '<ul class="list-group">';
+		//$content.= '';
+		$content.='<li class="list-group-item flex-column align-items-start active" >
+						<div class="d-flex w-100 justify-content-between">
+							<h5 class="mb-1"> ВЗЛЕТ / ПОСАДКА </h5>
+						</div>
+					</li>';
+		$content.='<li class="list-group-item flex-column align-items-start">
+						<div class="d-flex w-100 ">
+							'.$services_t.'
+						</div>
+					</li>';
+		$content.='</ul>';
+		// AIRPORT CHARGES
+		$content.= '<ul class="list-group">';
+		
+		$content.='<li class="list-group-item flex-column align-items-start active" >
+						<div class="d-flex w-100 justify-content-between">
+							<h5 class="mb-1"> АЭРОПОРТОВЫЕ СБОРЫ </h5>
+						</div>
+					</li>';
+		$content.=$services_ap_all;
+		$content.='</ul>';
+		//AVIATION SECURITY
+		$content.= '<ul class="list-group">';
+		$content.='<li class="list-group-item flex-column align-items-start active" >
+						<div class="d-flex w-100 justify-content-between">
+							<h5 class="mb-1"> АВИАЦИОННАЯ БЕЗОПАСНОСТЬ </h5>
+						</div>
+					</li>';			
+		$content.=$services_as_all;
+		$content.='</ul>';
+		// GROUND HANDLING
+		$content.= '<ul class="list-group">';
+		$content.='<li class="list-group-item flex-column align-items-start active" >
+						<div class="d-flex w-100 justify-content-between">
+							<h5 class="mb-1"> НАЗЕМНОЕ ОБСЛУЖИВАНИЕ </h5>
+						</div>
+					</li>';
+		
+		$content.=$services_gh_all;
+		$content.='</ul>';
+		$content.= '<ul class="list-group">';
+		$content.= '<li class="list-group-item flex-column "><form id="form" method=post action=edit_process_defaults.php >';
+		$content.= '<button type="submit" class="btn btn-primary mb-2">ИЗМЕНИТЬ НАСТРОЙКИ</button></form>';
+		$content.='</li>';
+		$content.='</ul>';
+		$content.='</form>';
+		$content.='</div>';
 		
 	Show_page($content);
 	
