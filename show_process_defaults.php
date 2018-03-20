@@ -4,6 +4,7 @@
 */
 require_once 'login_avia.php';
 include ("header.php"); 	
+include ("minuscles.php"); 	
 		
 		$content="";
 		//echo mb_internal_encoding();
@@ -201,46 +202,6 @@ include ("header.php");
 	
 	mysqli_close($db_server);
 
-function toggle_gen($number,$key,$chk)
-{
-	
-	$checked='checked';
-	
-	if($key==1)
-	{
-		$legend_0='ПРИБ';
-		$legend_1='ОТПР';
-		$name='dir'.$number;
-	}
-	elseif($key==2)
-	{
-		$legend_0='ЗАР';
-		$legend_1='РОС';
-		$name='dom'.$number;
-	}
-	else
-	{
-		$legend_0='ДЕТ';
-		$legend_1='ВЗР';
-		$name='gender'.$number;
-	}
-	if(!$chk)
-	{
-		$first=$checked;
-		$second='';
-	}
-	else
-	{
-		$second=$checked;
-		$first='';
-	}
-		
-return ' <div class="switch-field">
-							<input type="radio" id="left'.$key.$number.'" name="'.$name.'" value="yes" '.$first.' disabled/>
-							<label for="left'.$key.$number.'">'.$legend_0.'</label>
-							<input type="radio" id="right'.$key.$number.'" name="'.$name.'" value="no" '.$second.' disabled/>
-							<label for="right'.$key.$number.'">'.$legend_1.'</label>
-					</div>';
-}
+
 ?>
 	

@@ -4,7 +4,8 @@
 */
 require_once 'login_avia.php';
 include ("header.php"); 	
-		
+include ("minuscles.php"); 	
+
 		$content="";
 		
 		//Set up mySQL connection
@@ -257,85 +258,5 @@ include ("header.php");
 	
 	mysqli_close($db_server);
 
-function toggle_gen($number,$key,$chk)
-{
-	/* GENETRATES TOGGLE SWITCHES FOR THE PAGE
-	INPUT:
-			$number		-		integer, position on the page
-			$key		-		type of selector, 0 - gender, 1 - direction, 2 - RUS/FOREIGN
-			$chk		-		current value,  0 - first, 1 - second
-	OUTPUT:
-			html of radiobutton
-	
-	
-			$toggle_gen=' <div class="switch-field">
-							<input type="radio" id="left" name="gender" value="yes" />
-							<label for="left">ВЗР</label>
-							<input type="radio" id="right" name="gender" value="no" />
-							<label for="right">ДЕТ</label>
-					</div>';
-			$toggle_dir=' <div class="switch-field">
-							<input type="radio" id="switch_left" name="dir" value="yes" />
-							<label for="switch_left">ПРИБ</label>
-							<input type="radio" id="switch_right" name="dir" value="no" />
-							<label for="switch_right">ОТПР</label>
-					</div>';
-			$radio_gen='<div class="custom-check">
-						<input id="q1" name="gender[]" type="radio" />
-						<label for="q1">ВЗР</label>
-					</div>
-					<div class="custom-check">
-						<input id="q2" name="gender[]" type="radio" />
-						<label for="q2">ДЕТ</label>
-					</div>';
-			$radio_dir='<div class="custom-check">
-						<input id="d1" name="direction[]" type="radio" />
-						<label for="d1">ПРИБ</label>
-					</div>
-					<div class="custom-check">
-						<input id="d2" name="direction[]" type="radio" />
-						<label for="d2">ОТПР</label>
-					</div>';
-			$radio_old='<div class="dark"><input type="radio" name="gender" value="adult" >ВЗР</div>
-			</td><td><input type="radio" name="gender" value="child">ДЕТ';		
-	*/
-	$checked='checked';
-	
-	if($key==1)
-	{
-		$legend_0='ПРИБ';
-		$legend_1='ОТПР';
-		$name='dir'.$number;
-	}
-	elseif($key==2)
-	{
-		$legend_0='ЗАР';
-		$legend_1='РОС';
-		$name='dom'.$number;
-	}
-	else
-	{
-		$legend_0='ДЕТ';
-		$legend_1='ВЗР';
-		$name='gender'.$number;
-	}
-	if(!$chk)
-	{
-		$first=$checked;
-		$second='';
-	}
-	else
-	{
-		$second=$checked;
-		$first='';
-	}
-		
-return ' <div class="switch-field d-flex w-100">
-							<input type="radio" id="left'.$key.$number.'" name="'.$name.'" value="yes" '.$first.' disabled/>
-							<label for="left'.$key.$number.'">'.$legend_0.'</label>
-							<input type="radio" id="right'.$key.$number.'" name="'.$name.'" value="no" '.$second.' disabled/>
-							<label for="right'.$key.$number.'">'.$legend_1.'</label>
-					</div>';
-}
 ?>
 	
