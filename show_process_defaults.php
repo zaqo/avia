@@ -38,7 +38,7 @@ include ("header.php");
 					$svs_desc=$svs.' | '.str_pad($desc,90);
 				}
 			
-			$services_t='<span><b>'.$num.':</b></span> <p class="ml-5">'.$svs_desc.'</p>';
+			$services_t='<div class="row"><div class="col-1 mt-2">'.$num.':</div> <div class="col-5 mt-2">'.$svs_desc.'</div></div>';
 		
 		// 2. AIRPORT CHARGES
 		
@@ -53,8 +53,7 @@ include ("header.php");
 		$services_ap_all='';
 		while($row_two = mysqli_fetch_row( $answsql ))
 		{		
-				$services_ap='<li class="list-group-item flex-column align-items-start">
-						<div class="d-flex w-100 ">';
+				$services_ap='<li class="list-group-item flex-column align-items-start">';
 				$num+=1;
 				$svs=$row_two[0];
 				$desc=$row_two[1];
@@ -72,8 +71,8 @@ include ("header.php");
 
 			$toggle_gen=toggle_gen($num,0,$gender);
 			$toggle_dir=toggle_gen($num,1,$direction);
-			$services_ap.='<span><b>'.$num.':</b></span><p class="ml-5">'.$svs_desc.'</p><p class="ml-5">'.$toggle_gen.'</p><p class="ml-2">'.$toggle_dir.'</p>';
-			$services_ap_all.=$services_ap.'</div></li>';
+			$services_ap.='<div class="row"><div class="col-1 mt-5">'.$num.':</div><div class="col-5 mt-5">'.$svs_desc.'</div><div class="col-3">'.$toggle_gen.'</div><div class="col-3">'.$toggle_dir.'</div></div>';
+			$services_ap_all.=$services_ap.'</li>';
 		}
 		
 		// 3. AVIATION SECURITY		
@@ -88,8 +87,7 @@ include ("header.php");
 		while($row_three = mysqli_fetch_row( $answsql ))
 		{		
 				$num+=1;
-				$services_as='<li class="list-group-item flex-column align-items-start">
-						<div class="d-flex w-100 ">';
+				$services_as='<li class="list-group-item flex-column align-items-start">';
 				$svs=$row_three[0];
 				$isRus=$row_three[1];
 				$desc=$row_three[2];
@@ -107,9 +105,9 @@ include ("header.php");
 				
 		
 			$toggle_dom=toggle_gen($num,2,$isRus);
+			$services_as.='<div class="row"><div class="col-1 mt-5">'.$num.':</div><div class="col-5 mt-5">'.$svs_desc.'</div><div class="col-3">'.$toggle_dom.'</div><div class="col-3"></div></div>';
 			
-			$services_as.='<span><b>'.$num.':</b></span><p class="ml-5">'.$svs_desc.'</p><p class="ml-5">'.$toggle_dom.'</p>';
-			$services_as_all.=$services_as.'</div></li>';
+			$services_as_all.=$services_as.'</li>';
 		}
 		
 		// END of #3.
@@ -127,8 +125,7 @@ include ("header.php");
 		while($row_four = mysqli_fetch_row( $answsql ))
 		{		
 			$num+=1;
-			$services_gh='<li class="list-group-item flex-column align-items-start">
-						<div class="d-flex w-100 ">';
+			$services_gh='<li class="list-group-item flex-column align-items-start">';
 			$svs=$row_four[0];	
 			$isAdult=$row_four[1];
 			$desc=$row_four[2];
@@ -144,30 +141,15 @@ include ("header.php");
 				}
 			
 			$toggle_gen=toggle_gen($num,0,$isAdult);
-			$services_gh.='<span><b>'.$num.':</b></span><p class="ml-5">'.$svs_desc.'</p><p class="ml-5">'.$toggle_gen.'</p>';
-			$services_gh_all.=$services_gh.'</div></li>';
+			$services_gh.='<div class="row"><div class="col-1 mt-5">'.$num.':</div><div class="col-5 mt-5">'.$svs_desc.'</div><div class="col-3">'.$toggle_gen.'</div><div class="col-3"></div></div>';
+			
+			$services_gh_all.=$services_gh.'</li>';
 		}
 		
 		// END of #4.
-		/*
-		$content.= '<form id="form" method=post action=edit_process_defaults.php >
-					<div id="add_field_area"><table class="myTab"><caption><b></b></caption>
-					<tr><th class="col1"></th><th class="col300"></th><th class="col4"></th><th class="col4"></th></tr>
-					<tr><td colspan="4"><h1> << ВЗЛЕТ / ПОСАДКА >> </h1></td></tr>
-					<tr><td>'.$services_t.'</td></tr>
-					<tr><td colspan="4"><h1> << АЭРОПОРТОВЫЕ СБОРЫ >> </h1></td></tr>
-					'.$services_ap_all.'
-					<tr><td colspan="4"><h1> << АВИАЦИОННАЯ БЕЗОПАСНОСТЬ >> </h1></td></tr>
-					'.$services_as_all.'
-					<tr><td colspan="4"><h1> << НАЗЕМНОЕ ОБСЛУЖИВАНИЕ >> </h1></td></tr>
-					'.$services_gh_all.'
-					<tr><td colspan="4">
-					<input type="submit" name="send" class="send" value="ИЗМЕНИТЬ"></p></td></tr>
-					</table></div></form>';
-		*/
 		
 		$content.= '<div class="container ml-5 mt-3">';
-		$content.= "<h4 >  Настройки процесса расчета цены для рейса</h4>  <hr>";
+		$content.= "<h4 >  Настройки процесса расчета цены</h4> <span><i>регулярные рейсы</i></span> <hr>";
 		$content.= '<ul class="list-group">';
 		//$content.= '';
 		$content.='<li class="list-group-item flex-column align-items-start active" >
@@ -176,9 +158,7 @@ include ("header.php");
 						</div>
 					</li>';
 		$content.='<li class="list-group-item flex-column align-items-start">
-						<div class="d-flex w-100 ">
 							'.$services_t.'
-						</div>
 					</li>';
 		$content.='</ul>';
 		// AIRPORT CHARGES

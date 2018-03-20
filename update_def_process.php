@@ -327,7 +327,7 @@ $gh=array();
 	// END OF GROUND HANDLING
 	//echo $textsql.'<br/>';				
 		
-	//echo '<script>history.go(-2);</script>';	
+	echo '<script>history.go(-2);</script>';	
 	
 mysqli_close($db_server);
 

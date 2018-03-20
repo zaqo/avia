@@ -50,7 +50,7 @@ include ("header.php");
 				$NAV_id=$row[1];
 				$name=$row[2];
 				$mu_desc=$row[3];
-				if($row[4]) $checked='checked disabled';
+				if($row[4]) $checked='checked ';
 				$content.="<tr><td><input type=\"checkbox\" name=\"to_export[]\" class=\"services\" value=\"$rec_id\" ".$checked.'/></td>';
 				$content.= "<td>$counter</td>";
 				$content.= "<td>$NAV_id</a></td>";
