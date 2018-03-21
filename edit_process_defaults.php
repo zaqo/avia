@@ -83,7 +83,7 @@ include ("minuscles.php");
 					if(!$answsqlcheck) die("SELECT into services TABLE failed: ".mysqli_error($db_server));
 		
 			$services_ap='<div class="row justify-content-start">';
-			$select_ap='<select name="val_two[]" class="custom-select " required>';
+			$select_ap='<select name="val_two[]" class="custom-select" required>';
 			while ($row = mysqli_fetch_row( $answsqlcheck ))
 			{	
 				
@@ -91,7 +91,7 @@ include ("minuscles.php");
 				$svs=$row[0];
 				$nav=$row[1];
 				$desc=$row[2];
-			if( strlen($desc)>50)
+				if( strlen($desc)>50)
 				{
 					$desc=mb_strcut($desc,0,50);
 					$svs_desc=$nav.' | '.$desc.'...';

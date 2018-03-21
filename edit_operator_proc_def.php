@@ -4,6 +4,7 @@
 */
 require_once 'login_avia.php';
 include ("header.php"); 	
+include ("minuscles.php"); 	
 		
 		$content="";
 		
@@ -64,8 +65,8 @@ include ("header.php");
 					$terminal='ТЕРМИНАЛ '.$terminal;
 				if($parking)
 					$parking='ПЕРРОН '.$parking;
-				$services_t='<div class="row"><div class="col-1 mt-2">'.$num.':</div><div class="col-4 mt-2">'.$select_t.'</div>
-							<div class="col-3 mt-2">'.$terminal.'</div><div class="col-3 mt-2">'.$parking.'</div><div class="col-2 mt-2"></div></div><hr>';
+				$services_t='<div class="row"><div class="col-1 mt-3">'.$num.':</div><div class="col-4 mt-2">'.$select_t.'</div>
+							<div class="col-3 mt-3">'.$terminal.'</div><div class="col-3 mt-3">'.$parking.'</div><div class="col-2 mt-2"></div></div><hr>';
 				
 				//$services_t='<tr><td><b>'.$num.':</b></td><td>'.$services_t.'</td><td>'.$terminal.'</td><td>'.$parking.'</td><td ></td></tr>';
 				$services_t_all.=$services_t;
@@ -91,18 +92,28 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("SELECT into services TABLE failed: ".mysqli_error($db_server));
 		
-					$services_t='<select name="val[]"  required>';
+					$select_ac='<select name="val[]" class="custom-select" required>';
 					while ($row = mysqli_fetch_row( $answsqlcheck ))
 					{	
 						$selected='';
 						$svs=$row[0];
-						$desc=mb_strcut($row[2],0,40);
-						$svs_desc=$row[1].' | '.$desc.'...';
-						if($svs==$svs_now)
+						$nav=$row[1];
+						$desc=$row[2];
+						if( strlen($desc)>50)
+						{
+							$desc=mb_strcut($desc,0,50);
+							$svs_desc=$nav.' | '.$desc.'...';
+						}
+						else
+						{
+							$svs_desc=$nav.' | '.str_pad($desc,50);
+						}
+			
+						if((int)$svs===(int)$svs_now)
 							$selected='selected';
-						$services_t.='<option value="'.$row[0].'" '.$selected.'>'.$svs_desc.'</option>';
+						$select_ac.='<option value="'.$svs.'" '.$selected.'>'.$svs_desc.'</option>';
 					}
-					$services_t.='</select>';	
+					$select_ac.='</select>';	
 				
 				//----------
 				$direction=$row_two[2];
@@ -110,8 +121,9 @@ include ("header.php");
 			
 			$toggle_gen=toggle_gen($num,0,$gender);
 			$toggle_dir=toggle_gen($num,1,$direction);
-			$services_ap='<tr><td><b>'.$num.':</b></td><td>'.$services_t.'</td><td >'.$toggle_gen.'</td><td >'.$toggle_dir.'</td><td></td></tr>';
-			$services_ap_all.=$services_ap;
+			$services_ac='<div class="row"><div class="col-1 text-center align-self-center">'.$num.':</div><div class="col-5 align-self-center">'.$select_ac.'</div><div class="col-3 align-self-start">'.$toggle_gen.'</div><div class="col-3 align-self-start">'.$toggle_dir.'</div></div>';
+			//$services_ap='<tr><td><b>'.$num.':</b></td><td>'.$services_t.'</td><td >'.$toggle_gen.'</td><td >'.$toggle_dir.'</td><td></td></tr>';
+			$services_ap_all.=$services_ac;
 			$num+=1;
 		}
 		
@@ -132,18 +144,27 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("SELECT into services TABLE failed: ".mysqli_error($db_server));
 		
-					$services_t='<select name="val[]"  required>';
+					$select_as='<select name="val[]" class="custom-select" required>';
 					while ($row = mysqli_fetch_row( $answsqlcheck ))
 					{	
 						$selected='';
 						$svs=$row[0];
-						$desc=mb_strcut($row[2],0,40);
-						$svs_desc=$row[1].' | '.$desc.'...';
+						$nav=$row[1];
+						$desc=$row[2];
+						if( strlen($desc)>50)
+						{
+							$desc=mb_strcut($desc,0,50);
+							$svs_desc=$nav.' | '.$desc.'...';
+						}
+						else
+						{
+							$svs_desc=$nav.' | '.str_pad($desc,50);
+						}
 						if($svs==$svs_now)
 							$selected='selected';
-						$services_t.='<option value="'.$row[0].'" '.$selected.'>'.$svs_desc.'</option>';
+						$select_as.='<option value="'.$row[0].'" '.$selected.'>'.$svs_desc.'</option>';
 					}
-					$services_t.='</select>';	
+					$select_as.='</select>';	
 					
 				//-----------------------
 				$isRus=$row_three[1];
@@ -153,9 +174,11 @@ include ("header.php");
 			$toggle_dom=toggle_gen($num,2,$isRus);
 			$toggle_cargo=toggle_gen($num,3,$isCargo);
 			$toggle_pass=toggle_gen($num,4,$havePass);
+			$services_as='<div class="row"><div class="col-1 mt-4 align-self-start">'.$num.':</div><div class="col-2 align-self-center">'.$select_as.'</div>
+						<div class="col-3 align-self-start">'.$toggle_dom.'</div><div class="col-3 align-self-start">'.$toggle_cargo.'</div>
+						<div class="col-3 align-self-start">'.$toggle_pass.'</div></div>';
 			
-			$services_ap='<tr><td><b>'.$num.':</b></td><td>'.$services_t.'</td><td >'.$toggle_dom.'</td><td >'.$toggle_cargo.'</td><td >'.$toggle_pass.'</td></tr>';
-			$services_as_all.=$services_ap;
+			$services_as_all.=$services_as;
 			$num+=1;
 		}
 		
@@ -179,22 +202,32 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("SELECT into services TABLE failed: ".mysqli_error($db_server));
 		
-					$services_t='<select name="val[]"  required>';
+					$select_gh='<select name="val[]" class="custom-select" required>';
 					while ($row = mysqli_fetch_row( $answsqlcheck ))
 					{	
 						$selected='';
 						$svs=$row[0];
-						$desc=mb_strcut($row[2],0,40);
-						$svs_desc=$row[1].' | '.$desc.'...';
+						$nav=$row[1];
+						$desc=$row[2];
+						if( strlen($desc)>50)
+						{
+							$desc=mb_strcut($desc,0,50);
+							$svs_desc=$nav.' | '.$desc.'...';
+						}
+						else
+						{
+							$svs_desc=$nav.' | '.str_pad($desc,50);
+						}
 						if($svs==$svs_now)
 							$selected='selected';
-						$services_t.='<option value="'.$row[0].'" '.$selected.'>'.$svs_desc.'</option>';
+						$select_gh.='<option value="'.$row[0].'" '.$selected.'>'.$svs_desc.'</option>';
 					}
-					$services_t.='</select>';	
+					$select_gh.='</select>';	
 			$isAdult=$row_four[1];
 			
 			$toggle_gen=toggle_gen($num,0,$isAdult);
-			$services_gh='<tr><td><b>'.$num.':</b></td><td>'.$services_t.'</td><td >'.$toggle_gen.'</td><td ></td><td ></td></tr>';
+			$services_gh='<div class="row"><div class="col-1 text-center align-self-center">'.$num.':</div><div class="col-5 align-self-center">'.$select_gh.'</div><div class="col-3 align-self-start">'.$toggle_gen.'</div><div class="col-3 align-self-start"></div></div>';
+			//$services_gh='<tr><td><b>'.$num.':</b></td><td>'.$services_t.'</td><td >'.$toggle_gen.'</td><td ></td><td ></td></tr>';
 			$services_gh_all.=$services_gh;
 			$num+=1;
 		}
@@ -218,7 +251,7 @@ include ("header.php");
 		*/
 		$content.= '<div class="container ml-5 mt-3">';
 		$content.='<form id="form" class="w-100" method=post action=update_op_proc_def.php >';
-		$content.= "<h4 >  Изменение настройек процесса расчета цены</h4> <span><i>рейсы обслуживаемые операторами</i></span> <hr>";
+		$content.= "<h4 >  Изменение настроек процесса расчета цены</h4> <span><i>рейсы обслуживаемые операторами</i></span> <hr>";
 		$content.= '<ul class="list-group">';
 		//$content.= '';
 		$content.='<li class="list-group-item flex-column align-items-start active" >
@@ -265,106 +298,16 @@ include ("header.php");
 					</li>';
 		$content.='</ul>';
 		$content.= '<ul class="list-group">';
-		$content.= '<li class="list-group-item flex-column ">';
-		$content.= '<button type="submit" class="btn btn-primary mb-2">ИЗМЕНИТЬ НАСТРОЙКИ</button></form>';
+		$content.= '<li class="list-group-item flex-column text-center">';
+		$content.= '<button type="submit" class="btn btn-primary mb-2 ">ИЗМЕНИТЬ НАСТРОЙКИ</button></form>';
 		$content.='</li>';
 		$content.='</ul>';
+		$content.='</form>';
 		$content.='</div>';
 		
 	Show_page($content);
 	
 	mysqli_close($db_server);
 
-function toggle_gen($number,$key,$chk)
-{
-	/* GENETRATES TOGGLE SWITCHES FOR THE PAGE
-	INPUT:
-			$number		-		integer, position on the page
-			$key		-		type of selector, 0 - gender, 1 - direction, 2 - RUS/FOREIGN, 3 - PASS / CARGO, 4 - NO / HAVE PASSENGERS
-			$chk		-		current value,  0 - first, 1 - second
-	OUTPUT:
-			html of radiobutton
-	
-	
-			$toggle_gen=' <div class="switch-field">
-							<input type="radio" id="left" name="gender" value="yes" />
-							<label for="left">ВЗР</label>
-							<input type="radio" id="right" name="gender" value="no" />
-							<label for="right">ДЕТ</label>
-					</div>';
-			$toggle_dir=' <div class="switch-field">
-							<input type="radio" id="switch_left" name="dir" value="yes" />
-							<label for="switch_left">ПРИБ</label>
-							<input type="radio" id="switch_right" name="dir" value="no" />
-							<label for="switch_right">ОТПР</label>
-					</div>';
-			$radio_gen='<div class="custom-check">
-						<input id="q1" name="gender[]" type="radio" />
-						<label for="q1">ВЗР</label>
-					</div>
-					<div class="custom-check">
-						<input id="q2" name="gender[]" type="radio" />
-						<label for="q2">ДЕТ</label>
-					</div>';
-			$radio_dir='<div class="custom-check">
-						<input id="d1" name="direction[]" type="radio" />
-						<label for="d1">ПРИБ</label>
-					</div>
-					<div class="custom-check">
-						<input id="d2" name="direction[]" type="radio" />
-						<label for="d2">ОТПР</label>
-					</div>';
-			$radio_old='<div class="dark"><input type="radio" name="gender" value="adult" >ВЗР</div>
-			</td><td><input type="radio" name="gender" value="child">ДЕТ';		
-	*/
-	$checked='checked';
-	
-	switch($key)
-	{
-		case 1:
-			$legend_0='ПРИБ';
-			$legend_1='ОТПР';
-			$name='dir'.$number;
-			break;
-		case 2:
-			$legend_0='ЗАР';
-			$legend_1='РОС';
-			$name='dom'.$number;
-			break;
-		case 3:
-			$legend_0='НЕТ';
-			$legend_1='ГРУЗ';
-			$name='cargo'.$number;
-			break;
-		case 4:
-			$legend_0='НЕТ';
-			$legend_1='ПАСС';
-			$name='pass'.$number;
-			break;
-		default:
-			$legend_0='ДЕТ';
-			$legend_1='ВЗР';
-			$name='gender'.$number;
-			break;
-	}
-	if(!$chk)
-	{
-		$first=$checked;
-		$second='';
-	}
-	else
-	{
-		$second=$checked;
-		$first='';
-	}
-	
-	
-return ' <div class="switch-field">
-							<input type="radio" id="left'.$key.$number.'" name="'.$name.'" value="yes" '.$first.' disabled/>
-							<label for="left'.$key.$number.'">'.$legend_0.'</label>
-							<input type="radio" id="right'.$key.$number.'" name="'.$name.'" value="no" '.$second.' disabled/>
-							<label for="right'.$key.$number.'">'.$legend_1.'</label>
-					</div>';
-}
 ?>
 	

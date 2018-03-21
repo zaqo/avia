@@ -1,6 +1,6 @@
 ﻿<?php
 /*
- Updater for the default billing process form
+ Updater for the default billing process form - OPERATORS' FLIGHTS
 */
  include ("login_avia.php"); 
 
@@ -8,9 +8,9 @@
 //if(!$loggedin) echo "<script>window.location.replace('/Agents/login.php');</script>";
 
  $in=$_REQUEST;
- echo "<pre>";
- var_dump($in);
- echo "</pre>";
+ //echo "<pre>";
+	//var_dump($in);
+ //echo "</pre>";
 	
 $takeoff=array();
 
@@ -51,10 +51,10 @@ $takeoff=array();
 						VALUES(1,"'.$takeoff[0].'",1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE #1 INSERTED ".$takeoff[0]."<br/>";
+			//echo "NEW RECORD: SERVICE #1 INSERTED ".$takeoff[0]."<br/>";
 		}
-		else
-			echo "NO CHANGES: SERVICE #1 STAYS THE SAME <br/>";
+		//else
+			//echo "NO CHANGES: SERVICE #1 STAYS THE SAME <br/>";
 	
 	//b. TERMINAL
 		
@@ -84,10 +84,10 @@ $takeoff=array();
 						VALUES(1,"'.$takeoff[1].'","6",1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE #2 INSERTED ".$takeoff[1]."<br/>";
+			//echo "NEW RECORD: SERVICE #2 INSERTED ".$takeoff[1]."<br/>";
 		}
-		else
-			echo "NO CHANGES: SERVICE #2 STAYS THE SAME <br/>";
+		//else
+			//echo "NO CHANGES: SERVICE #2 STAYS THE SAME <br/>";
 	//2. AIRPORT CHARGES	
 	//a. CHECK if IT IS DIFFERENT
 		
@@ -130,10 +130,10 @@ $takeoff=array();
 						VALUES(2,"'.$takeoff[2].'",0,1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE #3 INSERTED ".$takeoff[2]."<br/>";
+			//echo "NEW RECORD: SERVICE #3 INSERTED ".$takeoff[2]."<br/>";
 		}
-		else
-		echo "NO CHANGES: SERVICE #3 STAYS THE SAME <br/>";
+		//else
+			//echo "NO CHANGES: SERVICE #3 STAYS THE SAME <br/>";
 		// 2. IN KIDS
 		if(!$answsql_1->num_rows) 
 		{
@@ -156,10 +156,10 @@ $takeoff=array();
 						VALUES(2,"'.$takeoff[3].'",0,0,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE #4 INSERTED ".$takeoff[3]."<br/>";
+			//echo "NEW RECORD: SERVICE #4 INSERTED ".$takeoff[3]."<br/>";
 		}
-		else
-			echo "NO CHANGES: SERVICE #4 STAYS THE SAME <br/>";
+		//else
+			//echo "NO CHANGES: SERVICE #4 STAYS THE SAME <br/>";
 	// 3. OUT ADULT
 		if(!$answsql_2->num_rows) 
 		{
@@ -182,10 +182,10 @@ $takeoff=array();
 						VALUES(2,"'.$takeoff[4].'",1,1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE #5 INSERTED ".$takeoff[4]."<br/>";
+			//echo "NEW RECORD: SERVICE #5 INSERTED ".$takeoff[4]."<br/>";
 		}
-		else
-		echo "NO CHANGES: SERVICE #5 STAYS THE SAME <br/>";
+		//else
+			//echo "NO CHANGES: SERVICE #5 STAYS THE SAME <br/>";
 	// 4. OUT KIDS
 		if(!$answsql_3->num_rows) 
 		{
@@ -208,10 +208,10 @@ $takeoff=array();
 						VALUES(2,"'.$takeoff[5].'",1,0,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE #6 INSERTED ".$takeoff[5]."<br/>";
+			//echo "NEW RECORD: SERVICE #6 INSERTED ".$takeoff[5]."<br/>";
 		}
-		else
-			echo "NO CHANGES: SERVICE #6 STAYS THE SAME <br/>";
+		//else
+			//echo "NO CHANGES: SERVICE #6 STAYS THE SAME <br/>";
 	
 	// 3. AVIATION SEC
 		
@@ -261,10 +261,10 @@ $takeoff=array();
 						VALUES(3,"'.$takeoff[6].'",1,0,1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			  echo "NEW RECORD: SERVICE #7 INSERTED ".$takeoff[6]."<br/>";
+			  //echo "NEW RECORD: SERVICE #7 INSERTED ".$takeoff[6]."<br/>";
 		}
-		else
-				echo "NO CHANGES: SERVICE #7 STAYS THE SAME <br/>";
+		//else
+			//	echo "NO CHANGES: SERVICE #7 STAYS THE SAME <br/>";
 		// 2. AVIATION SECURITY FOREIGN
 		if(!$answsql_11->num_rows) 
 		{
@@ -287,10 +287,10 @@ $takeoff=array();
 						VALUES(3,"'.$takeoff[7].'",1,1,0,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			  echo "NEW RECORD: SERVICE #8 INSERTED ".$takeoff[7]."<br/>";
+			  //echo "NEW RECORD: SERVICE #8 INSERTED ".$takeoff[7]."<br/>";
 		}
-		else
-				echo "NO CHANGES: SERVICE #8 STAYS THE SAME <br/>";
+		//else
+			//	echo "NO CHANGES: SERVICE #8 STAYS THE SAME <br/>";
 	// FOREIGN NO 
 	if(!$answsql_12->num_rows) 
 		{
@@ -313,10 +313,10 @@ $takeoff=array();
 						VALUES(3,"'.$takeoff[8].'",0,0,0,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			  echo "NEW RECORD: SERVICE #9 INSERTED ".$takeoff[8]."<br/>";
+			  //echo "NEW RECORD: SERVICE #9 INSERTED ".$takeoff[8]."<br/>";
 		}
-		else
-				echo "NO CHANGES: SERVICE #9 STAYS THE SAME <br/>";
+		//else
+			//	echo "NO CHANGES: SERVICE #9 STAYS THE SAME <br/>";
 	// FOREIGN CARGO
 	if(!$answsql_13->num_rows) 
 		{
@@ -339,10 +339,10 @@ $takeoff=array();
 						VALUES(3,"'.$takeoff[9].'",0,1,0,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			  echo "NEW RECORD: SERVICE #10 INSERTED ".$takeoff[9]."<br/>";
+			  //echo "NEW RECORD: SERVICE #10 INSERTED ".$takeoff[9]."<br/>";
 		}
-		else
-				echo "NO CHANGES: SERVICE #10 STAYS THE SAME <br/>";
+		//else
+			//	echo "NO CHANGES: SERVICE #10 STAYS THE SAME <br/>";
 	if(!$answsql_14->num_rows) 
 		{
 			$check_sql='SELECT id FROM process
@@ -364,10 +364,10 @@ $takeoff=array();
 						VALUES(3,"'.$takeoff[10].'",0,0,1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			  echo "NEW RECORD: SERVICE #11 INSERTED ".$takeoff[10]."<br/>";
+			  //echo "NEW RECORD: SERVICE #11 INSERTED ".$takeoff[10]."<br/>";
 		}
-		else
-				echo "NO CHANGES: SERVICE #11 STAYS THE SAME <br/>";
+		//else
+			//	echo "NO CHANGES: SERVICE #11 STAYS THE SAME <br/>";
 	// END OF AVIATION SECURITY
 	// 4. GROUND HANDLING
 		
@@ -407,10 +407,10 @@ $takeoff=array();
 						VALUES(4,"'.$takeoff[11].'",1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE #12 INSERTED ".$takeoff[11]."<br/>";
+			//echo "NEW RECORD: SERVICE #12 INSERTED ".$takeoff[11]."<br/>";
 		}
-		else
-			echo "NO CHANGES: SERVICE #12 STAYS THE SAME <br/>";
+		//else
+			//echo "NO CHANGES: SERVICE #12 STAYS THE SAME <br/>";
 		// 2. GH KIDS
 		if(!$answsql_21->num_rows) 
 		{
@@ -433,15 +433,15 @@ $takeoff=array();
 						VALUES(4,"'.$takeoff[12].'",0,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			echo "NEW RECORD: SERVICE #13 INSERTED ".$takeoff[12]."<br/>";
+			//echo "NEW RECORD: SERVICE #13 INSERTED ".$takeoff[12]."<br/>";
 		}
-		else
-			echo "NO CHANGES: SERVICE #13 STAYS THE SAME <br/>";
+		//else
+			//echo "NO CHANGES: SERVICE #13 STAYS THE SAME <br/>";
 	
 	// END OF GROUND HANDLING
 	//echo $textsql.'<br/>';				
 		
-	//echo '<script>history.go(-2);</script>';	
+	echo '<script>history.go(-2);</script>';	
 	
 mysqli_close($db_server);
 
