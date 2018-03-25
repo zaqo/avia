@@ -104,7 +104,10 @@
 		
 		// 1. Check if there is a pair and make a record 
 		if($carrier)
-			$textsql='SELECT id,id_NAV,linked_to,flight,time_fact FROM  flights WHERE date="'.$date.'" 
+			$textsql='SELECT flights.id,id_NAV,linked_to,flight,time_fact,airports.name_rus
+						FROM  flights
+						LEFT JOIN airports ON flights.airport=airports.id 
+						WHERE date="'.$date.'" 
 						AND direction=0 AND sent_to_SAP IS NULL 
 						AND flight LIKE "'.$carrier.'%"';
 		else
@@ -191,7 +194,7 @@
 										<h5 class="mb-1"> <a href="show_flight.php?id='.$out_id.'&from='.$input_date.'&carrier='.$carrier.'">'.$flight_num_pair.'</a> <span class="text-muted"><small>'.$airport_out.'</small></span></h5> 
 										<span class="mb-1">	<img src="/avia/src/'.$logo_filename.'" alt="Company Logo"></span>
 											
-										<small><input type="checkbox" name="to_export[]" class="flights" value="$position" checked/></small>
+										<small><input type="checkbox" name="to_export[]" class="flights" value="'.$position.'" checked/></small>
 									
 									</div>
 									</li>';
@@ -218,7 +221,7 @@
 											&#x21E2 <a href="show_flight.php?id='.$out_id.'&from='.$input_date.'&carrier='.$carrier.'">'.$flight_num_pair.'</a> <small>'.$time_fact_pair.' </small> 
 											<img src="/avia/src/'.$logo_filename.'" alt="Company Logo">
 											</h5>
-										<small><input type="checkbox" name="to_export[]" class="flights" value="$position" checked/></small>
+										<small><input type="checkbox" name="to_export[]" class="flights" value="'.$position.'" checked/></small>
 									</div>
 									</li>';
 					

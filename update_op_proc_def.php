@@ -8,9 +8,9 @@
 //if(!$loggedin) echo "<script>window.location.replace('/Agents/login.php');</script>";
 
  $in=$_REQUEST;
- //echo "<pre>";
-	//var_dump($in);
- //echo "</pre>";
+ echo "<pre>";
+	var_dump($in);
+ echo "</pre>";
 	
 $takeoff=array();
 
@@ -29,7 +29,7 @@ $takeoff=array();
 						WHERE sequence=1 AND isValid AND terminal AND service_id='.$takeoff[0];
 		$answsql=mysqli_query($db_server,$textsql);
 		if(!$answsql) die("SELECT FROM process table failed: ".mysqli_error($db_server));
-		//  UPDATE
+			//  UPDATE
 		if(!$answsql->num_rows) 
 		{
 			$check_sql='SELECT id FROM process
@@ -218,9 +218,9 @@ $takeoff=array();
 	//a. CHECK if IT IS DIFFERENT
 		
 		$sql_sec_rus_pass='SELECT id FROM process
-						WHERE sequence=3 AND isRus=1 AND NOT isCargo AND havePAX AND isValid AND service_id='.$takeoff[6];
+						WHERE sequence=3 AND isRus=1 AND NOT isCargo AND havePAX AND isValid AND service_id='.$takeoff[7];
 		$sql_sec_rus_cargo='SELECT id FROM process
-						WHERE sequence=3 AND isRus=1 AND isCargo AND NOT havePAX AND isValid AND service_id='.$takeoff[7];
+						WHERE sequence=3 AND isRus=1 AND isCargo AND NOT havePAX AND isValid AND service_id='.$takeoff[6];
 		$sql_sec_for_no='SELECT id FROM process
 						WHERE sequence=3 AND NOT isRus AND NOT isCargo AND NOT havePAX AND isValid AND service_id='.$takeoff[8];
 		$sql_sec_for_cargo='SELECT id FROM process
@@ -258,7 +258,7 @@ $takeoff=array();
 			}
 			$insert_sql='INSERT INTO process
 						(sequence,service_id,isRus,isCargo,havePAX,isValid)
-						VALUES(3,"'.$takeoff[6].'",1,0,1,1)';
+						VALUES(3,"'.$takeoff[7].'",1,0,1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
 			  //echo "NEW RECORD: SERVICE #7 INSERTED ".$takeoff[6]."<br/>";
@@ -284,7 +284,7 @@ $takeoff=array();
 			}
 			$insert_sql='INSERT INTO process
 						(sequence,service_id,isRus,isCargo,havePAX,isValid)
-						VALUES(3,"'.$takeoff[7].'",1,1,0,1)';
+						VALUES(3,"'.$takeoff[6].'",1,1,0,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
 			  //echo "NEW RECORD: SERVICE #8 INSERTED ".$takeoff[7]."<br/>";
@@ -407,11 +407,11 @@ $takeoff=array();
 						VALUES(4,"'.$takeoff[11].'",1,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			//echo "NEW RECORD: SERVICE #12 INSERTED ".$takeoff[11]."<br/>";
+			echo "NEW RECORD: SERVICE #12 INSERTED ".$takeoff[11]."<br/>";
 		}
-		//else
-			//echo "NO CHANGES: SERVICE #12 STAYS THE SAME <br/>";
-		// 2. GH KIDS
+		else
+			echo "NO CHANGES: SERVICE #12 STAYS THE SAME <br/>";
+		//2. GH KIDS
 		if(!$answsql_21->num_rows) 
 		{
 			$check_sql='SELECT id FROM process
@@ -433,13 +433,13 @@ $takeoff=array();
 						VALUES(4,"'.$takeoff[12].'",0,1)';
 			$answsql3=mysqli_query($db_server,$insert_sql);
 			if(!$answsql3) die("INSERT INTO process table failed: ".mysqli_error($db_server));
-			//echo "NEW RECORD: SERVICE #13 INSERTED ".$takeoff[12]."<br/>";
+			echo "NEW RECORD: SERVICE #13 INSERTED ".$takeoff[12]."<br/>";
 		}
-		//else
-			//echo "NO CHANGES: SERVICE #13 STAYS THE SAME <br/>";
+		else
+			echo "NO CHANGES: SERVICE #13 STAYS THE SAME <br/>";
 	
 	// END OF GROUND HANDLING
-	//echo $textsql.'<br/>';				
+					
 		
 	echo '<script>history.go(-2);</script>';	
 	

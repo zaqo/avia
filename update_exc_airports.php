@@ -12,7 +12,10 @@ include ("login_avia.php");
 
  
 	
-	if(isset($_REQUEST['id'])) 			$id		= $_REQUEST['id'];
+if(isset($_REQUEST['id'])) 			
+{
+	
+	$id		= $_REQUEST['id'];
 	if(isset($_REQUEST['airports'])) 	$apt	= $_REQUEST['airports'];
 
 	
@@ -33,7 +36,7 @@ include ("login_avia.php");
 					
 			$answsql_cl=mysqli_query($db_server,$clear_sql);
 			if(!$answsql_cl) die("UPDATE exc_conditions table failed: ".mysqli_error($db_server));
-			echo "CLEANED: <br/>";
+			//echo "CLEANED: <br/>";
 			
 		foreach ($airports as $value)
 		{
@@ -46,9 +49,11 @@ include ("login_avia.php");
 	
 				$answsql_in=mysqli_query($db_server,$insert_sql);
 				if(!$answsql_in) die("INSERT exc_conditions table failed: ".mysqli_error($db_server));
-				echo "INSERTED: $value <br/>";
+				//echo "INSERTED: $value <br/>";
 		}
-		//echo '<script>history.go(-2);</script>';			
+}
+else echo "ERROR: NO EXCEPTION's ID PROVIDED";
+echo '<script>history.go(-2);</script>';			
 		
 	
 mysqli_close($db_server);

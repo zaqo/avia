@@ -1,5 +1,8 @@
 ﻿<?php 
-// CREATES TEMPLATE OF SERVICES
+/*
+	THIS SCRIPT CREATES TEMPLATE OF SERVICES
+*/
+
 require_once 'login_avia.php';
 include ("header.php"); 	
 		$content="";
@@ -33,14 +36,26 @@ include ("header.php");
 		while ($row = mysqli_fetch_row( $answsqlcheck ))
 		$clients.='<option value="'.$row[0].'">'.$row[1].'</option>';
 		$clients.='</select>';
+		
 		// Form begins
+				// Top of the table
+		$content.= '<h2 class="mt-2 ml-2">Создаем ШАБЛОН</h2>';
+		$content.= '<div id="add_field_area" class="table mt-2 ml-2 w-75">';
+		$content.= '<form id="form" method=post action=update_package.php autocomplete="off">';
+		$content.= '<table class="table table-striped table-sm ml-1" >';
+		$content.= '<thead class="">';
+		$content.= '<tr><td colspan="2"><b>НАЗВАНИЕ:</b></td><td colspan="3"><input type="text" class="input-control" value="" name="pack_name" placeholder="Название " required/></td></tr>';
+		$content.= '<tr><th>Услуга</th><th>Везде</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th><th>Вылет</th></tr></thead>';
+		//$content.= '<tbody id="tbody">';
+		
+		/*
 		$content.= '<form id="form" method=post action=update_package.php autocomplete="off">
 					<div id="add_field_area"><table id="myTab"><caption><b>Создаем ШАБЛОН</b></caption>
 					<tr><td colspan="2"><b>НАЗВАНИЕ:</b></td><td colspan="3"><input type="text" value="" name="pack_name" placeholder="Название " required/></td></tr>
-					<tr><th>Услуга</th><th>Везде</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th><th>Вылет</th></tr>
+					<tr><th>Услуга</th><th>Везде</th><th>Вкл Аэропорты</th><th>Искл Аэропорты</th><th>Вылет</th></tr>';
+		*/			
 					
-					
-						<tr><div id="add1" class="add">
+		$content.= '<tr><div id="add1" class="add">
 							<td>'.$srv_ajax.'</td>
 							<td><select name="to_all[]" id="all" class="services" >
 							<option value=1>Да</option>
@@ -57,7 +72,7 @@ include ("header.php");
 					<tr><td colspan="5"><p>
 					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
 					</table></div></form>';
-	
+			$content.= '</div>';
 	Show_page($content);
 	
 	mysqli_close($db_server);

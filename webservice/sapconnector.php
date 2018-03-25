@@ -27,6 +27,7 @@ function SAP_connector($params)
 	{
 		//$result = $client->ZsdOrderAviCrud($params);
 		$result = $client->Z_SD_ORDER_ZAVI_CRUD($params);
+		echo " INPUT PARAMS:".$params." <br/ OUTPUT: >".$result;
 	}
 	catch(SoapFault $fault)
 	{

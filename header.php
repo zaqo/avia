@@ -59,7 +59,7 @@
 										Обмен
 									</a>
 									<div class="dropdown-menu dropdown-menu-right" aria-labelledby="exchange">
-										<a class="dropdown-item active" href="import_daily.php" title="AODB->|">Импорт</a>
+										<a class="dropdown-item " href="import_daily.php" title="AODB->|">Импорт</a>
 										<a class="dropdown-item" href="pairs_daily.php" title="|->ERP">Экспорт</a>	
 									</div>
 								</li>
@@ -68,7 +68,7 @@
 										Услуги 
 									</a>
 									<div class="dropdown-menu dropdown-menu-right" aria-labelledby="services">
-										<a class="dropdown-item active" href="show_services.php">Перечень</a>
+										<a class="dropdown-item " href="show_services.php">Перечень</a>
 										<a class="dropdown-item" href="create_service.php">Создать Услугу</a>
 										<a class="dropdown-item" href="show_bundles_all.php">Пакеты</a>
 										<a class="dropdown-item" href="create_bundle.php">Создать пакет</a>
@@ -81,7 +81,7 @@
 										Скидки 
 									</a>
 									<div class="dropdown-menu dropdown-menu-right" aria-labelledby="discounts">
-										<a class="dropdown-item active" href="show_discounts_all.php">Перечень</a>
+										<a class="dropdown-item " href="show_discounts_all.php">Перечень</a>
 										<a class="dropdown-item" href="create_discount_grp.php">Создать Скидку | Группа</a>
 										<a class="dropdown-item" href="create_discount_ind.php">Создать Скидку | Клиент</a>
 										<a class="dropdown-item" href="show_conditions.php">Условия</a>
@@ -93,7 +93,7 @@
 										Клиенты 
 									</a>
 									<div class="dropdown-menu dropdown-menu-right" aria-labelledby="clients">
-										<a class="dropdown-item active" href="show_clients.php">Перечень</a>
+										<a class="dropdown-item " href="show_clients.php">Перечень</a>
 										<a class="dropdown-item" href="create_client.php">Новый клиент</a>
 										<a class="dropdown-item" href="show_contracts.php">Контракты</a>
 										<a class="dropdown-item" href="create_contract.php">Создать контракт</a>
@@ -104,9 +104,9 @@
 										Процесс
 									</a>
 									<div class="dropdown-menu dropdown-menu-right" aria-labelledby="process">
-										<a class="dropdown-item active" href="show_process_defaults.php">Рег.рейсы</a>
-										<a class="dropdown-item" href="show_process_exceptions.php">Исключения</a>
+										<a class="dropdown-item " href="show_process_defaults.php">Рег.рейсы</a>
 										<a class="dropdown-item" href="show_operator_proc_def.php">Операторы</a>
+										<a class="dropdown-item" href="show_process_exceptions.php">Исключения</a>
 										<a class="dropdown-item" href="show_other_svs.php">Прочее</a>
 									</div>
 								</li>
@@ -115,9 +115,7 @@
 										Прочее
 									</a>
 									<div class="dropdown-menu dropdown-menu-right" aria-labelledby="Other">
-										<a class="dropdown-item active" href="list_flights.php">Медосмотр</a>
-										<a class="dropdown-item" href="show_mus.php">Единицы изм.</a>
-										<a class="dropdown-item" href="create_mu.php">Добавить ед.изм.</a>
+										<a class="dropdown-item" href="list_flights.php">Медосмотр</a>
 									</div>
 								</li>
 							</ul>

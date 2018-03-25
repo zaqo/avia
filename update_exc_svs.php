@@ -44,7 +44,7 @@ include ("login_avia.php");
 					$textsql='UPDATE exc_default SET exc_svs_kids_id='.$svs.' WHERE exc_id='.$id;
 					break;
 				default:
-					echo "ERROR: WRONG SERVICE POSITION ID IN THE INPUT! <br/>"
+					echo "ERROR: WRONG SERVICE POSITION ID IN THE INPUT! <br/>";
 					break;
 		}
 					$answsql=mysqli_query($db_server,$textsql);

@@ -23,7 +23,7 @@ include ("header.php");
 			$db_server->set_charset("utf8");
 			If (!$db_server) die("Can not connect to a database!!".mysqli_connect_error($db_server));
 			mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
-		if(!$svs_num)
+		if(!$svs_num) // EDITING LIST OF AIRPORTS
 		{
 			$check_airports='SELECT airport_id,exc_process.sequence,clients.name,
 								t2.description,t2.id_NAV,t3.description,t3.id_NAV 
@@ -47,13 +47,40 @@ include ("header.php");
 					while($row = mysqli_fetch_row( $answsqlcheck ))
 						$airports.=$row[0].', ';
 					$airports=substr($airports,0,-2);
+					/*
 					$content.= '<form id="form" method=post action=update_exc_airports.php >
 					<table class="fullTab"><caption><b>Редактирование списка аэропортов</b></caption><br>
 					<tr><th>Клиент:</th><th>'.$client.'</th></tr>
 					<tr><td>Услуга ВЗР:</td><td>'.$svs_3.'</td></tr>
 					<tr><td>Услуга ДЕТ:</td><td>'.$svs_4.'</td></tr>
 					<tr><td>Направления:</td><td><textarea rows="4" cols="45" name="airports">'.$airports.'</textarea></td></tr>';
-					
+					*/
+			// Top of the table
+				$content.= '<div class="col-md-8 order-md-1 mt-5 ml-2">
+							<h4 class="mb-3"> Редактирование списка аэропортов</h4>';
+				$content.= '<form id="form" method=post action="update_exc_airports.php" class="needs-validation" novalidate/>';
+				$content.='
+						<div class="mb-3 mt-5">
+							<label for="cl"><b>Компания:</b></label>
+								'.$client.'
+						</div>
+						<div class="mb-3 mt-2">
+							<label for="svs"><b>Услуга ВЗР:</b></label>
+								'.$svs_3.'
+						</div>
+						<div class="mb-3 mt-2">
+							<label for="svs"><b>Услуга ДЕТ:</b></label>
+								'.$svs_4.'
+						</div>
+						<div class="mb-3 mt-2">
+							<label for="svs"><b>Направления:</b></label>
+								<textarea rows="4" cols="45" name="airports" class="form-control">'.$airports.'</textarea>
+						</div>
+						<hr class="mb-4 ">
+						<input type="hidden" name="id" value="'.$id.'">
+						<button class="btn btn-primary btn-lg btn-block" type="submit">ВВОД</button>
+						</form>';			
+		
 		}
 		else
 		{
@@ -94,7 +121,7 @@ include ("header.php");
 					if(!$answsqlcheck) die("SELECT into services TABLE failed: ".mysqli_error($db_server));
 		
 			$services='';
-			$services='<select name="val" required>';
+			$services='<select name="val" class="custom-select d-block w-100" required>';
 			
 				
 				while ($row = mysqli_fetch_row( $answsqlcheck ))
@@ -109,7 +136,8 @@ include ("header.php");
 				}
 			$services.='</select>';
 			// DONE WITH SERVICES
-			switch ($svs_num)
+			
+			/*switch ($svs_num)
 			{
 					case 1:
 							$svs_1=$services;
@@ -126,10 +154,35 @@ include ("header.php");
 					default:
 						echo "ERROR: WRONG SERVICE SUGGESTED IN THE INPUT LINE <br/>";
 						
-			}
+			}*/
 		// Top of the table
+			$content.= '<div class="col-md-8 order-md-1 mt-5 ml-2">
+						<h4 class="mb-3 ml-5"> Изменение услуги</h4>';
+			$content.= '<form id="form" method=post action="update_exc_svs.php" class="needs-validation" novalidate/>';
+			$content.='
+					<div class="mb-3 mt-5">
+						<label for="cl"><b>Компания:</b></label>
+							'.$client.'
+					</div>
+					<div class="mb-3 mt-2">
+						<label for="svs"><b>Этап процесса:</b></label>
+							'.$steps[$step-1].'
+					</div>
+					<div class="mb-3 mt-2">
+						<label for="svs"><b>Услуга #'.$svs_num.':</b></label>
+							'.$services.'
+					</div>';
 				
-			$content.= '<form id="form" method=post action=update_exc_svs.php >
+				$content.='	
+					 <hr class="mb-4 ">
+					 <input type="hidden" name="id" value="'.$id.'">
+					 <input type="hidden" value="'.$svs_num.'" name="num">
+					<button class="btn btn-primary btn-lg btn-block" type="submit">ВВОД</button>
+				</form>';
+		}	
+			$content.='</div>'; 
+			/*
+			$content.= '<form id="form" method=post action= >
 					<table class="fullTab"><caption><b>Выбор услуги</b></caption><br>
 					<tr><th>Клиент:</th><th>'.$client.'</th></tr>
 					<tr><td>Этап:</td><td>'.$steps[$step-1].'</td></tr>';
@@ -152,6 +205,7 @@ include ("header.php");
 					<input type="hidden" value="'.$svs_num.'" name="num">
 					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
 						</table></form>';
+		*/
 	Show_page($content);
 	mysqli_close($db_server);
 	

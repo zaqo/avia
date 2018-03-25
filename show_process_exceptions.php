@@ -30,9 +30,18 @@ include ("header.php");
 					
 					$answsql=mysqli_query($db_server,$select_exc);
 					if(!$answsql) die("SELECT into exc_process TABLE failed: ".mysqli_error($db_server));
-				
-		$content.= '<table class="myTab"><caption><b>Настройки исключений в расчете цены для рейса</b></caption>
-					<tr><th class="col80"></th><th class="col500"></th><th class="col1"></th></tr>';		
+
+// Top of the table
+		$content.= '<h2 class="mt-2 ml-2">Исключения в расчете цены рейса</h2>';
+		$content.= '<div class="table mt-2 ml-2 w-75">';
+		$content.= '<table class="table  table-hover table-sm ml-1" onload="JavaScript:AutoRefresh(5000)">';
+		$content.= '<thead class="">';
+		$content.= '<tr><th></th><th></th><th></th></thead>';
+		$content.= "<tbody>";
+		
+		//$content.= '<table class="myTab"><caption><b> в расчете цены для рейса</b></caption>
+		//			<tr><th class="col80"></th><th class="col500"></th><th class="col1"></th></tr>';		
+		
 		$client_last=0;
 		$step_last=0;
 		while ($row = mysqli_fetch_row( $answsql))
@@ -58,12 +67,12 @@ include ("header.php");
 			if($client_last!=$client_id) //CLIENTS TOP
 			{
 				if($client_last) $content.= '<tr><td colspan="3" ></td></tr>';
-				$content.= '<tr><td colspan="2" class="tab_h2"><b>'.$client.'</b></td><td class="tab_h3"><a href="delete_exc_cl.php?id='.$client_id.'" ><img src="/avia/css/delete.png" alt="Delete" title="Удалить" ></a></td></tr>';
+				$content.= '<tr><td colspan="2"><h4>'.$client.'</h4></td><td ><a href="delete_exc_cl.php?id='.$client_id.'" ><img src="/avia/css/delete.png" alt="Delete" title="Удалить" ></a></td></tr>';
 			}
 			if(($step_last!=$seq)||($client_last!=$client_id))	// STEP TOP
 			{
 				if($step_last) $content.= '<tr><td colspan="3" ></td></tr>';
-				$content.= '<tr><td colspan="2" class="tab_h3">'.$steps[$seq-1].'</td><td class="tab_h3"><a href="delete_exc.php?id='.$exc_id.'" ><img src="/avia/css/delete.png" alt="Delete" title="Удалить" ></a></td></tr>';
+				$content.= '<tr><td colspan="2" >'.$steps[$seq-1].'</td><td ><a href="delete_exc.php?id='.$exc_id.'" ><img src="/avia/css/delete.png" alt="Delete" title="Удалить" ></a></td></tr>';
 				
 			}
 			if($svs_1)
@@ -91,9 +100,13 @@ include ("header.php");
 		}
 		
 		
-		
+		$content.= '</tbody>';
 		$content.= '</table>';
-		$content.= '<div class="center"><a href=add_exception.php><img src="/avia/src/red_plus_small.png" alt="ADD" title="Добавить" ></a></div>';
+		$content.= '<div class="d-flex justify-content-center">';
+		$content.= '<a href="add_exception.php" class="btn btn-primary btn-lg active justify-content-center" role="button" aria-pressed="true">Добавить</a>';
+		$content.= '</div>';
+	$content.= '</div>';
+		
 		
 	Show_page($content);
 	

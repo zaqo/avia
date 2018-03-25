@@ -2,7 +2,7 @@
 /* 
 	
 	BILLING PROCESS EXCEPTION REGISTRATION FORM
-	TIED TO CLIENT
+	TIED TO a CLIENT
 	
 */
 require_once 'login_avia.php';
@@ -23,14 +23,23 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("SELECT into services TABLE failed: ".mysqli_error($db_server));
 					$services_dd_head='<select name="svs';
-					$services_dd='"  required>';
-					$services_dd.='<option value="" selected > -- выберите -- </option>';
+					$services_dd='" class="custom-select d-block w-100" required>';
+					$services_dd.='<option value="" selected disabled> -- укажите услугу -- </option>';
 					while ($row = mysqli_fetch_row( $answsqlcheck ))
 					{	
 						$selected='';
 						$svs=$row[0];
-						$desc=mb_strcut($row[2],0,40);
-						$svs_desc=$row[1].' | '.$desc.'...';
+						$nav=$row[1];
+						$desc=$row[2];
+						if( strlen($desc)>80)
+						{
+							$desc=mb_strcut($desc,0,80);
+							$svs_desc=$nav.' | '.$desc.'...';
+						}
+						else
+						{
+							$svs_desc=$nav.' | '.str_pad($desc,80);
+						}
 						
 						$services_dd.='<option value="'.$row[0].'" >'.$svs_desc.'</option>';
 					}
@@ -43,32 +52,55 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$clients_mysql);
 					if(!$answsqlcheck) die("SELECT into clients TABLE failed: ".mysqli_error($db_server));
 					
-					$clients_dd='<select name="cl"  required>';
-					$clients_dd.='<option value="" selected disabled> -- выберите -- </option>';
+					$clients_dd='<select name="cl" class="custom-select d-block w-100"  required>';
+					$clients_dd.='<option value="" selected disabled> -- укажите компанию -- </option>';
 					while ($row = mysqli_fetch_row( $answsqlcheck ))
 					{	
 						$selected='';
 						$cl_id=$row[0];
-						$desc=mb_strcut($row[2],0,40);
-						$cl_desc=$row[1].' | '.$desc.'...';
+						$svs=$row[0];
+						$nav=$row[1];
+						$desc=$row[2];
+						if( strlen($desc)>80)
+						{
+							$desc=mb_strcut($desc,0,80);
+							$cl_desc=$nav.' | '.$desc.'...';
+						}
+						else
+						{
+							$cl_desc=$nav.' | '.str_pad($desc,80);
+						}
 						
 						$clients_dd.='<option value="'.$cl_id.'" >'.$cl_desc.'</option>';
 					}
 					$clients_dd.='</select>';		
 		
-		$content.= '<form id="form" method=post action=update_exception.php >
-					<div id="add_field_area"><table class="myTab"><caption><b>Добавление клиента с особыми настройками</b></caption>
-					<tr><th class="col90">ПАРАМЕТР</th><th class="col300">ЗНАЧЕНИЕ</th></tr>
-					
-					<tr><td>КОМПАНИЯ</td><td>'.$clients_dd.'</td></tr>
-					<tr><td colspan="2"> ВЗЛЕТ / ПОСАДКА</td></tr>
-					<tr><td>УСЛУГА</td><td>'.$services_dd_head.'1'.$services_dd.'</td></tr>
-					<tr><td colspan="2"> НАЗЕМНОЕ ОБСЛУЖИВАНИЕ</td></tr>
-					<tr><td>ВЗР</td><td>'.$services_dd_head.'2'.$services_dd.'</td></tr>
-					<tr><td>ДЕТ</td><td>'.$services_dd_head.'3'.$services_dd.'</td></tr>
-					<tr><td colspan="2">
-					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
-					</table></div></form>';
+		$content.= '<div class="col-md-8 order-md-1 mt-5 ml-2">
+						<h4 class="mb-3 ml-5"> Добавление особых условий для авиакомпании</h4>';
+		$content.= '<form id="form" method=post action="update_exception.php" class="needs-validation" novalidate/>';
+		$content.='
+					<div class="mb-3 mt-5">
+						<label for="cl">Компания</label>
+							'.$clients_dd.'
+					</div>
+					<div class="mb-3 mt-2">
+						<label for="svs">ВЗЛЕТ / ПОСАДКА</label>
+							'.$services_dd_head.'1'.$services_dd.'
+					</div>
+					 <hr class="mb-4 ">
+					 <div class="mb-3 mt-2">
+						<label for="svs">Наземное обслуживание (ВЗР)</label>
+							'.$services_dd_head.'2'.$services_dd.'
+					</div>
+					 <hr class="mb-4 ">
+					 <div class="mb-3 mt-2">
+						<label for="svs">Наземное обслуживание (ДЕТ)</label>
+							'.$services_dd_head.'3'.$services_dd.'
+					</div>
+					 <hr class="mb-4 ">
+					<button class="btn btn-primary btn-lg btn-block" type="submit">ВВОД</button>
+				</form>';
+		$content.= '</div>';
 		
 		
 	Show_page($content);

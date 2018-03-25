@@ -19,7 +19,8 @@ include ("minuscles.php");
 			$select_takeoff='SELECT services.id,services.description,terminal,parking
 					FROM process
 					LEFT JOIN services ON service_id=services.id
-					WHERE sequence=1 AND process.isValid';
+					WHERE sequence=1 AND process.isValid
+					ORDER BY terminal DESC';
 					
 					$answsql=mysqli_query($db_server,$select_takeoff);
 					if(!$answsql) die("SELECT into process TABLE failed: ".mysqli_error($db_server));
@@ -65,8 +66,8 @@ include ("minuscles.php");
 					$terminal='ТЕРМИНАЛ '.$terminal;
 				if($parking)
 					$parking='ПЕРРОН '.$parking;
-				$services_t='<div class="row"><div class="col-1 mt-3">'.$num.':</div><div class="col-4 mt-2">'.$select_t.'</div>
-							<div class="col-3 mt-3">'.$terminal.'</div><div class="col-3 mt-3">'.$parking.'</div><div class="col-2 mt-2"></div></div><hr>';
+				$services_t='<div class="row"><div class="col-1 mt-3">'.$num.':</div><div class="col-5 mt-2">'.$select_t.'</div>
+							<div class="col-3 mt-3">'.$terminal.'</div><div class="col-3 mt-3">'.$parking.'</div><div class="col mt-2"></div></div><hr>';
 				
 				//$services_t='<tr><td><b>'.$num.':</b></td><td>'.$services_t.'</td><td>'.$terminal.'</td><td>'.$parking.'</td><td ></td></tr>';
 				$services_t_all.=$services_t;
@@ -77,7 +78,8 @@ include ("minuscles.php");
 		$select_airport_chrg='SELECT services.id,services.description,direction,process.isAdult
 					FROM process 
 					LEFT JOIN services ON service_id=services.id
-					WHERE sequence=2 AND process.isValid';
+					WHERE sequence=2 AND process.isValid
+					ORDER BY direction, process.isAdult DESC';
 					
 					$answsql=mysqli_query($db_server,$select_airport_chrg);
 					if(!$answsql) die("SELECT into process TABLE failed: ".mysqli_error($db_server));
@@ -121,7 +123,8 @@ include ("minuscles.php");
 			
 			$toggle_gen=toggle_gen($num,0,$gender);
 			$toggle_dir=toggle_gen($num,1,$direction);
-			$services_ac='<div class="row"><div class="col-1 text-center align-self-center">'.$num.':</div><div class="col-5 align-self-center">'.$select_ac.'</div><div class="col-3 align-self-start">'.$toggle_gen.'</div><div class="col-3 align-self-start">'.$toggle_dir.'</div></div>';
+			$services_ac='<div class="row no-gutters"><div class="col-1 col-md-1 mt-5">'.$num.':</div><div class="col-5 col-md-5 align-self-center">'.$select_ac.'</div>
+			<div class="col-3 col-md-3 align-self-start">'.$toggle_gen.'</div><div class="col-3 col-md-3 align-self-start">'.$toggle_dir.'</div></div>';
 			//$services_ap='<tr><td><b>'.$num.':</b></td><td>'.$services_t.'</td><td >'.$toggle_gen.'</td><td >'.$toggle_dir.'</td><td></td></tr>';
 			$services_ap_all.=$services_ac;
 			$num+=1;
@@ -131,7 +134,8 @@ include ("minuscles.php");
 		$select_avia_sec='SELECT services.id,process.isRus,services.description,process.isCargo,process.havePAX
 					FROM process 
 					LEFT JOIN services ON service_id=services.id
-					WHERE sequence=3 AND process.isValid ';
+					WHERE sequence=3 AND process.isValid 
+					ORDER BY process.isRus DESC, process.havePAX';
 					
 					$answsql=mysqli_query($db_server,$select_avia_sec);
 					if(!$answsql) die("SELECT into default_svs TABLE failed: ".mysqli_error($db_server));
@@ -174,9 +178,9 @@ include ("minuscles.php");
 			$toggle_dom=toggle_gen($num,2,$isRus);
 			$toggle_cargo=toggle_gen($num,3,$isCargo);
 			$toggle_pass=toggle_gen($num,4,$havePass);
-			$services_as='<div class="row"><div class="col-1 mt-4 align-self-start">'.$num.':</div><div class="col-2 align-self-center">'.$select_as.'</div>
-						<div class="col-3 align-self-start">'.$toggle_dom.'</div><div class="col-3 align-self-start">'.$toggle_cargo.'</div>
-						<div class="col-3 align-self-start">'.$toggle_pass.'</div></div>';
+			$services_as='<div class="row no-gutters"><div class="col-1 mt-5 align-self-start">'.$num.':</div><div class="col-4 col-md-4 align-self-center">'.$select_as.'</div>
+						<div class="col align-self-start">'.$toggle_dom.'</div><div class="col align-self-start">'.$toggle_cargo.'</div>
+						<div class="col  align-self-start">'.$toggle_pass.'</div></div>';
 			
 			$services_as_all.=$services_as;
 			$num+=1;
@@ -189,7 +193,8 @@ include ("minuscles.php");
 		$select_gh='SELECT services.id,process.isAdult,services.description
 					FROM process 
 					LEFT JOIN services ON service_id=services.id
-					WHERE sequence=4 AND process.isValid';
+					WHERE sequence=4 AND process.isValid
+					ORDER BY process.isAdult DESC';
 					
 					$answsql=mysqli_query($db_server,$select_gh);
 					if(!$answsql) die("SELECT into default_svs TABLE failed: ".mysqli_error($db_server));

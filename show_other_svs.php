@@ -10,9 +10,7 @@ include ("header.php");
 	
 		
 		$content="";
-		echo '<script> function AutoRefresh( t ) {
-               setTimeout("location.reload(true);", t);
-            };</script>';
+		
 		//Set up mySQL connection
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
 			$db_server->set_charset("utf8");
@@ -28,8 +26,12 @@ include ("header.php");
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("LOOKUP into other_svs TABLE failed: ".mysqli_error($db_server));
 		// Top of the table
-		$content.= '<table class="myTab" onload="JavaScript:AutoRefresh(5000)"><caption><b>Дополнительные услуги в рейсе</b></caption><br>';
-		$content.= '<tr><th class="col1">№ </th><th class="col120">Компания</th><th class="col300">Название услуги</th><th class="col90">Дата</th><th class="col1"></th></tr>';
+		$content.= '<h2 class="mt-2 ml-2">Дополнительные услуги в рейсе</h2>';
+		$content.= '<div class="table mt-2 ml-2 w-75">';
+		$content.= '<table class="table table-striped table-hover table-sm ml-1" onload="JavaScript:AutoRefresh(5000)">';
+		$content.= '<thead class="">';
+		$content.= '<tr><th>№ </th><th>Компания</th><th>Название услуги</th><th>Дата</th><th></th></tr></thead>';
+		$content.= "<tbody>";
 		
 		// Iterating through the array
 		$counter=1;
@@ -50,8 +52,13 @@ include ("header.php");
 			$counter+=1;
 			
 		}
+		$content.= '</tbody>';
 		$content.= '</table>';
-		$content.= '<div class="center"><a href=add_osvs.php><img src="/avia/src/red_plus_small.png" alt="ADD" title="Добавить" ></a></div>';
+		
+		$content.= '<div class="d-flex justify-content-center">';
+		$content.= '<a href="add_osvs.php" class="btn btn-primary btn-lg active justify-content-center" role="button" aria-pressed="true">Добавить</a>';
+		$content.= '</div>';
+		$content.= '</div>';
 	Show_page($content);
 	mysqli_close($db_server);
 	

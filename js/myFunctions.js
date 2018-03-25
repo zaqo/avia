@@ -108,3 +108,8 @@ function addMyField () {
 		//document.getElementById("livesearch_input").value=num;
 		document.getElementsByClassName("ajax_subfield")[0].style.display='none';
 	}
+	
+// Page reload method
+function AutoRefresh( t ) {
+               setTimeout("location.reload(true);", t);
+            }

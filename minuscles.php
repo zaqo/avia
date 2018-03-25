@@ -48,11 +48,13 @@ function toggle_gen($number,$key,$chk)
 	if(!$chk)
 	{
 		$first=$checked;
+		//$legend_0='<b>'.$legend_0.'</b>';
 		$second='';
 	}
 	else
 	{
 		$second=$checked;
+		//$legend_1='<b>'.$legend_1.'</b>';
 		$first='';
 	}
 	

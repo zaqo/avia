@@ -46,7 +46,8 @@ include ("minuscles.php");
 		$select_airport_chrg='SELECT services.id_NAV,services.description,direction,default_svs.isAdult
 					FROM default_svs 
 					LEFT JOIN services ON service_id=services.id
-					WHERE sequence=2 AND default_svs.isValid';
+					WHERE sequence=2 AND default_svs.isValid
+					ORDER BY direction, default_svs.isAdult DESC';
 					
 					$answsql=mysqli_query($db_server,$select_airport_chrg);
 					if(!$answsql) die("SELECT into default_svs TABLE failed: ".mysqli_error($db_server));
@@ -80,7 +81,8 @@ include ("minuscles.php");
 		$select_avia_sec='SELECT services.id_NAV,default_svs.isRus,services.description
 					FROM default_svs 
 					LEFT JOIN services ON service_id=services.id
-					WHERE sequence=3 AND default_svs.isValid ';
+					WHERE sequence=3 AND default_svs.isValid 
+					ORDER BY default_svs.isRus DESC';
 					
 					$answsql=mysqli_query($db_server,$select_avia_sec);
 					if(!$answsql) die("SELECT into default_svs TABLE failed: ".mysqli_error($db_server));
@@ -118,7 +120,8 @@ include ("minuscles.php");
 		$select_gh='SELECT services.id_NAV,default_svs.isAdult,services.description
 					FROM default_svs 
 					LEFT JOIN services ON service_id=services.id
-					WHERE sequence=4 AND default_svs.isValid';
+					WHERE sequence=4 AND default_svs.isValid
+					ORDER BY default_svs.isAdult DESC';
 					
 					$answsql=mysqli_query($db_server,$select_gh);
 					if(!$answsql) die("SELECT into default_svs TABLE failed: ".mysqli_error($db_server));

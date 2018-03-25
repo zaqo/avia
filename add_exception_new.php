@@ -1,6 +1,9 @@
 ﻿<?php 
 /* 
-	BILLING PROCESS OTHER SERVICES REGISTRATION FORM
+	
+	BILLING PROCESS EXCEPTION REGISTRATION FORM
+	TIED TO a CLIENT
+	
 */
 require_once 'login_avia.php';
 include ("header.php"); 	
@@ -19,7 +22,6 @@ include ("header.php");
 					
 					$answsqlcheck=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsqlcheck) die("SELECT into services TABLE failed: ".mysqli_error($db_server));
-		
 					$services_dd='<select name="svs" class="custom-select d-block w-100" required>';
 					$services_dd.='<option value="" selected disabled> -- укажите услугу -- </option>';
 					while ($row = mysqli_fetch_row( $answsqlcheck ))
@@ -48,7 +50,7 @@ include ("header.php");
 					
 					$answsqlcheck=mysqli_query($db_server,$clients_mysql);
 					if(!$answsqlcheck) die("SELECT into clients TABLE failed: ".mysqli_error($db_server));
-		
+					
 					$clients_dd='<select name="cl" class="custom-select d-block w-100"  required>';
 					$clients_dd.='<option value="" selected disabled> -- укажите компанию -- </option>';
 					while ($row = mysqli_fetch_row( $answsqlcheck ))
@@ -71,9 +73,10 @@ include ("header.php");
 						$clients_dd.='<option value="'.$cl_id.'" >'.$cl_desc.'</option>';
 					}
 					$clients_dd.='</select>';		
+		
 		$content.= '<div class="col-md-8 order-md-1 mt-5 ml-2">
-						<h4 class="mb-3"> Добавление дополнительной услуги</h4>';
-		$content.= '<form id="form" method=post action="update_other_svs.php" class="needs-validation" novalidate/>';
+						<h4 class="mb-3"> Добавление особых условий для авиакомпании</h4>';
+		$content.= '<form id="form" method=post action="update_exception.php" class="needs-validation" novalidate/>';
 		$content.='
 					<div class="mb-3 mt-5">
 						<label for="cl">Компания</label>
@@ -88,6 +91,21 @@ include ("header.php");
 				</form>';
 		$content.= '</div>';
 		
+		/*
+		$content.= '<form id="form" method=post action= >
+					<div id="add_field_area"><table class="myTab"><caption><b>Добавление </b></caption>
+					<tr><th class="col90">ПАРАМЕТР</th><th class="col300">ЗНАЧЕНИЕ</th></tr>
+					
+					<tr><td>КОМПАНИЯ</td><td>'.$clients_dd.'</td></tr>
+					<tr><td colspan="2"> ВЗЛЕТ / ПОСАДКА</td></tr>
+					<tr><td>УСЛУГА</td><td>'.$services_dd_head.'1'.$services_dd.'</td></tr>
+					<tr><td colspan="2"> НАЗЕМНОЕ ОБСЛУЖИВАНИЕ</td></tr>
+					<tr><td>ВЗР</td><td>'.$services_dd_head.'2'.$services_dd.'</td></tr>
+					<tr><td>ДЕТ</td><td>'.$services_dd_head.'3'.$services_dd.'</td></tr>
+					<tr><td colspan="2">
+					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
+					</table></div></form>';
+		*/
 		
 	Show_page($content);
 	
