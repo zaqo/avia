@@ -11,7 +11,7 @@
 *			- 0 if bundle was already applied 
 */
 
-function ApplyBundle($rec_id)
+function ApplyBundle($rec_id,$fp)
 {
 
  
@@ -31,7 +31,7 @@ function ApplyBundle($rec_id)
 			if(!$answsql_pre) die("Database SELECT TO flight_pairs table failed: ".mysqli_error($db_server));	
 			if (!$answsql_pre->num_rows)
 			{
-				echo "WARNING: No flights found for a given ID in flight_pairs <br/>";
+				fwrite($fp,"WARNING: No flights found for a given ID in flight_pairs \r\n");
 				return 0;
 			}	
 			$pair_data= mysqli_fetch_row($answsql_pre);
@@ -40,7 +40,7 @@ function ApplyBundle($rec_id)
 			$sent_flag=$pair_data[2];
 			if($sent_flag) 
 			{
-				echo "FLIGHT WAS PROCESSED: EXITING!";
+				fwrite($fp,"FLIGHT WAS PROCESSED: EXITING! \r\n");
 				return 0;
 			}
 		
@@ -82,7 +82,7 @@ function ApplyBundle($rec_id)
 				$airplane_cl_out=$flight_data_out[3];
 				$isRus=$flight_data_out[4];
 				$fl_type=$flight_data_out[5];
-				if($airplane_cl_out!=$airplane_cl) echo "WARNING: DIFFERENT CLASSES OF AIRCRAFT IN THE SAME ROUTE: $flight_id_out <br/>";
+				if($airplane_cl_out!=$airplane_cl) fwrite($fp,"WARNING: DIFFERENT CLASSES OF AIRCRAFT IN THE SAME ROUTE: $flight_id_out \r\n");
 			
 		//  0. IF IT IS AN OPERATOR's FLIGHT
 		
@@ -92,7 +92,7 @@ function ApplyBundle($rec_id)
 				{
 					if($fl_type==1) $isCargo=1;
 					else $isCargo=0;
-				echo "OPERATOR LOOP: FOREIGN CLIENT (function ApplyBundle) <br/>";	
+				fwrite($fp,"OPERATOR LOOP: FOREIGN CLIENT (function ApplyBundle) \r\n");	
 					// SELECT APPROPRIATE BUNDLE
 					$bundle_sql='SELECT bundle_id,services.id_NAV
 						FROM  bundle_reg_op
@@ -107,9 +107,9 @@ function ApplyBundle($rec_id)
 				$op_bundle_id_NAV	=$op_bundle[1];
 						$ret=ApplyBundleExe($rec_id,$flight_id_in,$flight_id_out,$op_bundle_id,$op_bundle_id_NAV);
 						if ($ret) 
-							echo "BUNDLE was applied SUCCESSFULLY! <br/>";
+							fwrite($fp, "BUNDLE was applied SUCCESSFULLY! \r\n");
 						else
-							echo "ERROR: BUNDLE APPLICATION ABORTED<br/>";
+							fwrite($fp, "ERROR: BUNDLE APPLICATION ABORTED \r\n");
 						
 					
 				}
@@ -131,7 +131,7 @@ function ApplyBundle($rec_id)
 				//echo 'Package with:'.$answsql->num_rows.' rows<\br>';
 			if(!$answsql0->num_rows)
 			{
-				echo "WARNING: NO BUNDLES FOR ClientID: $customer! <br/>";
+				fwrite($fp,"WARNING: NO BUNDLES FOR ClientID: $customer! \r\n");
 				return 0; // No information about client
 			}
 			while($b_row=mysqli_fetch_row($answsql0))
@@ -245,7 +245,7 @@ function ApplyBundle($rec_id)
 					
 					}
 				}
-				else echo "WARNING: EMPTY BUNDLE!";
+				else fwrite($fp,"WARNING: EMPTY BUNDLE!");
 			}	
 			$finish_mysql="UPDATE  flight_pairs SET bundle_applied=1 WHERE id=$rec_id";
 			$answsql=mysqli_query($db_server,$finish_mysql);
@@ -371,7 +371,7 @@ function ApplyBundleExe($rec_id,$flight_id_in,$flight_id_out,$bundle_id,$bundle_
 					
 				}
 			}
-			else echo "WARNING: EMPTY BUNDLE!";
+			else fwrite($fp,"WARNING: EMPTY BUNDLE!");
 		
 		$finish_mysql="UPDATE  flight_pairs SET bundle_applied=1 WHERE id=$rec_id";
 		$answsql=mysqli_query($db_server,$finish_mysql);

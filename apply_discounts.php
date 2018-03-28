@@ -1,5 +1,5 @@
 <?php
-function ApplyDiscounts($flightid)
+function ApplyDiscounts($flightid,$fp)
 {
 //Applies discounts to the flight's services
 //Most probably I will need only fraction of this code directly incorporated into flight's processing procedure
@@ -168,7 +168,7 @@ function ApplyDiscounts($flightid)
 																		if($values[$ind]==$plane_type)
 																		{
 																			$flag=1;
-																			echo "FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type <br/>";
+																			fwrite($fp,"FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type \r\n");
 																		}
 																	}
 																}
@@ -217,13 +217,13 @@ function ApplyDiscounts($flightid)
 													case 10:  // Time of arrival START_VAL, END_VAL must be time!!!
 														if(($time_fact>=$start_val)||($time_fact<=$end_val))
 														{
-														echo "NUGHT: START FROM ->$start_val END BY ->$end_val ||| ACTUAL $time_fact <br/>";
+														fwrite($fp,"NIGHT: START FROM ->$start_val END BY ->$end_val ||| ACTUAL $time_fact <br/>");
 															$flag=1;
 														}
 														break;
 												
 													default:
-													echo "WARNING: Paremeter for condition for a service: $service_id  does not exist! <br/>";
+													fwrite($fp,"WARNING: Paremeter for condition for a service: $service_id  does not exist! <br/>");
 												}
 											}
 										}
@@ -270,7 +270,7 @@ function ApplyDiscounts($flightid)
 								$disc_id=$discount[0];
 								$disc_val=$discount[1];
 								$flag=0;
-								echo "ENTERED PROCESSING INDIVIDUAL DISCOUNT $disc_id , $disc_val % <br/>";
+								fwrite($fp, "ENTERED PROCESSING INDIVIDUAL DISCOUNT $disc_id , $disc_val % <br/>");
 								//echo "2 ind. Discounts are: $disc_id, $disc_val <br/>";
 								$sqlgetconditions="SELECT condition_id,composition FROM discount_ind_content 
 												WHERE discount_id=$disc_id ORDER BY sequence";
@@ -348,7 +348,7 @@ function ApplyDiscounts($flightid)
 																		if($values[$ind]==$plane_type)
 																		{
 																			$flag=1;
-																			echo "FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type <br/>";
+																			fwrite($fp, "FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type \r\n");
 																		}
 																	}
 																}
@@ -361,7 +361,7 @@ function ApplyDiscounts($flightid)
 														if(($start_val<=$plane_mow))
 															{	
 															$flag=1;
-															echo "Flag was set! Condition 4. <br/>";
+															fwrite($fp,"Flag was set! Condition 4. \r\n");
 														}
 														break;
 													
@@ -382,7 +382,7 @@ function ApplyDiscounts($flightid)
 													
 													case 8:  // category is equal to
 														
-														echo "CHECKING OUT CATEGORY OF FLIGHT: $category <br/>";
+														fwrite($fp, "CHECKING OUT CATEGORY OF FLIGHT: $category \r\n");
 														if($start_val==$category)
 															$flag=1;
 														break;		
@@ -398,7 +398,7 @@ function ApplyDiscounts($flightid)
 														break;	
 												
 													default:
-													echo "WARNING: Paremeter for condition for a service: $service_id  does not exist! <br/>";
+														fwrite($fp,"WARNING: Paremeter for condition for a service: $service_id  does not exist! \r\n");
 												}
 											}
 										}
@@ -522,7 +522,7 @@ function ApplyDiscountsIncoming($flightid)
 								$disc_id=$discount[0];
 								$disc_val=$discount[1];
 								$flag=0;
-								echo "2. Discounts are: $disc_id, $disc_val <br/>";
+								fwrite($fp,"2. Discounts are: $disc_id, $disc_val <br/>");
 								$sqlgetconditions="SELECT condition_id,composition FROM discount_grp_content 
 												WHERE discount_id=$disc_id ORDER BY sequence";
 								//echo '3. '.$sqlgetconditions.' group conditions<br/>';
@@ -542,7 +542,7 @@ function ApplyDiscountsIncoming($flightid)
 										{	
 											
 											$cond_data=mysqli_fetch_row($answsql4);
-											echo "5. Analyzing condition: ".$cond_data[0]."<br/>";
+											fwrite($fp,"5. Analyzing condition: ".$cond_data[0]."<br/>");
 											if($cond_data)
 											{
 					// Process applicability of condition!
@@ -598,7 +598,7 @@ function ApplyDiscountsIncoming($flightid)
 																		if($values[$ind]==$plane_type)
 																		{
 																			$flag=1;
-																			echo "FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type <br/>";
+																			fwrite($fp,"FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type <br/>");
 																		}
 																	}
 																}
@@ -647,13 +647,13 @@ function ApplyDiscountsIncoming($flightid)
 													case 10:  // Time of arrival START_VAL, END_VAL must be time!!!
 														if(($time_fact>=$start_val)||($time_fact<=$end_val))
 														{
-														echo "NUGHT: START FROM ->$start_val END BY ->$end_val ||| ACTUAL $time_fact <br/>";
+														fwrite($fp, "NUGHT: START FROM ->$start_val END BY ->$end_val ||| ACTUAL $time_fact <br/>");
 															$flag=1;
 														}
 														break;
 												
 													default:
-													echo "WARNING: Paremeter for condition for a service: $service_id  does not exist! <br/>";
+													fwrite($fp, "WARNING: Paremeter for condition for a service: $service_id  does not exist! <br/>");
 												}
 											}
 										}
@@ -700,7 +700,7 @@ function ApplyDiscountsIncoming($flightid)
 								$disc_id=$discount[0];
 								$disc_val=$discount[1];
 								$flag=0;
-								echo "ENTERED PROCESSING INDIVIDUAL DISCOUNT $disc_id , $disc_val % <br/>";
+								fwrite($fp,"ENTERED PROCESSING INDIVIDUAL DISCOUNT $disc_id , $disc_val % <br/>");
 								//echo "2 ind. Discounts are: $disc_id, $disc_val <br/>";
 								$sqlgetconditions="SELECT condition_id,composition FROM discount_ind_content 
 												WHERE discount_id=$disc_id ORDER BY sequence";
@@ -778,7 +778,7 @@ function ApplyDiscountsIncoming($flightid)
 																		if($values[$ind]==$plane_type)
 																		{
 																			$flag=1;
-																			echo "FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type <br/>";
+																			fwrite($fp,"FLAG IS SET VIA ENUM! for PLANE TYPE $plane_type <br/>");
 																		}
 																	}
 																}
@@ -791,7 +791,7 @@ function ApplyDiscountsIncoming($flightid)
 														if(($start_val<=$plane_mow))
 															{	
 															$flag=1;
-															echo "Flag was set! Condition 4. <br/>";
+															fwrite($fp,"Flag was set! Condition 4. <br/>");
 														}
 														break;
 													
@@ -812,7 +812,7 @@ function ApplyDiscountsIncoming($flightid)
 													
 													case 8:  // category is equal to
 														
-														echo "CHECKING OUT CATEGORY OF FLIGHT: $category <br/>";
+														fwrite($fp,"CHECKING OUT CATEGORY OF FLIGHT: $category <br/>");
 														if($start_val==$category)
 															$flag=1;
 														break;		
@@ -828,7 +828,7 @@ function ApplyDiscountsIncoming($flightid)
 														break;	
 												
 													default:
-													echo "WARNING: Paremeter for condition for a service: $service_id  does not exist! <br/>";
+													fwrite($fp,"WARNING: Paremeter for condition for a service: $service_id  does not exist! <br/>");
 												}
 											}
 										}

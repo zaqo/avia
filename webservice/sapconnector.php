@@ -7,6 +7,9 @@ function SAP_connector($params)
 	ini_set("soap.wsdl_cache_enabled", "0");
 	set_time_limit(0);
 	$locale = 'ru';
+	$time_now=time();
+	//$text='';
+	$fp = fopen('./logs/sap'.$time_now.'.log', 'x') or die("Unable to open file!");
 	
 	$client = new SoapClient($wsdlurl, array('login'=> $SAP_username,
 											'password'=> $SAP_password,
@@ -21,20 +24,19 @@ function SAP_connector($params)
 		)
 	);
 
-
 	// Выполнение запроса к серверу SAP ERP
 	try
 	{
 		//$result = $client->ZsdOrderAviCrud($params);
 		$result = $client->Z_SD_ORDER_ZAVI_CRUD($params);
-		echo " INPUT PARAMS:".$params." <br/ OUTPUT: >".$result;
 	}
 	catch(SoapFault $fault)
 	{
 	// <xmp> tag displays xml output in html
 		echo 'Request : <br/><pre><xmp>',
 		$client->__getLastRequest(),
-		'</xmp></pre><br/><br/> Error Message : <br/>',
+		'</xmp></pre><br/><br/> Error Message : 
+',
 		$fault->getMessage();
 	} 
 	
@@ -44,15 +46,15 @@ function SAP_connector($params)
 	
 	
 	// Вывод запроса и ответа
-	echo "Запрос:<pre>".htmlspecialchars($client->__getLastRequest()) ."</pre>";
-	echo "Ответ:<pre>".htmlspecialchars($client->__getLastResponse())."</pre>";
+	fwrite($fp, "Запрос:<pre>".htmlspecialchars($client->__getLastRequest()) ."</pre>");
+	fwrite($fp,"Ответ:<pre>".htmlspecialchars($client->__getLastResponse())."</pre>");
 	
 	// Вывод отладочной информации в случае возникновения ошибки
 	if (is_soap_fault($result)) 
 	{ 
 		echo("SOAP Fault: (faultcode: {$result->faultcode}, faultstring: {$result->faultstring}, detail: {$result->detail})"); 
 	}
-
+	fclose($fp);
 	return $order;
 }
 
@@ -161,7 +163,8 @@ function SAP_export_flight($flightid)
 			if(isset($aport[0])) 
 				$flight->airport=$aport[0];
 			else 
-				echo "ERROR: Airport CODE COULD NOT BE LOCATED!!! <br/>";
+				fwrite($fp,"ERROR: Airport CODE COULD NOT BE LOCATED!!! 
+");
 		
 		//  LOCATE all services relevant to the flight
 			$textsql='SELECT service,quantity FROM  service_reg WHERE flight="'.$flight->id_NAV.'"';
@@ -205,10 +208,10 @@ function SAP_export_flight($flightid)
 			
 			$sap_service_id= mysqli_fetch_row($answsql);
 			
-			echo "SERVICE ID: $service_id |--> SAP ID: $sap_service_id[0]<br/>  ";
+			fwrite($fp,"SERVICE ID: $service_id |--> SAP ID: $sap_service_id[0] \r\n ");
 			if (isset($sap_service_id[0]))
 			{	
-				echo "GOT IT! <br/>";
+				//echo "GOT IT! <br/>";
 				$item1->Material=$sap_service_id[0];
 				$item1->TargetQty=$flight->services[$it][1];
 				$item1->CondType='ZK01';
@@ -217,7 +220,7 @@ function SAP_export_flight($flightid)
 			}
 			else 
 			{	
-				echo "No SAP service ID located for service: $service_id  FLIGHT $flightid CANCELLED <br/> ";
+				fwrite($fp, "No SAP service ID located for service: $service_id  FLIGHT $flightid CANCELLED \r\n ");
 				return 0;
 			}
 			//Item List section
@@ -246,7 +249,7 @@ function SAP_export_flight($flightid)
 			}
 			else 
 			{
-				echo "No contract defined for Client ID: $client_id  FLIGHT $flightid CANCELLED<br/>";
+				fwrite($fp,"No contract defined for Client ID: $client_id  FLIGHT $flightid CANCELLED \r\n");
 				return 0;
 			}
 		// Locate Customer ID for SAP ERP
@@ -267,7 +270,7 @@ function SAP_export_flight($flightid)
 			}
 			else 
 			{
-				echo "No SAP ERP ID defined for Client ID: $client_id  => FLIGHT $flightid CANCELLED<br/>";
+				fwrite($fp,"No SAP ERP ID defined for Client ID: $client_id  => FLIGHT $flightid CANCELLED \r\n");
 				return 0;
 			}
 				// General request section
@@ -294,7 +297,7 @@ function SAP_export_flight($flightid)
 			$sdorder_num=SAP_connector($req);
 			
 			if($sdorder_num)
-			echo "SUCCESS: order # $sdorder_num created! <br/>";
+			fwrite($fp,"SUCCESS: order # $sdorder_num created! \r\n");
 		
 	mysqli_close($db_server);
 	return $sdorder_num;
@@ -314,6 +317,9 @@ function SAP_export_pair($rec_id)
 	include_once ("apply_package.php");
 	include_once ("apply_bundle.php");	
 	//include_once ("parking_time.php");	
+	$time_now=time();
+	//$text='';
+	$fp = fopen('./logs/sap_export'.$time_now.'.log', 'x') or die("Unable to open file!");
 		
 		// PRICE SETTINGS FOR PARKING
 		$parking_price_rus=36.13*0.05; // 361.3 RUR per TON per HOUR
@@ -345,7 +351,7 @@ function SAP_export_pair($rec_id)
 			if(!$answsql) die("Database SELECT TO flights table failed: ".mysqli_error($db_server));	
 			if (!$answsql->num_rows)
 			{
-				echo "WARNING: No flights found for a given ID in flight_pairs <br/>";
+				fwrite($fp,"WARNING: No flights found for a given ID in flight_pairs \r\n");
 				return 0;
 			}	
 			$pair_data= mysqli_fetch_row($answsql);
@@ -353,7 +359,7 @@ function SAP_export_pair($rec_id)
 			// CHECKING IF THE FLIGHT WAS ALREADY PROCESSED
 			if($pair_data[2])
 			{
-				echo "WARNING: flight data for the pair=$rec_id has been already exported to SAP ERP! Process aborted.<br/>";
+				echo "WARNING: flight data for the pair=$rec_id has been already exported to SAP ERP! Process aborted. \r\n";
 				return 0;
 			}	
 			
@@ -419,7 +425,7 @@ function SAP_export_pair($rec_id)
 				$flight_in->airport_class=$aport[1];
 			}
 			else 
-				echo "ERROR: Airport CODE COULD NOT BE LOCATED!!! <br/>";
+				fwrite($fp,"ERROR: Airport CODE COULD NOT BE LOCATED!!! \r\n");
 			
 			// LOCATE CLASS OF AIRCRAFT
 			// KEEP IN MIND aircrats TABLE NEEDS to be UPDATED regularly
@@ -431,7 +437,7 @@ function SAP_export_pair($rec_id)
 			if(isset($aircraft[0])) 
 				$flight_in->plane_class=$aircraft[0];
 			else 
-				echo "ERROR: Aircraft record COULD NOT BE LOCATED. UPDATE TABLE OF AIRCRAFTS!!! <br/>";
+				fwrite($fp,"ERROR: Aircraft record COULD NOT BE LOCATED. UPDATE TABLE OF AIRCRAFTS!!! \r\n");
 			
 			
 			//3.
@@ -472,7 +478,7 @@ function SAP_export_pair($rec_id)
 				$client_geo=$flight_data_out[19];
 				if (!isset($client_geo)) 
 				{	
-					echo "NO RECORD FOR PLANE OWNER! USED FOREIGN <br/>";
+					fwrite($fp, "NO RECORD FOR PLANE OWNER! USED FOREIGN \r\n");
 					$client_geo=0;
 				}
 				//echo "MOW: ".$flight_data_out[7]."HELI: $heli_flag || IS OPERATOR FLAG:".$flight_out->is_operator."<br/>";
@@ -495,7 +501,7 @@ function SAP_export_pair($rec_id)
 			}
 			else 
 			{
-				echo "ERROR: Airport CODE COULD NOT BE LOCATED!!! SET TO RUSSIA _ BY DEFAULT<br/>";
+				fwrite($fp, "ERROR: Airport CODE COULD NOT BE LOCATED!!! SET TO RUSSIA _ BY DEFAULT \r\n");
 				$destination_zone=0;
 			}
 			// LOCATE CLASS OF AIRCRAFT
@@ -512,7 +518,7 @@ function SAP_export_pair($rec_id)
 				if(isset($aircraft[1])) $made_in_rus=$aircraft[1];
 			}
 			else 
-				echo "ERROR: Aircraft record COULD NOT BE LOCATED!!! <br/>";
+				fwrite($fp,"ERROR: Aircraft record COULD NOT BE LOCATED!!! \r\n");
 	
 	//===========================================================
 	//	CLIENT SET UP
@@ -542,8 +548,8 @@ function SAP_export_pair($rec_id)
 			{
 				$havePAX=0;
 				if(($flight_in->passengers_adults+$flight_in->passengers_kids+$flight_out->passengers_adults+$flight_out->passengers_kids)>0) $havePAX=1;
-				OperatorFlight($flight_in,$client_geo,$made_in_rus);
-				OperatorFlight($flight_out,$client_geo,$made_in_rus);
+				OperatorFlight($flight_in,$client_geo,$made_in_rus,$fp);
+				OperatorFlight($flight_out,$client_geo,$made_in_rus,$fp);
 			}
 			else // FOR ALL OTHER FLIGHTS
 			{
@@ -553,20 +559,26 @@ function SAP_export_pair($rec_id)
 				else
 							echo "SUCCESS: APPLIED TEMPLATE TO THE FLIGHTS: $in_id, $out_id  ! <br/>";
 			*/
-				if(!RegularFlight($flight_in,$client_my_id,$client_geo))
-							echo 'WARNING: COULD NOT APPLY TEMPLATE TO THE FLIGHT: '.$flight_in->flight_num.' - FAILED! <br/>';
+				if(!RegularFlight($flight_in,$client_my_id,$client_geo,$fp))
+							fwrite($fp,'WARNING: COULD NOT APPLY TEMPLATE TO THE FLIGHT: '.$flight_in->flight_num.' - FAILED! 
+');
 				else
-							echo 'SUCCESS: APPLIED TEMPLATE TO THE FLIGHT:'.$flight_in->flight_num.' ! <br/>';
-				if(!RegularFlight($flight_out,$client_my_id,$client_geo))
-							echo 'WARNING: COULD NOT APPLY TEMPLATE TO THE FLIGHT: '.$flight_out->flight_num.' - FAILED! <br/>';
+							fwrite($fp,'SUCCESS: APPLIED TEMPLATE TO THE FLIGHT:'.$flight_in->flight_num.' ! 
+');
+				if(!RegularFlight($flight_out,$client_my_id,$client_geo,$fp))
+							fwrite($fp,'WARNING: COULD NOT APPLY TEMPLATE TO THE FLIGHT: '.$flight_out->flight_num.' - FAILED! 
+');
 				else
-							echo 'SUCCESS: APPLIED TEMPLATE TO THE FLIGHT:'.$flight_out->flight_num.' ! <br/>';
+							fwrite($fp,'SUCCESS: APPLIED TEMPLATE TO THE FLIGHT:'.$flight_out->flight_num.' ! 
+');
 			} // END OF TEMPLATES
 				// b. BUNDLE FOR ALL FLIGHTS including operators
-				if(!ApplyBundle($rec_id))
-							echo "WARNING: COULD NOT APPLY BUNDLE TO THE PAIR of FLIGHTS: $rec_id - FAILED! <br/>";
+				if(!ApplyBundle($rec_id,$fp))
+							fwrite($fp,"WARNING: COULD NOT APPLY BUNDLE TO THE PAIR of FLIGHTS: $rec_id - FAILED! 
+");
 				else
-							echo "SUCCESS: APPLIED BUNDLE TO THE FLIGHTS: $in_id, $out_id  ! <br/>";
+							fwrite($fp,"SUCCESS: APPLIED BUNDLE TO THE FLIGHTS: $in_id, $out_id  ! 
+");
 			
 			// c. DEFINE ARRAYS FOR DISCOUNT
 				
@@ -647,7 +659,8 @@ function SAP_export_pair($rec_id)
 									(flight,service,quantity) 
 									VALUES
 									("'.$flight_out->id_NAV.'","'.$service_med.'","'.$qty_med.'")';
-				echo $med_svs."<br/>"; 				
+				fwrite($fp, $med_svs."
+"); 				
 								$answsql_med_ins=mysqli_query($db_server,$med_svs);
 								
 								if(!$answsql_med_ins) die("INSERT into service_reg TABLE failed: ".mysqli_error($db_server));
@@ -760,22 +773,24 @@ function SAP_export_pair($rec_id)
 						//CHECK APPLICABILITY FOR THIS SERVICE
 						//PUSH INTO DISCOUNTS TABLE
 						
-						$res_discount=CheckDiscountApp($flight_out,$row_services[0],$client_my_id,$flight_in->time_fact,$heli_flag,$airport_out);
+						$res_discount=CheckDiscountApp($flight_out,$row_services[0],$client_my_id,$flight_in->time_fact,$heli_flag,$airport_out,$fp);
 						//$discounts=array_merge($discounts,$discounts_out);
 						if ($res_discount)
 						{
-							echo "DISCOUNTS HAVE BEEN CALCULATED!<br/>";
+							fwrite($fp,"DISCOUNTS HAVE BEEN CALCULATED!\r");
 							$discounts[$svs_on_flight]=$res_discount;
 						}
 						else 
-							echo "NO DISCOUNTS FOR $svs_on_flight <br/>";
+							fwrite($fp, "NO DISCOUNTS FOR $svs_on_flight \r");
 						
 					}
 				}
 			}
-			echo "DISCOUNTS ON THE EXIT:<pre>";
-			var_dump($discounts);
-			echo "</pre><br/>";
+			
+			foreach ($discounts as $value)
+			fwrite($fp,'DISCOUNTS ON THE EXIT:'.$value.'\r\n');
+			//var_dump();
+			//echo "</pre><br/>";
 			//***********************************************************	
 			// Prepare request for SAP ERPclass Item
 			//-----------------------------------------------------------
@@ -794,7 +809,8 @@ function SAP_export_pair($rec_id)
 			}
 			else 
 			{
-				echo "No contract defined for Client ID: $client_id  FLIGHT $out_id CANCELLED<br/>";
+				fwrite($fp,"No contract defined for Client ID: $client_id  FLIGHT $out_id CANCELLED
+");
 				return 0;
 			}	
 		
@@ -851,7 +867,8 @@ function SAP_export_pair($rec_id)
 				 }
 				 else 
 				 {	
-				 	echo "No SAP service ID located for service: $service_id  FLIGHT $out_id CANCELLED <br/> ";
+				 	fwrite($fp,"No SAP service ID located for service: $service_id  FLIGHT $out_id CANCELLED 
+ ");
 					return 0;
 				 }
 				 $items->item[$it] = $item1;
@@ -921,7 +938,8 @@ function SAP_export_pair($rec_id)
 			}
 			else 
 			{	
-				echo "WARNING: NO SAP service ID located for service: $service_id  FLIGHT $out_id CANCELLED <br/> ";
+				fwrite($fp,"WARNING: NO SAP service ID located for service: $service_id  FLIGHT $out_id CANCELLED 
+ ");
 				return 0;
 			}
 			//Item List section
@@ -946,7 +964,8 @@ function SAP_export_pair($rec_id)
 			}
 			else 
 			{
-				echo "WARNING: NO SAP ERP ID defined for Client ID: ".$flight_out->plane_owner."  => DUMMIE OWNER USED FOR FLIGHT".$flight_out->id_NAV." <br/>";
+				fwrite($fp,"WARNING: NO SAP ERP ID defined for Client ID: ".$flight_out->plane_owner."  => DUMMIE OWNER USED FOR FLIGHT".$flight_out->id_NAV." 
+");
 				$req->ID_PLANEOWNER = "15000010";;
 			}
 				// General request section
@@ -1026,7 +1045,8 @@ include 'login_avia.php';
 			$pp1=substr($pp,0,1);
 			if($pp=="ЗАВ"||$pp=="АНГ"||$pp1=="6")
 			{
-				echo "HANGAR, ZAVOD, 6-th perron: $pp NO CHARGES FOR PARKING!!! <br/>";
+				fwrite($fp,"HANGAR, ZAVOD, 6-th perron: $pp NO CHARGES FOR PARKING!!! 
+");
 				return 0;//NO PARKING TIME FOR THESE PLACES
 			}	
 				//SETTING UP in and outgoing Flight's Object
@@ -1085,7 +1105,7 @@ include 'login_avia.php';
 	
 return $res;
 }
-function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, $airport_out)
+function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, $airport_out,$fp)
 {
 /* 
 	CHECKS APPLICABILITY OF DISCOUNT FOR THIS PAIR FOR PARTICULAR SERVICE 
@@ -1098,6 +1118,7 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 	OUTPUT:  discount value 
 */
 	include 'login_avia.php';
+	
 	
 			$db_server = mysqli_connect($db_hostname, $db_username,$db_password);
 			$db_server->set_charset("utf8");
@@ -1225,7 +1246,8 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 													case 5:  // based on destination (no support for diapazone yet)
 														if((int)$start_val==(int)$airport)
 															$flag=1;
-														else "AIRPORT $airport DOES NOT MATCH $start_val! <br/>";
+														else "AIRPORT $airport DOES NOT MATCH $start_val! 
+";
 														break;	
 
 													case 6:  // PAX only if above the limit
@@ -1247,7 +1269,8 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 														
 														if($isHelicopter)
 														{
-															echo "FLAG IS SET FOR HELICOPTER! <br/>";
+															fwrite($fp,"FLAG IS SET FOR HELICOPTER! 
+");
 															$flag=1;
 														}
 														break;	
@@ -1255,13 +1278,14 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 													case 10:  // Time of arrival START_VAL, END_VAL must be time!!!
 														if(($hour_of_arrival>=$start_val)||($hour_of_arrival<=$end_val))
 														{
-															echo "NIGHT TIME! : START FROM ->$start_val END BY ->$end_val ||| ACTUAL $hour_of_arrival <br/>";
+															fwrite($fp,"NIGHT TIME! : START FROM ->$start_val END BY ->$end_val ||| ACTUAL $hour_of_arrival \r\n");
 															$flag=1;
 														}
 														break;
 												
 													default:
-													echo "WARNING: Parameter for condition for a service: $service_id  does not exist! <br/>";
+													fwrite($fp,"WARNING: Parameter for condition for a service: $service_id  does not exist! 
+");
 												}
 											}
 										}
@@ -1404,7 +1428,8 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 															$flag=1;
 															//echo "DESTINATION AIRPORT CONDITION! <br/>";
 														}
-														else "AIRPORT $airport DOES NOT MATCH $start_val! <br/>";
+														else "AIRPORT $airport DOES NOT MATCH $start_val! 
+";
 														break;
 
 													case 6:  // PAX only if above the limit
@@ -1438,7 +1463,8 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 														break;	
 												
 													default:
-													echo "WARNING: Parameter for condition for a service: $service_id  does not exist! <br/>";
+													fwrite($fp,"WARNING: Parameter for condition for a service: $service_id  does not exist! 
+");
 												}
 											}
 										}
@@ -1478,7 +1504,7 @@ function CheckDiscountApp($flight_out,$sid,$client_id,$time_fact,$isHelicopter, 
 	else return 0;
 }
 
-function RegularFlight($fl,$client,$client_geo)
+function RegularFlight($fl,$client,$client_geo,$fp)
 {
 /* 
 	PROCESS FLIGHT FOR BILLING IN A PREDEFINED SEQUENCE OF STEPS 
@@ -1515,7 +1541,8 @@ function RegularFlight($fl,$client,$client_geo)
 			$answsql=mysqli_query($db_server,$find_takeoff);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP TAKE OFF SERVICE: process aborted <br/>";
+				fwrite($fp,"PLEASE SET UP TAKE OFF SERVICE: process aborted 
+");
 				return 0;
 			}
 		}
@@ -1530,7 +1557,8 @@ function RegularFlight($fl,$client,$client_geo)
 							
 		$answsql=mysqli_query($db_server,$fix_takeoff);
 		if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-		else echo " TAKE OFF RECORD INSERTED for FLIGHT:".$fl->id."<br/>";					
+		else fwrite($fp," TAKE OFF RECORD INSERTED for FLIGHT:".$fl->id."
+");					
 	} //END TAKE OFF
 	// 2. AIRPORT CHARGES
 	//	NO EXCEPTIONS HERE CURRENTLY
@@ -1542,7 +1570,8 @@ function RegularFlight($fl,$client,$client_geo)
 			$answsql=mysqli_query($db_server,$ap_chrg_in_adult);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS ADULTS: process aborted <br/>";
+				fwrite($fp,"PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS ADULTS: process aborted 
+");
 				return 0;
 			}
 			$chrg_in_adult= mysqli_fetch_row($answsql);
@@ -1557,7 +1586,8 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "AIRPORT CHARGES RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp, "AIRPORT CHARGES RECORD INSERTED for FLIGHT:".$fl->id."
+");	
 			}
 			$ap_chrg_in_kids=' SELECT services.id_NAV FROM default_svs
 						LEFT JOIN services ON default_svs.service_id=services.id
@@ -1565,7 +1595,8 @@ function RegularFlight($fl,$client,$client_geo)
 			$answsql=mysqli_query($db_server,$ap_chrg_in_kids);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS KIDS: process aborted <br/>";
+				fwrite($fp,"PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS KIDS: process aborted 
+");
 				return 0;
 			}
 			$chrg_in_kids= mysqli_fetch_row($answsql);
@@ -1580,7 +1611,8 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "AIRPORT CHARGES RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp, "AIRPORT CHARGES RECORD INSERTED for FLIGHT:".$fl->id."
+");	
 			}
 		}
 		else //
@@ -1591,7 +1623,8 @@ function RegularFlight($fl,$client,$client_geo)
 			$answsql=mysqli_query($db_server,$ap_chrg_out_adult);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS ADULTS: process aborted <br/>";
+				fwrite($fp, "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS ADULTS: process aborted 
+");
 				return 0;
 			}
 			$chrg_out_adult= mysqli_fetch_row($answsql);
@@ -1606,7 +1639,8 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "AIRPORT CHARGES RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp, "AIRPORT CHARGES RECORD INSERTED for FLIGHT:".$fl->id."
+");	
 			}
 			$ap_chrg_out_kids=' SELECT services.id_NAV FROM default_svs
 						LEFT JOIN services ON default_svs.service_id=services.id
@@ -1614,7 +1648,8 @@ function RegularFlight($fl,$client,$client_geo)
 			$answsql=mysqli_query($db_server,$ap_chrg_out_kids);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP AIRPORT CHARGES SERVICE FOR OUTGOING PASSENGERS KIDS: process aborted <br/>";
+				fwrite($fp,"PLEASE SET UP AIRPORT CHARGES SERVICE FOR OUTGOING PASSENGERS KIDS: process aborted 
+");
 				return 0;
 			}
 			$chrg_out_kids= mysqli_fetch_row($answsql);
@@ -1629,7 +1664,8 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "AIRPORT CHARGES RECORD INSERTED for FLIGHT:".$fl->id."<br/>";
+				else fwrite($fp, "AIRPORT CHARGES RECORD INSERTED for FLIGHT:".$fl->id."
+");
 			}
 		}
 	
@@ -1645,7 +1681,8 @@ function RegularFlight($fl,$client,$client_geo)
 			$answsql=mysqli_query($db_server,$aviation_security);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP AVIATION SECURITY SERVICE for the flight: process aborted <br/>";
+				fwrite($fp,"PLEASE SET UP AVIATION SECURITY SERVICE for the flight: process aborted 
+");
 				return 0;
 			}
 			$avia_sec= mysqli_fetch_row($answsql);
@@ -1664,7 +1701,8 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "AVIATION SEC RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp,"AVIATION SEC RECORD INSERTED for FLIGHT:".$fl->id."
+");	
 			}
 	}
 	// 4. GROUND HANDLING
@@ -1686,7 +1724,8 @@ function RegularFlight($fl,$client,$client_geo)
 			$answsql=mysqli_query($db_server,$gh_adult_sql);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR ADULT PASSENGERS: process aborted <br/>";
+				fwrite($fp, "PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR ADULT PASSENGERS: process aborted 
+");
 				return 0;
 			}
 			$gh_adult= mysqli_fetch_row($answsql);
@@ -1698,7 +1737,8 @@ function RegularFlight($fl,$client,$client_geo)
 			$answsql=mysqli_query($db_server,$gh_kids_sql);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR PASSENGERS KIDS: process aborted <br/>";
+				fwrite($fp, "PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR PASSENGERS KIDS: process aborted 
+");
 				return 0;
 			}
 			$gh_kids= mysqli_fetch_row($answsql);
@@ -1741,13 +1781,15 @@ function RegularFlight($fl,$client,$client_geo)
 										WHERE id='.$exc_svs_id;
 						$gh_kids_sql=' SELECT id_NAV FROM services
 										WHERE id='.$exc_svs_kids_id;
-						echo 'EXCEPTIONAL GROUND HANDLING SERVICES FOR AIRPORT:'.$airport.'<br/>';
+						fwrite($fp,'EXCEPTIONAL GROUND HANDLING SERVICES FOR AIRPORT:'.$airport.'
+');
 					}
 				}
 				$answsql=mysqli_query($db_server,$gh_adult_sql);
 				if(!$answsql->num_rows)
 				{
-					echo "PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR ADULT PASSENGERS: process aborted <br/>";
+					fwrite($fp,"PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR ADULT PASSENGERS: process aborted 
+");
 					return 0;
 				}
 				$gh_adult= mysqli_fetch_row($answsql);
@@ -1756,7 +1798,8 @@ function RegularFlight($fl,$client,$client_geo)
 				$answsql=mysqli_query($db_server,$gh_kids_sql);
 				if(!$answsql->num_rows)
 				{
-					echo "PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR PASSENGERS KIDS: process aborted <br/>";
+					fwrite($fp,"PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR PASSENGERS KIDS: process aborted 
+");
 					return 0;
 				}
 				$gh_kids= mysqli_fetch_row($answsql);
@@ -1773,7 +1816,8 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_gh);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "GROUND HANDLING RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp,"GROUND HANDLING RECORD INSERTED for FLIGHT:".$fl->id."
+");	
 		}
 		$quantity_kids=$fl->passengers_kids;
 		if($quantity_kids>0)
@@ -1785,7 +1829,8 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_gh_kids);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "GROUND HANDLING RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp,"GROUND HANDLING RECORD INSERTED for FLIGHT:".$fl->id."
+");	
 		}
 	}
 	// 5. CUTE DCS and OTHER
@@ -1813,7 +1858,8 @@ function RegularFlight($fl,$client,$client_geo)
 							
 				$answsql=mysqli_query($db_server,$fix_add_svs);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "ADDITIONAL SERVICES (DCS etc) RECORD INSERTED for FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp,"ADDITIONAL SERVICES (DCS etc) RECORD INSERTED for FLIGHT:".$fl->id."
+");	
 			}
 		}
 	}
@@ -1825,7 +1871,7 @@ function RegularFlight($fl,$client,$client_geo)
 
 //--------------------------------------------------------------------------------------------------
 
-function OperatorFlight($fl,$client_geo,$made_in_rus)
+function OperatorFlight($fl,$client_geo,$made_in_rus,$fp)
 {
 	/* 
 	PROCESS FLIGHT FOR BILLING IN A PREDEFINED SEQUENCE OF STEPS 
@@ -1867,7 +1913,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 		$answsql=mysqli_query($db_server,$find_takeoff);
 		if(!$answsql->num_rows)
 		{
-			echo "PLEASE SET UP TAKE OFF SERVICE: process aborted <br/>";
+			fwrite($fp,"PLEASE SET UP TAKE OFF SERVICE: process aborted 
+");
 			return 0;
 		}
 		$takeoff= mysqli_fetch_row($answsql);
@@ -1880,7 +1927,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 		$answsql=mysqli_query($db_server,$fix_takeoff);
 		if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-		else echo "TAKE OFF RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";					
+		else fwrite($fp, "TAKE OFF RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."
+");					
 	}
 	// 2. AIRPORT CHARGES
 	if(((int)$fl->terminal!=4)&&((int)$fl->terminal!=5))
@@ -1893,7 +1941,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 			$answsql=mysqli_query($db_server,$ap_chrg_in_adult);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS ADULTS: process aborted <br/>";
+				fwrite($fp, "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS ADULTS: process aborted 
+");
 				return 0;
 			}
 			$chrg_in_adult= mysqli_fetch_row($answsql);
@@ -1908,7 +1957,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "AIRPORT CHARGES RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp,"AIRPORT CHARGES RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."
+");	
 			}
 			$ap_chrg_in_kids=' SELECT service_id,services.id_NAV FROM process  
 						LEFT JOIN services ON process.service_id=services.id
@@ -1916,7 +1966,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 			$answsql=mysqli_query($db_server,$ap_chrg_in_kids);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS KIDS: process aborted <br/>";
+				fwrite($fp, "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS KIDS: process aborted 
+");
 				return 0;
 			}
 			$chrg_in_kids= mysqli_fetch_row($answsql);
@@ -1931,7 +1982,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "AIRPORT CHARGES RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp, "AIRPORT CHARGES RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."
+");	
 			}
 		}
 		else
@@ -1942,7 +1994,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 			$answsql=mysqli_query($db_server,$ap_chrg_out_adult);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS ADULTS: process aborted <br/>";
+				fwrite($fp, "PLEASE SET UP AIRPORT CHARGES SERVICE FOR INCOMING PASSENGERS ADULTS: process aborted 
+");
 				return 0;
 			}
 			$chrg_out_adult= mysqli_fetch_row($answsql);
@@ -1957,7 +2010,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "AIRPORT CHARGES RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp, "AIRPORT CHARGES RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."
+");	
 			}
 			$ap_chrg_out_kids=' SELECT service_id,services.id_NAV FROM process  
 						LEFT JOIN services ON process.service_id=services.id
@@ -1965,7 +2019,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 			$answsql=mysqli_query($db_server,$ap_chrg_out_kids);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP AIRPORT CHARGES SERVICE FOR OUTGOING PASSENGERS KIDS: process aborted <br/>";
+				fwrite($fp, "PLEASE SET UP AIRPORT CHARGES SERVICE FOR OUTGOING PASSENGERS KIDS: process aborted 
+");
 				return 0;
 			}
 			$chrg_out_kids= mysqli_fetch_row($answsql);
@@ -1980,7 +2035,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "AIRPORT CHARGES RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";
+				else fwrite($fp,"AIRPORT CHARGES RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."
+");
 			}
 		}
 	}
@@ -1997,11 +2053,13 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 			$aviation_security='SELECT service_id,services.id_NAV,param FROM process  
 						LEFT JOIN services ON process.service_id=services.id
 						WHERE sequence=3 AND havePAX="'.$havePAX.'" AND isRus="'.$client_geo.'" AND isCargo="'.$isCargo.'"';
-			echo $aviation_security."<br/>";
+			fwrite($fp, $aviation_security."
+");
 			$answsql=mysqli_query($db_server,$aviation_security);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP AVIATION SECURITY SERVICE for the flight: process aborted <br/>";
+				fwrite($fp, "PLEASE SET UP AVIATION SECURITY SERVICE for the flight: process aborted 
+");
 				return 0;
 			}
 			$avia_sec= mysqli_fetch_row($answsql);
@@ -2020,7 +2078,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_apchrg);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "AVIA.SECURITY RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp,"AVIA.SECURITY RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."
+");	
 			}
 	}
 	// 4. GROUND HANDLING
@@ -2032,7 +2091,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 			$answsql=mysqli_query($db_server,$gh_adult_sql);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR ADULT PASSENGERS: process aborted <br/>";
+				fwrite($fp,"PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR ADULT PASSENGERS: process aborted 
+");
 				return 0;
 			}
 			$gh_adult= mysqli_fetch_row($answsql);
@@ -2047,7 +2107,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_gh);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "GROUND HANDLING RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp,"GROUND HANDLING RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."
+");	
 			}
 			$gh_kids_sql=' SELECT service_id,services.id_NAV FROM process  
 						LEFT JOIN services ON process.service_id=services.id
@@ -2055,7 +2116,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 			$answsql=mysqli_query($db_server,$gh_kids_sql);
 			if(!$answsql->num_rows)
 			{
-				echo "PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR PASSENGERS KIDS: process aborted <br/>";
+				fwrite($fp, "PLEASE SET UP GROUND HANDLING CHARGES SERVICE FOR PASSENGERS KIDS: process aborted 
+");
 				return 0;
 			}
 			$gh_kids= mysqli_fetch_row($answsql);
@@ -2070,7 +2132,8 @@ function OperatorFlight($fl,$client_geo,$made_in_rus)
 							
 				$answsql=mysqli_query($db_server,$fix_gh_kids);
 				if(!$answsql) die("INSERT into service_reg TABLE failed".mysqli_error($db_server));
-				else echo "GROUND HANDLING RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."<br/>";	
+				else fwrite($fp, "GROUND HANDLING RECORD INSERTED for OPERATOR FLIGHT:".$fl->id."
+");	
 			}
 	}
 	// 5. CUTE DCS

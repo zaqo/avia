@@ -3,7 +3,7 @@
 Applies package (template of services) to the flight 
 */
 
-function ApplyPackage($rec_id)
+function ApplyPackage($rec_id,$fp)
 {
 //Applies package to the pair of flights
 //INPUT: local flight ID
@@ -27,7 +27,7 @@ function ApplyPackage($rec_id)
 			if(!$answsql_pre) die("Database SELECT TO flight_pairs table failed: ".mysqli_error($db_server));	
 			if (!$answsql_pre->num_rows)
 			{
-				echo "WARNING: No flights found for a given ID in flight_pairs <br/>";
+				fwrite($fp,"WARNING: No flights found for a given ID in flight_pairs <br/>");
 				return 0;
 			}	
 			$pair_data= mysqli_fetch_row($answsql_pre);
@@ -36,7 +36,7 @@ function ApplyPackage($rec_id)
 			$sent_flag=$pair_data[2];
 			if($sent_flag) 
 			{
-				echo "FLIGHT # $rec_id HAS BEEN ALREADY PROCESSED: EXITING!";
+				fwrite($fp,"FLIGHT # $rec_id HAS BEEN ALREADY PROCESSED: EXITING!");
 				return 0;
 			}
 		
@@ -57,7 +57,7 @@ function ApplyPackage($rec_id)
 				
 				if($pack_flag)
 				{
-					echo "WARNING: FLIGHT #".$flight_num." PACKAGES HAVE BEEN ALREADY APPLIED! -=EXITING=- <br/> ";
+					fwrite($fp,"WARNING: FLIGHT #".$flight_num." PACKAGES HAVE BEEN ALREADY APPLIED! -=EXITING=- \r\n ");
 					return 0;
 				}
 				
@@ -95,7 +95,7 @@ function ApplyPackage($rec_id)
 				
 				if($pack_flag)
 				{
-					echo "WARNING: FLIGHT #".$flight_num." PACKAGES HAVE BEEN ALREADY APPLIED! -=EXITING=- <br/> ";
+					fwrite($fp,"WARNING: FLIGHT #".$flight_num." PACKAGES HAVE BEEN ALREADY APPLIED! -=EXITING=- \r\n ");
 					return 0;
 				}
 				
@@ -126,7 +126,7 @@ function ApplyPackage($rec_id)
 				//echo 'Package with:'.$answsql->num_rows.' rows<\br>';
 			if(!$answsql0->num_rows)
 			{
-				echo "WARNING: NO INFO ABOUT Client! <br/>";
+				fwrite($fp,"WARNING: NO INFO ABOUT Client! \r\n");
 				return 0; // No information about client
 			}
 			$client_id=mysqli_fetch_row($answsql0);
@@ -212,7 +212,7 @@ function ApplyPackage($rec_id)
 								
 								break;
 							default:
-								echo "WARNING: Measurement unit for a service: $service_id  is not defined! <br/>";
+								fwrite($fp,"WARNING: Measurement unit for a service: $service_id  is not defined! \r\n");
 								$quantity=0;
 						}
 						if(!$servicesql) die("Database SERVICE $service_nav could not be located: ".mysqli_error($db_server));			

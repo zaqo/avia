@@ -134,7 +134,7 @@
 			//b. Look for the pair
 				$sqlfindpair='SELECT flights.id,flights.flight,flights.owner,flights.time_fact,clients.id,clients.hasLogo,airports.name_rus
 							FROM  flights 
-							LEFT JOIN clients ON flights.owner_id=clients.id_NAV
+							LEFT JOIN clients ON flights.customer_id=clients.id_NAV
 							LEFT JOIN airports ON flights.airport=airports.id
 							WHERE flights.id_NAV="'.$nav_pair_id.'" 
 							AND sent_to_SAP IS NULL';

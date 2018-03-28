@@ -90,9 +90,15 @@ include ("header.php");
 		mysqli_select_db($db_server,$db_database)or die(mysqli_error($db_server));
 			
 				$textsql='';
-				$content='<table id="ExportPairs"><caption><b>Результаты</b></caption>
-					<tr><th>РЕЙС</th><th>ID заказа</th></tr>';
-					
+		$content='';
+		$content.= '<h2 class="mt-5 ml-5">Результаты</h2>';
+		$content.= '<div class="table mt-2 ml-2 w-50">';
+		$content.= '<table class="table table-striped table-sm ml-1" >';
+		$content.= '<thead class="">';
+		$content.= '<tr><th>№ </th><th>РЕЙС</th><th>ID заказа</th></tr></thead>';
+		$content.= "<tbody>";
+				
+				$num=1;	
 				foreach($flights as $value)
 				{
 					$order=SAP_export_pair($value);
@@ -116,9 +122,12 @@ include ("header.php");
 						$answsql=mysqli_query($db_server,$textsql_fl_update);
 						if(!$answsql) die("UPDATE of flights table failed: ".mysqli_error($db_server));
 					}
-					$content.="<tr><td>$value</td><td>$order</td></th>";
+					$content.="<tr><td>$num</td><td>$value</td><td>$order</td></tr>";
+					$num+=1;
 				}
+				$content.= "</tbody>";
 				$content.="</table>";
+				$content.="</div>";
 				Show_page($content);
 				//echo '<script>history.go(-2);</script>';	
 	
