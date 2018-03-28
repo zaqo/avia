@@ -1,5 +1,9 @@
 ﻿ <?php require_once 'login_avia.php';
+/*
+	FORM TO EDIT SERVICE's MASTER
+	by S.Pavlov March 2018
 
+*/
 include ("header.php"); 
 	
 		$id= $_REQUEST['id'];
@@ -40,7 +44,7 @@ include ("header.php");
 					$answsql_mu=mysqli_query($db_server,$check_in_mysql);
 					if(!$answsql_mu) die("SELECT into units TABLE failed: ".mysqli_error($db_server));
 		
-		$mu_dropdown='<select name="mu" id="mu" class="mu" >';
+		$mu_dropdown='<select name="mu" id="mu" class="custom-select">';
 		$mu_dropdown.='<option value="0">  </option>';
 		
 		while ($row_d = mysqli_fetch_row( $answsql_mu ))
@@ -54,7 +58,7 @@ include ("header.php");
 		
 		// Top of the table
 		
-				
+		/*		
 		$content.= '<form id="form" method=post action=update_service.php >
 					<table><caption><b>Карточка услуги</b></caption><br>
 					<tr><th>Поле</th><th>Значение</th></tr>
@@ -67,6 +71,55 @@ include ("header.php");
 					<tr><td colspan="2"><p><input type="hidden" value="'.$id.'" name="id">
 					<input type="submit" name="send" class="send" value="ВВОД"></p></td></tr>
 					</table></form>';
+		*/
+		$content.= '<div class="col-md-8 order-md-1 mt-2 ">
+						<h4 class="mb-3 ml-5">Редактирование услуги</h4>';
+		$content.= '<form id="form" method="post" action="update_service.php" class="needs-validation" novalidate>
+					
+					<div class="mb-3">
+						<label for="id_NAV">Код NAV </label>
+							<input type="text" class="form-control" id="nav" name="nav" value="'.$nav_id.'">
+								<div class="invalid-feedback">
+									Введите правильное значение идентификатора.
+								</div>
+					</div>
+					<div class="mb-3">
+						<label for="id_SAP">Код SAP</label>
+							<input type="text" class="form-control" id="sap" name="sap"  value="'.$sap_id.'">
+								<div class="invalid-feedback">
+									Введите правильное значение идентификатора.
+								</div>
+					</div>
+					<div class="mb-3">
+						<label for="id_mu">Ед.измерения</label>
+							'.$mu_dropdown.'
+					</div>
+					<div class="mb-3">
+						<label for="desc">Описание</label>
+							<textarea rows="5" cols="45" class="form-control" id="desc" name="desc">'.$desc.'</textarea>
+								<div class="invalid-feedback">
+									Введите правильное значение идентификатора.
+								</div>
+					</div>
+					<div class="mb-3">
+						<div class="form-check">
+							<input  type="checkbox" id="Kids" name="Servicedata[]" class="form-check-input" value="kid" '.$status_kid.'/>
+							<label class="form-check-label" for="Kids">Для детей</label>
+						</div>
+					</div>
+					<div class="mb-3">
+						<div class="form-check">
+							<input  type="checkbox" id="Valid" name="Servicedata[]" class="form-check-input" value="valid" '.$status_valid.'/>
+							<label class="form-check-label" for="Valid">Действует</label>
+						</div>
+					</div>
+					
+					 <hr class="mb-4">
+						<input type="hidden" value="'.$id.'" name="id">
+						<button class="btn btn-primary btn-lg btn-block" type="submit">ВВОД</button>
+					</form>';
+		
+		$content.= '</div>';
 		
 		
 	Show_page($content);

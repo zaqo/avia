@@ -32,8 +32,8 @@
 		//$content.= '';
 		$content.='<li class="list-group-item flex-column align-items-start active" >
 						<div class="d-flex w-100 justify-content-between">
-							<h5 class="mb-1">Перечень</h5>
-							
+							<h5 class="mb-1">Дата</h5>
+							<h5 class="mb-1 justify-content-right">количество</h5>
 						</div>
 					</li>';
 		//Set up mySQL connection

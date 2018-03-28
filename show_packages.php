@@ -26,7 +26,7 @@ include ("header.php");
 		
 		// Iterating through the array
 		$counter=1;
-		
+		$bird='<td>&#9745</td>';
 		while( $row = mysqli_fetch_row( $answsqlcheck ))  
 		{ 
 				$rec_id=$row[0];
@@ -40,13 +40,14 @@ include ("header.php");
 				
 				if ($row[2])
 				{	
-					$content.= "<td><img src='/avia/css/green_circle.png' alt='Ok' title='Статус' height='30' width='30' ></td>";
+					//$content.= "<td><img src='/avia/css/green_circle.png' alt='Ok' title='Статус' height='30' width='30' ></td>";
+					$content.=$bird;
 					$content.= "<td>$cdate</td>";
 					$content.="<td ><a href='delete_package.php?id=$rec_id' ><img src='/avia/css/delete.png' alt='Delete' title='Удалить' ></a></td>";
 				}
 				else
 				{
-					$content.= "<td><img src='/avia/css/red_ball.png' alt='No' title='Статус' height='30' width='30'></td>";
+					$content.= '<td></td>';//"<td><img src='/avia/css/red_ball.png' alt='No' title='Статус' height='30' width='30'></td>";
 					$content.= "<td>$cdate</td>";
 					$content.="<td></td>";
 				
