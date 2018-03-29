@@ -1,4 +1,10 @@
-﻿<?php require_once 'login_avia.php';
+﻿<?php 
+/*
+Creates new BUNDLE (set of services) in the system
+2018 (c) by S.Pavlov
+
+*/
+require_once 'login_avia.php';
 
 include ("header.php"); 
 		

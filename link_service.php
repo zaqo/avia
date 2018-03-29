@@ -1,6 +1,9 @@
 ﻿<?php
-// This script is used to update discount settings from the form
-// by linking discount to a set of services
+/* 
+This script is used to update discount settings from the form
+ by linking discount to a set of services
+ by S.Pavlov (c) 2017
+ */
 include ("login_avia.php"); 
 //include("/webservice/sapconnector.php");
 //set_time_limit(0);

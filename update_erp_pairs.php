@@ -2,6 +2,8 @@
 /* 
 		This script sends data to SAP and updates record
 			INPUT: array of pairs IDs
+
+by S.Pavlov (c) 2017			
 */
 include ("login_avia.php"); 
 include("/webservice/sapconnector.php");

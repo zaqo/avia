@@ -1,4 +1,9 @@
-﻿ <?php require_once 'login_avia.php';
+﻿ <?php 
+ /*
+	Creates unit of measurement record
+	by S.Pavlov (c) 2017
+ */
+ require_once 'login_avia.php';
 
 include ("header.php"); 
 	

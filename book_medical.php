@@ -1,5 +1,9 @@
 ﻿<?php require_once 'login_avia.php';
-//LINKING SERVICES TO THE DISCOUNT
+/*
+		Books medical examinatoin results and produces printout
+		
+ by S. Pavlov (c) October 2017
+*/
 include ("header_tpl_doc.php"); 
 	
 

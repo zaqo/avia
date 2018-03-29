@@ -7,6 +7,7 @@
 			num - 	number of service ( we have four)
 			val - 	id of service, for setting the default
 
+			by S.Pavlov (c) 2018
 */
 include ("login_avia.php"); 
 

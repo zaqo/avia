@@ -11,8 +11,11 @@ include ("header.php");
 					die(print_r(sqlsrv_errors(),true));
 					}
 		
-		$tsql_route='SELECT [Registration No_],[Aircraft Type],Name,MTOW,[Seat Capacity],
-					[Aircraft Class Code],[Customer Name] FROM dbo.[Bort Number] WHERE 1;';
+		$tsql_route='SELECT t1.[Registration No_],t1.[Aircraft Type],t1.Name,t1.MTOW,t1.[Seat Capacity],
+					t1.[Aircraft Class Code],t1.[Customer Name],t2.[Maintanace BC] 
+					FROM dbo.[Bort Number] AS t1
+					LEFT JOIN dbo.[Aircraft Types] AS t2 ON t1.[Name]=t2.[A_C Name] 
+					WHERE 1=1';
 		
 		$stmt = sqlsrv_query( $conn, $tsql_route);
 		
@@ -43,11 +46,15 @@ include ("header.php");
 				$mtow=$row[3];
 				$seats=$row[4];
 				$class_c=substr($row[5],2);
+				
 				$class=(int)($class_c);
 				$customer=iconv('windows-1251','utf-8',$row[6]);
 				$customer=sanitizestring($customer);
 				echo "$counter | $name -> $customer <br/>";
-				
+				$made=$row[7];
+				$mflag=2; // FOR CASES WHEN WE DID NOT GET INPUT FROM SELECT
+				if($made==1) $mflag=1;
+				elseif($made==2) $mflag=0;
 					//Transfer to MySQL section
 				// 1. Compute the group
 				$group=0;
@@ -86,11 +93,11 @@ include ("header.php");
 				// 2. Fill in 
 					
 					
-						$transfer_mysql='REPLACE INTO aircrafts
-								(reg_num,name,type,seats,mtow,air_class,air_group,customer) 
+						$transfer_mysql='INSERT INTO aircrafts
+								(reg_num,name,type,seats,mtow,air_class,air_group,customer,made_in_rus) 
 								VALUES
 								("'.$id.'","'.$name.'","'.$type.'",'.$seats.','.$mtow.',
-								 '.$class.','.$group.',"'.$customer.'")';
+								 '.$class.','.$group.',"'.$customer.'",'.$mflag.')';
 						
 						$answsql=mysqli_query($db_server,$transfer_mysql);
 						if(!$answsql) die("INSERT into TABLE failed: ".mysqli_error($db_server));

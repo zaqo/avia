@@ -1,5 +1,9 @@
 ﻿<?php 
-// CREATES CONDITION FOR APPLYING DISCOUNT
+/*
+CREATES CONDITION FOR APPLYING DISCOUNT
+
+by S.Pavlov (c) 2017	
+*/
 require_once 'login_avia.php';
 include ("header.php"); 	
 		$content="";

@@ -1,6 +1,7 @@
 ﻿<?php 
 /* 
 	EDITS OPERATOR FLIGHTS BILLING PROCESS DEFAULT SETTINGS
+	by S.Pavlov (c) 2018
 */
 require_once 'login_avia.php';
 include ("header.php"); 	

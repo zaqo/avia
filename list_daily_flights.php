@@ -2,6 +2,7 @@
 /*
 
 		LIST FLIGHTS IMPORTED ON A GIVEN DAY
+		by S.Pavlov (c) 2018
 */
 require_once 'login_avia.php';
 

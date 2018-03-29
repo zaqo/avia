@@ -10,7 +10,7 @@
 	3. Applies discounts
 	
 	4. Exports to SAP ERP
-	
+	by S.Pavlov (c) 2018
 	*/
 	require_once 'login_avia.php';
 	include_once ("apply_discounts.php");

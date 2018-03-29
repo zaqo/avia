@@ -1,4 +1,11 @@
 <?php
+/***************************************************************
+/	SAP ERP CONNECTOR - a library of routines to manage 
+/		interconnection with SAP ERP via web-service (SOAP)
+/	by S.Pavlov (c) 2018		
+*/
+
+
 function SAP_connector($params)
 {
 

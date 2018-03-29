@@ -1,5 +1,10 @@
 ﻿<?php require_once 'login_avia.php';
+/*
 
+Check services for a given flight in AODB
+By S.Pavlov (C) July 2017
+
+*/
 include ("header.php"); 
 	
 		$flight_id=$_REQUEST['id'];

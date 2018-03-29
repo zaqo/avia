@@ -4,7 +4,7 @@
 		This script DELETES CLIENT RECORD IN TOTAL 
 		FROM TABLE OF EXCEPTIONS IN FLIGHT BILLING PROCESS 
 		CALLED FROM: show_process_exceptions.php
-		
+by S.Pavlov (c) 2018		
 */
 include ("login_avia.php"); 
 

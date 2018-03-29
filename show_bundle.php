@@ -1,5 +1,9 @@
 ﻿<?php require_once 'login_avia.php';
-// SHOWS CONTENT OF THE PACKAGE OF SERVICES
+/* 
+SHOWS CONTENT OF THE PACKAGE OF SERVICES
+
+by S.Pavlov (c) 2017
+*/
 include ("header.php"); 
 	
 	if(isset($_REQUEST['id']))

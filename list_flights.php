@@ -2,6 +2,7 @@
 	/*
 	Makes a list of all outgoing flights in the system
 	with a link to a form for medical services
+	by S.Pavlov (c) 2017
 	*/
 	require_once 'login_avia.php';
 	

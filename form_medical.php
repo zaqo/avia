@@ -1,4 +1,9 @@
-﻿<?php require_once 'login_avia.php';
+﻿<?php 
+/*
+	FORM: medical examination
+	by S.Pavlov (c) 2017
+*/
+require_once 'login_avia.php';
 //LINKING SERVICES TO THE DISCOUNT
 include ("header.php"); 
 	

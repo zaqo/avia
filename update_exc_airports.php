@@ -6,7 +6,7 @@
 			id		-	identificator of exception
 			airports - 	number of service ( we have four)
 			
-
+	by S.Pavlov (c) 2018
 */
 include ("login_avia.php"); 
 

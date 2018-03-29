@@ -1,4 +1,8 @@
 <?php
+/*
+	FORM: first step to initiate import from AODB (data selection)
+by S.Pavlov (c) 2017	
+*/
 include ("login_avia.php"); 
 include ("header.php"); 
 //if(!$loggedin) echo "<script>window.location.replace('/Agents/login.php');</script>";

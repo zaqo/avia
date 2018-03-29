@@ -1,6 +1,7 @@
 ﻿<?php
 /*
 		This script DELETES EXCEPTION IN FLIGHT BILLING PROCESS 
+		by S.Pavlov (c) 2018
 */
 include ("login_avia.php"); 
 

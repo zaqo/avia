@@ -1,6 +1,9 @@
 ﻿<?php require_once 'login_avia.php';
-// LIST ALL BUNDLES IN THE SYSTEM
-include ("header.php"); 
+/*
+ LIST ALL BUNDLES IN THE SYSTEM
+by S.Pavlov (c) 2017
+ */
+ include ("header.php"); 
 	
 		
 		$content="";

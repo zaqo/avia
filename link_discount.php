@@ -1,6 +1,9 @@
 ﻿<?php
-// This script is used to create discount settings from the form
-include ("login_avia.php"); 
+/* 
+	Execute linking given discount with a condition
+by S.Pavlov (c) 2017
+*/
+	include ("login_avia.php"); 
 //include("/webservice/sapconnector.php");
 //set_time_limit(0);
 //include ("header.php"); 

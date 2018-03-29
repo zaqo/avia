@@ -1,7 +1,10 @@
-﻿ <?php require_once 'login_avia.php';
-
+﻿ <?php 
+/*
+Creates new customer record in the system
+by S.Pavlov (c) 2017-2018 
+*/
 include ("header.php"); 
-	
+ require_once 'login_avia.php';	
 		
 		$content="";
 		//Set up mySQL connection

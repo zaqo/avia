@@ -1,6 +1,7 @@
 ﻿<?php
 /*
-		This script DELETES (DEACTIVATES) package 
+		This script DELETES (DEACTIVATES) package
+			by S.Pavlov (c) 2017
 */
 include ("login_avia.php"); 
 

@@ -1,4 +1,10 @@
 ﻿<?php 
+/*
+
+OBSOLETE EXPORT ROUTINE
+
+*/
+
 	require_once 'login_avia.php';
 	set_time_limit(0);
 	include ("header.php"); 

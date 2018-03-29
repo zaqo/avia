@@ -1,4 +1,8 @@
 <?php
+/*
+	Starting page for SAP ERP export process
+	by S.Pavlov (c) 2017
+*/
 include ("login_avia.php"); 
 include ("header.php"); 
 //if(!$loggedin) echo "<script>window.location.replace('/Agents/login.php');</script>";

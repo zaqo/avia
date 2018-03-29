@@ -1,6 +1,9 @@
 ﻿<?php 
-//IMPORT FLIGHTS DATA ON A DAILY BASIS FROM NAVISION
-require_once 'login_avia.php';
+/*
+	IMPORT FLIGHTS DATA ON A DAILY BASIS FROM MS SQL
+by S.Pavlov (c) 2017
+*/
+	require_once 'login_avia.php';
 set_time_limit(0);
 include ("header.php"); 
 include("/webservice/sapconnector.php");

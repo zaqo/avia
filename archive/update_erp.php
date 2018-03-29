@@ -1,5 +1,8 @@
 ﻿<?php
-// This script sends data to SAP and updates record
+/* 
+This script sends data to SAP and updates record
+OBSOLETE
+*/
 include ("login_avia.php"); 
 include("/webservice/sapconnector.php");
 include ("functions.php");

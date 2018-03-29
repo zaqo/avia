@@ -1,6 +1,7 @@
 ﻿<?php 
 /*
 	THIS SCRIPT CREATES TEMPLATE OF SERVICES
+	by S.Pavlov (c) 2017
 */
 
 require_once 'login_avia.php';

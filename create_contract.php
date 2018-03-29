@@ -1,5 +1,8 @@
 ﻿<?php require_once 'login_avia.php';
-
+/*
+	FORM to CREATE NEW CONTRACT
+by S.Pavlov (c) 2017			
+*/
 include ("header.php"); 
 
 		//Set up mySQL connection

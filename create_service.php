@@ -1,6 +1,8 @@
 ﻿<?php require_once 'login_avia.php';
 /*
 	FORM TO CREATE SERVICE MASTER
+
+	by S.Pavlov (c) 2017			
 */
 include ("header.php"); 
 	

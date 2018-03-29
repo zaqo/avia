@@ -3,7 +3,7 @@
 		
 		CREATES NEW CLIENT RECORD FOR EXCEPTION SERVICES
 		CALLED FROM: add_exception.php
-
+by S.Pavlov (c) 2018
 */		
 	include ("login_avia.php"); 
 

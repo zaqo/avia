@@ -1,5 +1,9 @@
 ﻿<?php 
-// CREATES NEW DISCOUNT
+/* 
+	CREATES NEW DISCOUNT
+
+by S.Pavlov	(C) 2017	
+*/
 require_once 'login_avia.php';
 include ("header.php"); 	
 		$content="";
